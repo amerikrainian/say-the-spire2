@@ -43,6 +43,7 @@ public static class ModEntry
         RegisterScreens();
         DisableBuiltinAccessibility.Initialize();
         FocusHooks.Initialize(_harmony);
+        InputRebindHooks.Initialize(_harmony);
         KeyboardNavHooks.Initialize(_harmony);
         ScreenHooks.Initialize(_harmony);
 

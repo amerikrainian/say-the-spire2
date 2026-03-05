@@ -65,7 +65,9 @@ public class SettingsGameScreen : GameScreen
         var label = FindLabelInParent(control);
         ProxyElement proxy;
 
-        if (control is NTickbox)
+        if (control is NInputSettingsEntry)
+            proxy = new ProxyInputBinding(control);
+        else if (control is NTickbox)
             proxy = new ProxyCheckbox(control);
         else if (control is NDropdown)
             proxy = new ProxyDropdown(control);

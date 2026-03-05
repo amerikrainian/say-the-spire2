@@ -22,6 +22,8 @@ public abstract class ProxyElement : UIElement
         Control = control;
     }
 
+    public static string? FindChildTextPublic(Node node) => FindChildText(node);
+
     protected static string? FindChildText(Node node)
     {
         if (node is Label label && !string.IsNullOrWhiteSpace(label.Text))

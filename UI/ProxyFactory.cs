@@ -10,6 +10,9 @@ public static class ProxyFactory
     public static ProxyElement Create(Control control)
     {
         // Most specific types first
+        if (control is NInputSettingsEntry)
+            return new ProxyInputBinding(control);
+
         if (control is NTickbox)
             return new ProxyCheckbox(control);
 

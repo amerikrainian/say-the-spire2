@@ -105,10 +105,58 @@ Control (Godot)
 - If class type alone isn't sufficient for some controls, add context-based
   overrides as needed
 
+### GameScreen Registry
+
+Screens that need control-specific labels (e.g., settings) use a GameScreen
+registry instead of relying solely on ephemeral proxies.
+
+```
+GameScreen (abstract base)
+  - Dictionary<Control, UIElement> registry
+  - OnOpen() -> calls BuildRegistry()
+  - OnClose() -> clears registry
+  - OnUpdate() -> virtual, for dynamic content
+  - GetElement(Control) -> lookup in registry
+  - Register(Control, ProxyElement) -> add to registry
+
+GameScreenManager (static)
+  - Maps game IScreenContext types to GameScreen factories
+  - Tracks ActiveScreen via ScreenHooks (patches ActiveScreenContext.Update)
+  - Announces screen name on change
+  - FocusHooks.ResolveElement checks ActiveScreen registry first,
+    falls back to ProxyFactory.Create for unregistered controls
+
+SettingsGameScreen : GameScreen
+  - Walks %GeneralSettings, %GraphicsSettings, %SoundSettings, %InputSettings
+  - Registers all focusable controls with labels from sibling Label nodes
+  - Special handling for NDropdownPositioner (two-pass: collect then register)
+```
+
+#### NDropdownPositioner Pattern
+
+NDropdownPositioner extends Control directly (not NClickableControl). It wraps
+a child NDropdown but receives focus itself. The pattern:
+
+1. Register the positioner (not its child) as the registry key
+2. Create ProxyDropdown with the child `_dropdownNode` (via reflection) so
+   it reads the dropdown's selected value
+3. Set OverrideLabel from the sibling Label node
+4. Connect FocusEntered signal (since it's not an NClickableControl,
+   RefreshFocus hook won't fire)
+
+#### Two-Pass Registration
+
+Settings panels are walked recursively. NDropdownPositioners are collected
+during the first pass and registered last, so their label registrations
+overwrite any that were registered for the child dropdown during the walk.
+
 ### Design Decisions
 
-- **No UIRegistry**: STS1 needed a registry due to inconsistent game code.
-  STS2 uses ephemeral proxies created on focus - no caching/mapping needed.
+- **Registry for labeled screens**: Settings controls need sibling labels that
+  can't be discovered from the control alone. GameScreen registry pre-maps
+  controls to labeled proxies. Other screens may not need a registry.
+- **Ephemeral fallback**: Controls not in any GameScreen registry get ephemeral
+  proxies via ProxyFactory (same as before). Registry is additive, not required.
 - **Shared base**: ProxyElement is a child of UIElement, not a sibling.
   Both produce focus strings the same way.
 - **Godot focus handles hierarchy**: We don't track parent-child navigation
@@ -119,6 +167,10 @@ Control (Godot)
   Controls. Focus lands on their interactive wrappers (NCardHolderHitbox,
   NRelicInventoryHolder, NPotionHolder). Proxies for these navigate to the
   child/parent display node to read the Model data.
+- **Control vs NClickableControl**: NSettingsSlider, NPaginator, and
+  NDropdownPositioner extend Control directly. They need separate OnFocus
+  patches or FocusEntered signal connections since RefreshFocus only fires
+  for NClickableControl subclasses.
 
 ## Localization System
 

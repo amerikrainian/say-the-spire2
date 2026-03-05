@@ -4,6 +4,8 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
+using Sts2AccessibilityMod.Localization;
+using Sts2AccessibilityMod.Speech;
 
 namespace Sts2AccessibilityMod.Hooks;
 
@@ -23,6 +25,16 @@ public static class KeyboardNavHooks
 
     public static void Initialize(Harmony harmony)
     {
+        // Patch _Input to catch global hotkeys and keyboard nav before mode branching
+        var inputMethod = AccessTools.Method(typeof(NControllerManager), "_Input");
+        if (inputMethod != null)
+        {
+            harmony.Patch(inputMethod,
+                prefix: new HarmonyMethod(typeof(KeyboardNavHooks).GetMethod(
+                    nameof(InputPrefix), BindingFlags.Static | BindingFlags.Public)));
+            Log.Info("[AccessibilityMod] NControllerManager._Input hook patched.");
+        }
+
         var target = AccessTools.Method(typeof(NControllerManager), "CheckForControllerInput");
         if (target == null)
         {
@@ -35,6 +47,20 @@ public static class KeyboardNavHooks
 
         harmony.Patch(target, prefix: prefix);
         Log.Info("[AccessibilityMod] Keyboard navigation hooks patched.");
+    }
+
+    public static bool InputPrefix(NControllerManager __instance, InputEvent inputEvent)
+    {
+        if (inputEvent is InputEventKey key && key.Pressed && !key.Echo
+            && key.Keycode == Key.R && key.CtrlPressed && key.ShiftPressed)
+        {
+            Log.Info("[AccessibilityMod] Global hotkey: Ctrl+Shift+R - resetting bindings");
+            NInputManager.Instance?.ResetToDefaults();
+            __instance.GetViewport()?.SetInputAsHandled();
+            return false;
+        }
+
+        return true;
     }
 
     /// <summary>
