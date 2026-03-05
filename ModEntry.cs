@@ -36,6 +36,7 @@ public static class ModEntry
         _harmony.PatchAll(typeof(ModEntry).Assembly);
 
         InitializeSpeech();
+        InitializeLocalization();
         DisableBuiltinAccessibility.Initialize();
         FocusHooks.Initialize(_harmony);
         KeyboardNavHooks.Initialize(_harmony);
@@ -46,5 +47,10 @@ public static class ModEntry
     private static void InitializeSpeech()
     {
         Speech.SpeechManager.Initialize();
+    }
+
+    private static void InitializeLocalization()
+    {
+        Localization.LocalizationManager.Initialize();
     }
 }

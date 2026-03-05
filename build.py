@@ -1,7 +1,7 @@
 """
 Build script for the STS2 Accessibility Mod.
 1. Runs dotnet build
-2. Creates a minimal PCK file containing mod_manifest.json
+2. Creates a PCK file containing mod_manifest.json and localization files
 3. Copies the DLL and PCK to the game's mods/ directory
 """
 import struct
@@ -34,63 +34,103 @@ def build_dll():
     print("Build succeeded.")
 
 
-def create_pck(output_path: str):
-    """Create a minimal Godot PCK file containing just the mod manifest."""
+def collect_pck_files():
+    """Collect all files to include in the PCK."""
+    files = []
+
+    # mod_manifest.json
     manifest_path = os.path.join(SCRIPT_DIR, "mod_manifest.json")
     with open(manifest_path, "rb") as f:
-        manifest_data = f.read()
+        files.append(("res://mod_manifest.json", f.read()))
 
-    # PCK file path inside the archive (must be res://mod_manifest.json)
-    res_path = "res://mod_manifest.json"
-    # Pad path to 4-byte alignment
-    path_bytes = res_path.encode("utf-8")
-    path_padded_len = (len(path_bytes) + 4) & ~3  # align to 4 bytes
-    path_bytes_padded = path_bytes.ljust(path_padded_len, b"\x00")
+    # Localization files
+    loc_dir = os.path.join(SCRIPT_DIR, "localization")
+    for root, dirs, filenames in os.walk(loc_dir):
+        for filename in filenames:
+            if not filename.endswith(".json"):
+                continue
+            full_path = os.path.join(root, filename)
+            rel_path = os.path.relpath(full_path, SCRIPT_DIR).replace("\\", "/")
+            res_path = f"res://{rel_path}"
+            with open(full_path, "rb") as f:
+                files.append((res_path, f.read()))
 
-    # Calculate offsets
+    return files
+
+
+def create_pck(output_path: str):
+    """Create a Godot PCK file containing mod resources."""
+    files = collect_pck_files()
+
+    # Pre-calculate file entry sizes for each file
+    entries = []
+    for res_path, data in files:
+        path_bytes = res_path.encode("utf-8")
+        path_padded_len = (len(path_bytes) + 4) & ~3
+        path_bytes_padded = path_bytes.ljust(path_padded_len, b"\x00")
+        entries.append((path_bytes_padded, path_padded_len, data))
+
     # Header: 4 (magic) + 4 (ver) + 4*3 (engine) + 4 (flags) + 8 (file_base) + 64 (reserved) = 96
-    # File count: 4
-    # File entry: 4 (path_len) + path_padded_len + 8 (offset) + 8 (size) + 16 (md5) + 4 (flags)
     header_size = 96
     file_count_size = 4
-    file_entry_size = 4 + path_padded_len + 8 + 8 + 16 + 4
-    directory_size = file_count_size + file_entry_size
-    data_offset = header_size + directory_size
 
-    # Align data_offset to 64 bytes (Godot expects alignment)
-    data_offset_aligned = (data_offset + 63) & ~63
+    # Calculate total directory size
+    directory_size = file_count_size
+    for _, path_padded_len, _ in entries:
+        # 4 (path_len) + path_padded_len + 8 (offset) + 8 (size) + 16 (md5) + 4 (flags)
+        directory_size += 4 + path_padded_len + 8 + 8 + 16 + 4
+
+    data_start = header_size + directory_size
+    data_start_aligned = (data_start + 63) & ~63
+
+    # Calculate file data offsets
+    file_offsets = []
+    current_offset = data_start_aligned
+    for _, _, data in entries:
+        file_offsets.append(current_offset)
+        current_offset += len(data)
+        # Align each file to 64 bytes
+        current_offset = (current_offset + 63) & ~63
 
     with open(output_path, "wb") as f:
         # Header
-        f.write(b"GDPC")  # magic
-        f.write(struct.pack("<I", 2))  # pack format version
-        f.write(struct.pack("<I", 4))  # engine major
-        f.write(struct.pack("<I", 5))  # engine minor
-        f.write(struct.pack("<I", 1))  # engine patch
-        f.write(struct.pack("<I", 0))  # flags (0 = no encryption, absolute paths)
-        f.write(struct.pack("<Q", 0))  # file_base (0 = directory right after header)
-        f.write(b"\x00" * 64)  # reserved
+        f.write(b"GDPC")
+        f.write(struct.pack("<I", 2))   # pack format version
+        f.write(struct.pack("<I", 4))   # engine major
+        f.write(struct.pack("<I", 5))   # engine minor
+        f.write(struct.pack("<I", 1))   # engine patch
+        f.write(struct.pack("<I", 0))   # flags
+        f.write(struct.pack("<Q", 0))   # file_base
+        f.write(b"\x00" * 64)          # reserved
 
         # File count
-        f.write(struct.pack("<I", 1))
+        f.write(struct.pack("<I", len(entries)))
 
-        # File entry
-        f.write(struct.pack("<I", path_padded_len))
-        f.write(path_bytes_padded)
-        f.write(struct.pack("<Q", data_offset_aligned))  # offset to file data
-        f.write(struct.pack("<Q", len(manifest_data)))  # file size
-        f.write(b"\x00" * 16)  # md5 (zeros = skip verification)
-        f.write(struct.pack("<I", 0))  # per-file flags
+        # File entries
+        for i, (path_bytes_padded, path_padded_len, data) in enumerate(entries):
+            f.write(struct.pack("<I", path_padded_len))
+            f.write(path_bytes_padded)
+            f.write(struct.pack("<Q", file_offsets[i]))
+            f.write(struct.pack("<Q", len(data)))
+            f.write(b"\x00" * 16)  # md5
+            f.write(struct.pack("<I", 0))  # flags
 
-        # Pad to data offset
+        # Pad to data start
         current = f.tell()
-        if current < data_offset_aligned:
-            f.write(b"\x00" * (data_offset_aligned - current))
+        if current < data_start_aligned:
+            f.write(b"\x00" * (data_start_aligned - current))
 
         # File data
-        f.write(manifest_data)
+        for i, (_, _, data) in enumerate(entries):
+            f.write(data)
+            # Pad to 64-byte alignment
+            current = f.tell()
+            aligned = (current + 63) & ~63
+            if current < aligned:
+                f.write(b"\x00" * (aligned - current))
 
-    print(f"Created PCK: {output_path}")
+    file_list = ", ".join(res_path for res_path, _ in collect_pck_files())
+    print(f"Created PCK with {len(entries)} files: {file_list}")
 
 
 def deploy():
@@ -108,7 +148,33 @@ def deploy():
         shutil.copy2(speech_dll, os.path.join(MODS_DIR, "System.Speech.dll"))
         print("Copied System.Speech.dll to mods dir")
 
-    # Create and copy PCK
+    # Copy Tolk DLLs
+    # TolkDotNet.dll (managed) goes to mods/ - our assembly resolver handles it
+    # Native DLLs (Tolk.dll, nvdaControllerClient64.dll, SAAPI64.dll) go next to
+    # the game exe - Windows DLL search path needs them there
+    tolk_build_dir = os.path.join(SCRIPT_DIR, "tolk build")
+    tolk_libs_dir = os.path.join(SCRIPT_DIR, "..", "tolk", "libs", "x64")
+
+    # Managed wrapper -> mods/
+    tolk_dotnet_src = os.path.join(tolk_build_dir, "TolkDotNet.dll")
+    if os.path.exists(tolk_dotnet_src):
+        shutil.copy2(tolk_dotnet_src, os.path.join(MODS_DIR, "TolkDotNet.dll"))
+        print("Copied TolkDotNet.dll to mods dir")
+
+    # Native DLLs -> game root (next to exe)
+    native_dlls = [
+        (os.path.join(tolk_build_dir, "x64", "Tolk.dll"), "Tolk.dll"),
+        (os.path.join(tolk_libs_dir, "nvdaControllerClient64.dll"), "nvdaControllerClient64.dll"),
+        (os.path.join(tolk_libs_dir, "SAAPI64.dll"), "SAAPI64.dll"),
+    ]
+    for src, dst_name in native_dlls:
+        if os.path.exists(src):
+            shutil.copy2(src, os.path.join(GAME_DIR, dst_name))
+            print(f"Copied {dst_name} to game dir")
+        else:
+            print(f"WARNING: {src} not found")
+
+    # Create and copy PCK (includes mod_manifest.json and localization files)
     pck_path = os.path.join(MODS_DIR, f"{MOD_NAME}.pck")
     create_pck(pck_path)
 

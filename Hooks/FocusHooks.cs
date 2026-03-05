@@ -51,7 +51,7 @@ public static class FocusHooks
             Log.Info($"[AccessibilityMod] Focus: {__instance.Name} -> \"{text}\"");
             if (!string.IsNullOrEmpty(text))
             {
-                SpeechManager.Speak(text);
+                SpeechManager.Output(text, interrupt: true);
             }
         }
     }

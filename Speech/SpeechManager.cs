@@ -1,75 +1,61 @@
 using System;
-using System.Speech.Synthesis;
+using System.Collections.Generic;
 using MegaCrit.Sts2.Core.Logging;
 
 namespace Sts2AccessibilityMod.Speech;
 
 public static class SpeechManager
 {
-    private static SpeechSynthesizer? _synth;
+    private static ISpeechHandler? _activeHandler;
     private static bool _initialized;
+
+    private static readonly List<ISpeechHandler> Handlers = new()
+    {
+        new TolkHandler(),
+        new SapiHandler(),
+        new ClipboardHandler(),
+    };
 
     public static void Initialize()
     {
-        try
+        foreach (var handler in Handlers)
         {
-            _synth = new SpeechSynthesizer();
-            _synth.Rate = 2; // slightly faster than default, adjust as needed
-            _synth.Volume = 100;
-
-            // List available voices for debugging
-            foreach (var voice in _synth.GetInstalledVoices())
+            try
             {
-                var info = voice.VoiceInfo;
-                Log.Info($"[AccessibilityMod] Available voice: {info.Name} ({info.Culture})");
+                Log.Info($"[AccessibilityMod] Trying speech handler: {handler.Key}");
+                if (handler.Detect() && handler.Load())
+                {
+                    _activeHandler = handler;
+                    _initialized = true;
+                    Log.Info($"[AccessibilityMod] Active speech handler: {handler.Key}");
+                    Output("Accessibility mod loaded.", interrupt: true);
+                    return;
+                }
             }
-
-            _initialized = true;
-            Speak("Accessibility mod loaded.");
+            catch (Exception ex)
+            {
+                Log.Error($"[AccessibilityMod] Handler {handler.Key} failed: {ex}");
+            }
         }
-        catch (Exception ex)
-        {
-            Log.Error($"[AccessibilityMod] Failed to initialize TTS: {ex}");
-        }
+
+        Log.Error("[AccessibilityMod] No speech handler could be loaded!");
     }
 
-    /// <summary>
-    /// Speak text, interrupting any current speech.
-    /// Use this for focus changes, button presses, etc.
-    /// </summary>
-    public static void Speak(string text)
+    public static void Speak(string text, bool interrupt = true)
     {
-        if (!_initialized || _synth == null) return;
-        _synth.SpeakAsyncCancelAll();
-        _synth.SpeakAsync(text);
+        if (!_initialized || _activeHandler == null) return;
+        _activeHandler.Speak(text, interrupt);
     }
 
-    /// <summary>
-    /// Speak text without interrupting current speech.
-    /// Use this for queued announcements like combat log entries.
-    /// </summary>
-    public static void SpeakQueued(string text)
+    public static void Output(string text, bool interrupt = true)
     {
-        if (!_initialized || _synth == null) return;
-        _synth.SpeakAsync(text);
+        if (!_initialized || _activeHandler == null) return;
+        _activeHandler.Output(text, interrupt);
     }
 
-    /// <summary>
-    /// Stop all speech immediately.
-    /// </summary>
-    public static void Stop()
+    public static void Silence()
     {
-        if (!_initialized || _synth == null) return;
-        _synth.SpeakAsyncCancelAll();
-    }
-
-    public static void SetRate(int rate)
-    {
-        if (_synth != null) _synth.Rate = Math.Clamp(rate, -10, 10);
-    }
-
-    public static void SetVolume(int volume)
-    {
-        if (_synth != null) _synth.Volume = Math.Clamp(volume, 0, 100);
+        if (!_initialized || _activeHandler == null) return;
+        _activeHandler.Silence();
     }
 }

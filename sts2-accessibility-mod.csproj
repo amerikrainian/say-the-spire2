@@ -34,4 +34,11 @@
     <PackageReference Include="System.Speech" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="TolkDotNet">
+      <HintPath>tolk build\TolkDotNet.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
 </Project>
