@@ -86,8 +86,9 @@ public static class ModEntry
     {
         var getContext = () => MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext.ActiveScreenContext.Instance.GetCurrentScreen();
 
-        ScreenManager.RegisterGameScreen<NSettingsScreen>(
-            () => new SettingsGameScreen((NSettingsScreen)getContext()!));
+        // Settings screen is managed via OnSubmenuOpened/Closed patches in ScreenHooks
+        // instead of RegisterGameScreen, since ActiveScreenContext doesn't detect
+        // settings opened from the pause menu during a run.
 
         ScreenManager.RegisterGameScreen<NGameOverScreen>(
             () => new GameOverScreen());

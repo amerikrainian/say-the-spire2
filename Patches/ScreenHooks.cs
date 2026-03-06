@@ -3,6 +3,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.GameOverScreen;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
+using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline.UnlockScreens;
 using MegaCrit.Sts2.Core.Timeline;
@@ -44,6 +45,12 @@ public static class ScreenHooks
             nameof(EpochInspectOpenPostfix), "Epoch inspect Open");
         PatchIfFound(harmony, typeof(NEpochInspectScreen), "OpenViaPaginator",
             nameof(EpochPaginatePostfix), "Epoch paginate");
+
+        // Settings screen hooks (OnSubmenuOpened/Closed work for both main menu and pause)
+        PatchIfFound(harmony, typeof(NSettingsScreen), "OnSubmenuOpened",
+            nameof(SettingsOpenedPostfix), "Settings OnSubmenuOpened");
+        PatchIfFound(harmony, typeof(NSettingsScreen), "OnSubmenuClosed",
+            nameof(SettingsClosedPostfix), "Settings OnSubmenuClosed");
     }
 
     private static void PatchIfFound(Harmony harmony, System.Type type, string methodName,
@@ -92,4 +99,22 @@ public static class ScreenHooks
 
     public static void EpochPaginatePostfix(EpochModel epoch)
         => EpochInspectScreen.Current?.OnPaginate(epoch);
+
+    // Settings delegates
+    public static void SettingsOpenedPostfix(NSettingsScreen __instance)
+    {
+        // OnSubmenuOpened fires before ActiveScreenContext.Update(), so we push
+        // here and flag it so OnGameScreenChanged doesn't interfere.
+        if (SettingsGameScreen.Current == null)
+        {
+            var screen = new SettingsGameScreen(__instance);
+            ScreenManager.PushScreen(screen);
+        }
+    }
+
+    public static void SettingsClosedPostfix()
+    {
+        if (SettingsGameScreen.Current != null)
+            ScreenManager.RemoveScreen(SettingsGameScreen.Current);
+    }
 }

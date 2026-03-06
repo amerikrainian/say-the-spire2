@@ -173,27 +173,39 @@ public static class ScreenManager
 
         _lastScreenContext = currentContext;
 
-        // Pop existing GameScreen if one is on top
-        if (CurrentScreen is GameScreen)
-            PopScreen();
-
         if (currentContext == null)
+        {
+            // Context cleared — pop any GameScreen on top
+            if (CurrentScreen is GameScreen)
+                PopScreen();
             return;
+        }
 
+        // Find a factory for the new context
+        Func<GameScreen>? matchedFactory = null;
         var contextType = currentContext.GetType();
         foreach (var (registeredType, factory) in _gameScreenFactories)
         {
             if (registeredType.IsAssignableFrom(contextType))
             {
-                var screen = factory();
-                PushScreen(screen);
-                if (screen.ScreenName != null)
-                    Speech.SpeechManager.Output(screen.ScreenName);
-                return;
+                matchedFactory = factory;
+                break;
             }
         }
 
-        Log.Info($"[AccessibilityMod] No GameScreen registered for {contextType.Name}");
+        if (matchedFactory != null)
+        {
+            // Pop existing GameScreen before pushing the new one
+            if (CurrentScreen is GameScreen)
+                PopScreen();
+
+            var screen = matchedFactory();
+            PushScreen(screen);
+            if (screen.ScreenName != null)
+                Speech.SpeechManager.Output(screen.ScreenName);
+        }
+        // If no factory found, leave the current screen stack alone —
+        // the screen may be manually managed (e.g., settings via ScreenHooks).
     }
 
     /// <summary>

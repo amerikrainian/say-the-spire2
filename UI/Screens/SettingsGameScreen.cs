@@ -13,6 +13,8 @@ namespace SayTheSpire2.UI.Screens;
 
 public class SettingsGameScreen : GameScreen
 {
+    public static SettingsGameScreen? Current { get; private set; }
+
     private readonly NSettingsScreen _screen;
 
     public override string ScreenName => "Settings";
@@ -29,6 +31,18 @@ public class SettingsGameScreen : GameScreen
     public SettingsGameScreen(NSettingsScreen screen)
     {
         _screen = screen;
+    }
+
+    public override void OnPush()
+    {
+        base.OnPush();
+        Current = this;
+    }
+
+    public override void OnPop()
+    {
+        base.OnPop();
+        if (Current == this) Current = null;
     }
 
     protected override void BuildRegistry()
