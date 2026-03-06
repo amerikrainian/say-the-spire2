@@ -119,7 +119,7 @@ public class ProxyCreature : ProxyElement
             {
                 foreach (var power in entity.Powers)
                 {
-                    creatureBuffer.Add(PlayerBufferHelper.FormatPower(power));
+                    PlayerBufferHelper.AddPowerToBuffer(creatureBuffer, power);
                 }
             }
 

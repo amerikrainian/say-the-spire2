@@ -53,21 +53,33 @@ public class ProxyInputBinding : ProxyElement
 
     public override string? GetStatusString()
     {
+        var entry = Control as NInputSettingsEntry;
+        var inputName = entry?.InputName;
+        bool isKeyboardRemappable = inputName != null && NInputManager.remappableKeyboardInputs.Contains(inputName);
+        bool isControllerRemappable = inputName != null && NInputManager.remappableControllerInputs.Contains(inputName);
+
         var parts = new List<string>();
 
         // Keyboard binding
-        var keyLabel = Control.GetNodeOrNull("%KeyBindingInputLabel");
-        if (keyLabel != null)
+        if (isKeyboardRemappable)
         {
-            var text = FindChildText(keyLabel);
-            if (!string.IsNullOrEmpty(text))
-                parts.Add(text);
+            var keyLabel = Control.GetNodeOrNull("%KeyBindingInputLabel");
+            var text = keyLabel != null ? FindChildText(keyLabel) : null;
+            parts.Add(!string.IsNullOrEmpty(text) ? $"keyboard: {text}" : "keyboard: unbound");
         }
 
         // Controller binding
-        var controllerName = GetControllerBindingName();
-        if (controllerName != null)
-            parts.Add(controllerName);
+        if (isControllerRemappable)
+        {
+            var controllerName = GetControllerBindingName();
+            parts.Add(controllerName != null ? $"controller: {controllerName}" : "controller: unbound");
+        }
+
+        // Label as keyboard-only or controller-only if applicable
+        if (isKeyboardRemappable && !isControllerRemappable)
+            parts.Add("keyboard only");
+        else if (!isKeyboardRemappable && isControllerRemappable)
+            parts.Add("controller only");
 
         return parts.Count > 0 ? string.Join(", ", parts) : null;
     }

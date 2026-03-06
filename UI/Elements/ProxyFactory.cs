@@ -11,6 +11,7 @@ using MegaCrit.Sts2.Core.Nodes.Rewards;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
+using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using MegaCrit.Sts2.Core.Nodes.Screens.TreasureRoomRelic;
 
 namespace SayTheSpire2.UI.Elements;
@@ -20,6 +21,9 @@ public static class ProxyFactory
     public static ProxyElement Create(Control control)
     {
         // Most specific types first
+        if (control is NEpochSlot)
+            return new ProxyEpochSlot(control);
+
         if (control is NEventOptionButton)
             return new ProxyEventOptionButton(control);
 

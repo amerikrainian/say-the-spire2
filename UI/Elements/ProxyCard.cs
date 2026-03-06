@@ -34,7 +34,15 @@ public class ProxyCard : ProxyElement
     {
         var model = GetCardModel();
         if (model == null) return CleanNodeName(Control.Name);
-        return model.Title;
+        var title = model.Title;
+        var modifiers = new System.Collections.Generic.List<string>();
+        var enchantTitle = model.Enchantment?.Title?.GetFormattedText();
+        if (!string.IsNullOrEmpty(enchantTitle)) modifiers.Add(enchantTitle);
+        var afflictionTitle = model.Affliction?.Title?.GetFormattedText();
+        if (!string.IsNullOrEmpty(afflictionTitle)) modifiers.Add(afflictionTitle);
+        if (modifiers.Count > 0)
+            return $"{title} ({string.Join(", ", modifiers)})";
+        return title;
     }
 
     public override string? GetTypeKey()

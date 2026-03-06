@@ -2,6 +2,7 @@ using System.Linq;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.HoverTips;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.UI.Elements;
 
@@ -58,7 +59,7 @@ public static class PlayerBufferHelper
             {
                 foreach (var power in creature.Powers)
                 {
-                    playerBuffer.Add(FormatPower(power));
+                    AddPowerToBuffer(playerBuffer, power);
                 }
             }
         }
@@ -70,18 +71,45 @@ public static class PlayerBufferHelper
         buffers.EnableBuffer("player", true);
     }
 
-    public static string FormatPower(MegaCrit.Sts2.Core.Models.PowerModel power)
+    public static void AddPowerToBuffer(Buffer buffer, MegaCrit.Sts2.Core.Models.PowerModel power)
     {
         var title = power.Title.GetFormattedText();
         var amount = power.Amount;
         var line = amount != 0 ? $"{title} {amount}" : title;
         try
         {
-            var desc = power.Description.GetFormattedText();
-            if (!string.IsNullOrEmpty(desc))
-                line += ": " + ProxyElement.StripBbcode(desc);
+            // Use HoverTips to get the fully resolved description (with smart variables)
+            // plus any extra tips (e.g. enchantment/affliction tooltips)
+            bool first = true;
+            foreach (var tip in power.HoverTips)
+            {
+                if (tip is HoverTip ht)
+                {
+                    var desc = ht.Description;
+                    if (first)
+                    {
+                        if (!string.IsNullOrEmpty(desc))
+                            line += ": " + ProxyElement.StripBbcode(desc);
+                        buffer.Add(line);
+                        first = false;
+                    }
+                    else
+                    {
+                        var extraTitle = ht.Title;
+                        var extraLine = !string.IsNullOrEmpty(extraTitle) && !string.IsNullOrEmpty(desc)
+                            ? $"{extraTitle}: {ProxyElement.StripBbcode(desc)}"
+                            : !string.IsNullOrEmpty(extraTitle) ? extraTitle
+                            : ProxyElement.StripBbcode(desc);
+                        buffer.Add(extraLine);
+                    }
+                }
+            }
+            if (first)
+                buffer.Add(line);
         }
-        catch { }
-        return line;
+        catch
+        {
+            buffer.Add(line);
+        }
     }
 }
