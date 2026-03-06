@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reflection;
 using Godot;
 using MegaCrit.Sts2.Core.HoverTips;
@@ -56,14 +57,14 @@ public class ProxyRewardButton : ProxyElement
                 foreach (var sub in linked.Rewards)
                 {
                     uiBuffer.Add(sub.Description.GetFormattedText());
-                    AddKeywordTips(uiBuffer, sub.HoverTips);
+                    AddKeywordTips(uiBuffer, sub.HoverTips, buffers);
                 }
                 break;
 
             default:
                 // Gold, Card, CardRemoval, SpecialCard, etc.
                 uiBuffer.Add(reward.Description.GetFormattedText());
-                AddKeywordTips(uiBuffer, reward.HoverTips);
+                AddKeywordTips(uiBuffer, reward.HoverTips, buffers);
                 break;
         }
 
@@ -71,17 +72,20 @@ public class ProxyRewardButton : ProxyElement
     }
 
     /// <summary>
-    /// Add hover tips skipping the first (which is the item itself).
+    /// Add hover tips from rewards (rewards don't include a self-referencing first tip).
     /// </summary>
-    private static void AddKeywordTips(Buffer buffer, System.Collections.Generic.IEnumerable<IHoverTip> tips)
+    private static void AddKeywordTips(Buffer buffer, IEnumerable<IHoverTip> tips, BufferManager? buffers = null)
     {
         try
         {
-            bool first = true;
+            var cardTips = new List<CardHoverTip>();
             foreach (var tip in tips)
             {
-                if (first) { first = false; continue; }
-                if (tip is HoverTip ht)
+                if (tip is CardHoverTip cardTip)
+                {
+                    cardTips.Add(cardTip);
+                }
+                else if (tip is HoverTip ht)
                 {
                     var title = ht.Title;
                     var desc = ht.Description;
@@ -89,6 +93,22 @@ public class ProxyRewardButton : ProxyElement
                         buffer.Add($"{title}: {StripBbcode(desc)}");
                     else if (!string.IsNullOrEmpty(title))
                         buffer.Add(title);
+                }
+            }
+
+            if (cardTips.Count > 0 && buffers != null)
+            {
+                var cardBuffer = buffers.GetBuffer("card");
+                if (cardBuffer != null)
+                {
+                    cardBuffer.Clear();
+                    foreach (var cardTip in cardTips)
+                    {
+                        if (cardBuffer.Count > 0)
+                            cardBuffer.Add("---");
+                        ProxyCard.PopulateCardBuffer(cardBuffer, cardTip.Card);
+                    }
+                    buffers.EnableBuffer("card", true);
                 }
             }
         }

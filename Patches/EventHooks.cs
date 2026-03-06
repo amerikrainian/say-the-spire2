@@ -3,7 +3,9 @@ using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.Nodes.Events;
+using SayTheSpire2.Events;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
 
@@ -46,6 +48,19 @@ public static class EventHooks
             Log.Error("[AccessibilityMod] Could not find NAncientEventLayout.InitializeVisuals!");
         }
 
+        // Card stealing (SwipePower.Steal)
+        var stealMethod = AccessTools.Method(typeof(SwipePower), "Steal");
+        if (stealMethod != null)
+        {
+            harmony.Patch(stealMethod,
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardStolenPostfix)));
+            Log.Info("[AccessibilityMod] SwipePower.Steal hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find SwipePower.Steal!");
+        }
+
         var setDialogueLine = AccessTools.Method(typeof(NAncientEventLayout), "SetDialogueLineAndAnimate");
         if (setDialogueLine != null)
         {
@@ -56,6 +71,22 @@ public static class EventHooks
         else
         {
             Log.Error("[AccessibilityMod] Could not find NAncientEventLayout.SetDialogueLineAndAnimate!");
+        }
+    }
+
+    public static void CardStolenPostfix(SwipePower __instance, CardModel card)
+    {
+        try
+        {
+            var cardName = card?.Title;
+            if (!string.IsNullOrEmpty(cardName))
+            {
+                EventDispatcher.Enqueue(new CardStolenEvent(cardName));
+            }
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Card stolen hook error: {e.Message}");
         }
     }
 
