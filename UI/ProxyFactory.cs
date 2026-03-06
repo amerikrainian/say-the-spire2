@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Nodes.Potions;
 using MegaCrit.Sts2.Core.Nodes.Relics;
 using MegaCrit.Sts2.Core.Nodes.Rewards;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
+using MegaCrit.Sts2.Core.Nodes.Screens.Map;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using MegaCrit.sts2.Core.Nodes.TopBar;
 
@@ -50,6 +51,10 @@ public static class ProxyFactory
         // Reward buttons
         if (control is NRewardButton)
             return new ProxyRewardButton(control);
+
+        // Map points
+        if (control is NMapPoint)
+            return new ProxyMapPoint(control);
 
         // Check if this control is a hitbox inside a card holder or creature
         var ancestor = FindAncestor(control);
