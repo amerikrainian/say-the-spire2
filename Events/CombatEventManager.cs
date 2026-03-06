@@ -78,7 +78,7 @@ public static class CombatEventManager
         _subscribedCreatures.Clear();
     }
 
-    private static void Dispatch(GameEvent evt)
+    public static void Dispatch(GameEvent evt)
     {
         var message = evt.GetMessage();
         if (string.IsNullOrEmpty(message)) return;

@@ -4,8 +4,14 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
+using MegaCrit.Sts2.Core.Nodes.Screens.Shops;
+using MegaCrit.Sts2.Core.Nodes.Vfx;
+using MegaCrit.Sts2.Core.Nodes.Vfx.Utilities;
+using Sts2AccessibilityMod.Events;
+using Sts2AccessibilityMod.Speech;
 using Sts2AccessibilityMod.UI;
 
 namespace Sts2AccessibilityMod.Hooks;
@@ -14,6 +20,9 @@ public static class FocusHooks
 {
     private static readonly PropertyInfo IsFocusedProp =
         typeof(NClickableControl).GetProperty("IsFocused", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+    private static readonly FieldInfo? MerchantLabelField =
+        typeof(NMerchantDialogue).GetField("_label", BindingFlags.Instance | BindingFlags.NonPublic);
 
     public static void Initialize(Harmony harmony)
     {
@@ -37,6 +46,60 @@ public static class FocusHooks
         // Patch combat focus: card holders and creatures have their own focus systems
         PatchOnFocus<NHandCardHolder>(harmony, nameof(CardHolderFocusPostfix), "HandCardHolder");
         PatchOnFocus<NGridCardHolder>(harmony, nameof(CardHolderFocusPostfix), "GridCardHolder");
+
+        // Merchant slots have their own focus system (FocusEntered signal, not NClickableControl)
+        var merchantOnFocus = AccessTools.Method(typeof(NMerchantSlot), "OnFocus");
+        if (merchantOnFocus != null)
+        {
+            harmony.Patch(merchantOnFocus,
+                postfix: new HarmonyMethod(typeof(FocusHooks), nameof(MerchantSlotFocusPostfix)));
+            Log.Info("[AccessibilityMod] MerchantSlot focus hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find NMerchantSlot.OnFocus()!");
+        }
+
+        // Speech bubbles from creatures (combat dialogue)
+        var speechCreateCreature = AccessTools.Method(typeof(NSpeechBubbleVfx), "Create",
+            new[] { typeof(string), typeof(Creature), typeof(double), typeof(VfxColor) });
+        if (speechCreateCreature != null)
+        {
+            harmony.Patch(speechCreateCreature,
+                postfix: new HarmonyMethod(typeof(FocusHooks), nameof(SpeechBubbleCreaturePostfix)));
+            Log.Info("[AccessibilityMod] SpeechBubble creature hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find NSpeechBubbleVfx.Create(string,Creature,...)!");
+        }
+
+        // Speech bubbles without a creature (position-based)
+        var speechCreatePos = AccessTools.Method(typeof(NSpeechBubbleVfx), "Create",
+            new[] { typeof(string), typeof(DialogueSide), typeof(Godot.Vector2), typeof(double), typeof(VfxColor) });
+        if (speechCreatePos != null)
+        {
+            harmony.Patch(speechCreatePos,
+                postfix: new HarmonyMethod(typeof(FocusHooks), nameof(SpeechBubblePostfix)));
+            Log.Info("[AccessibilityMod] SpeechBubble position hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find NSpeechBubbleVfx.Create(string,DialogueSide,...)!");
+        }
+
+        // Merchant dialogue (purchase success/failure, open inventory, etc.)
+        var showRandom = AccessTools.Method(typeof(NMerchantDialogue), "ShowRandom");
+        if (showRandom != null)
+        {
+            harmony.Patch(showRandom,
+                postfix: new HarmonyMethod(typeof(FocusHooks), nameof(MerchantDialoguePostfix)));
+            Log.Info("[AccessibilityMod] MerchantDialogue hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find NMerchantDialogue.ShowRandom()!");
+        }
 
         var creatureOnFocus = AccessTools.Method(typeof(NCreature), "OnFocus");
         if (creatureOnFocus != null)
@@ -73,6 +136,56 @@ public static class FocusHooks
     public static void CardHolderFocusPostfix(NCardHolder __instance)
     {
         UIManager.QueueFocus(__instance, new ProxyCard(__instance));
+    }
+
+    public static void SpeechBubblePostfix(string text)
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(text))
+            {
+                var clean = ProxyElement.StripBbcode(text);
+                if (!string.IsNullOrEmpty(clean))
+                    CombatEventManager.Dispatch(new DialogueEvent(null, clean));
+            }
+        }
+        catch { }
+    }
+
+    public static void SpeechBubbleCreaturePostfix(string text, Creature speaker)
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(text))
+            {
+                var clean = ProxyElement.StripBbcode(text);
+                if (!string.IsNullOrEmpty(clean))
+                    CombatEventManager.Dispatch(new DialogueEvent(speaker.Name, clean));
+            }
+        }
+        catch { }
+    }
+
+    public static void MerchantDialoguePostfix(NMerchantDialogue __instance)
+    {
+        try
+        {
+            var label = MerchantLabelField?.GetValue(__instance) as Godot.RichTextLabel;
+            if (label == null) return;
+            var text = label.Text;
+            if (!string.IsNullOrEmpty(text))
+            {
+                var clean = ProxyElement.StripBbcode(text);
+                if (!string.IsNullOrEmpty(clean))
+                    CombatEventManager.Dispatch(new DialogueEvent("Merchant", clean));
+            }
+        }
+        catch { }
+    }
+
+    public static void MerchantSlotFocusPostfix(NMerchantSlot __instance)
+    {
+        UIManager.QueueFocus(__instance, new ProxyMerchantSlot(__instance));
     }
 
     public static void CreatureFocusPostfix(NCreature __instance)
