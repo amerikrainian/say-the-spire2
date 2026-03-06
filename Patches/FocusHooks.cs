@@ -147,7 +147,7 @@ public static class FocusHooks
             {
                 var clean = ProxyElement.StripBbcode(text);
                 if (!string.IsNullOrEmpty(clean))
-                    CombatEventManager.Dispatch(new DialogueEvent(null, clean));
+                    EventDispatcher.Enqueue(new DialogueEvent(null, clean));
             }
         }
         catch { }
@@ -161,7 +161,7 @@ public static class FocusHooks
             {
                 var clean = ProxyElement.StripBbcode(text);
                 if (!string.IsNullOrEmpty(clean))
-                    CombatEventManager.Dispatch(new DialogueEvent(speaker.Name, clean));
+                    EventDispatcher.Enqueue(new DialogueEvent(speaker.Name, clean));
             }
         }
         catch { }
@@ -178,7 +178,7 @@ public static class FocusHooks
             {
                 var clean = ProxyElement.StripBbcode(text);
                 if (!string.IsNullOrEmpty(clean))
-                    CombatEventManager.Dispatch(new DialogueEvent("Merchant", clean));
+                    EventDispatcher.Enqueue(new DialogueEvent("Merchant", clean));
             }
         }
         catch { }
