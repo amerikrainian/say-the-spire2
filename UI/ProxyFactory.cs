@@ -3,8 +3,11 @@ using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
+using MegaCrit.Sts2.Core.Nodes.Potions;
+using MegaCrit.Sts2.Core.Nodes.Relics;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
+using MegaCrit.sts2.Core.Nodes.TopBar;
 
 namespace Sts2AccessibilityMod.UI;
 
@@ -30,6 +33,18 @@ public static class ProxyFactory
 
         if (control is NPaginator)
             return new ProxyPaginator(control);
+
+        // Top bar elements
+        if (control is NTopBarHp or NTopBarGold or NTopBarRoomIcon
+            or NTopBarFloorIcon or NTopBarBossIcon)
+            return new ProxyTopBar(control);
+
+        // Combat-specific types
+        if (control is NPotionHolder)
+            return new ProxyPotionHolder(control);
+
+        if (control is NRelicInventoryHolder)
+            return new ProxyRelicHolder(control);
 
         // Check if this control is a hitbox inside a card holder or creature
         var ancestor = FindAncestor(control);
