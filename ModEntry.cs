@@ -8,7 +8,6 @@ using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Events;
-using SayTheSpire2.Hooks;
 using SayTheSpire2.Input;
 using SayTheSpire2.Patches;
 using SayTheSpire2.UI.Screens;

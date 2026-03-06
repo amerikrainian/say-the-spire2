@@ -10,7 +10,7 @@ using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
 
-namespace SayTheSpire2.Hooks;
+namespace SayTheSpire2.Patches;
 
 public static class InputRebindHooks
 {

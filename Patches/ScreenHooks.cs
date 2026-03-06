@@ -4,7 +4,7 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
 using SayTheSpire2.UI.Screens;
 
-namespace SayTheSpire2.Hooks;
+namespace SayTheSpire2.Patches;
 
 public static class ScreenHooks
 {

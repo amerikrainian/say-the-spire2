@@ -8,7 +8,7 @@ using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 
-namespace SayTheSpire2.Hooks;
+namespace SayTheSpire2.Patches;
 
 /// <summary>
 /// Fixes combat controller navigation:

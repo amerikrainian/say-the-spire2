@@ -5,7 +5,7 @@ using MegaCrit.Sts2.Core.Nodes.Events;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
 
-namespace SayTheSpire2.Hooks;
+namespace SayTheSpire2.Patches;
 
 public static class EventHooks
 {

@@ -6,7 +6,7 @@ using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
 using SayTheSpire2.UI.Screens;
 
-namespace SayTheSpire2.Hooks;
+namespace SayTheSpire2.Patches;
 
 /// <summary>
 /// Patches NControllerManager so that keyboard navigation keys (arrows, Enter, Escape, etc.)
