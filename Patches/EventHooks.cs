@@ -1,4 +1,5 @@
 using System.Reflection;
+using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Events;
@@ -12,6 +13,9 @@ public static class EventHooks
     private static readonly FieldInfo? TitleField =
         typeof(NEventLayout).GetField("_title", BindingFlags.Instance | BindingFlags.NonPublic);
 
+    private static readonly FieldInfo? DialogueContainerField =
+        typeof(NAncientEventLayout).GetField("_dialogueContainer", BindingFlags.Instance | BindingFlags.NonPublic);
+
     public static void Initialize(Harmony harmony)
     {
         var setDescription = AccessTools.Method(typeof(NEventLayout), "SetDescription");
@@ -24,6 +28,49 @@ public static class EventHooks
         else
         {
             Log.Error("[AccessibilityMod] Could not find NEventLayout.SetDescription!");
+        }
+
+        var setDialogueLine = AccessTools.Method(typeof(NAncientEventLayout), "SetDialogueLineAndAnimate");
+        if (setDialogueLine != null)
+        {
+            harmony.Patch(setDialogueLine,
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(SetDialogueLinePostfix)));
+            Log.Info("[AccessibilityMod] Ancient dialogue line hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find NAncientEventLayout.SetDialogueLineAndAnimate!");
+        }
+    }
+
+    public static void SetDialogueLinePostfix(NAncientEventLayout __instance, int lineIndex)
+    {
+        try
+        {
+            var container = DialogueContainerField?.GetValue(__instance) as Node;
+            if (container == null) return;
+
+            var child = container.GetChildOrNull<Control>(lineIndex);
+            if (child == null) return;
+
+            // NAncientDialogueLine has a %Text (MegaRichTextLabel extends RichTextLabel)
+            var textNode = child.GetNodeOrNull<RichTextLabel>("%Text");
+            if (textNode == null) return;
+
+            var text = textNode.Text;
+            if (!string.IsNullOrEmpty(text))
+            {
+                var clean = ProxyElement.StripBbcode(text);
+                if (!string.IsNullOrEmpty(clean))
+                {
+                    Log.Info($"[AccessibilityMod] Ancient dialogue: \"{clean}\"");
+                    SpeechManager.Output(clean);
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Ancient dialogue hook error: {e.Message}");
         }
     }
 

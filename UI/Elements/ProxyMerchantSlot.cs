@@ -71,7 +71,7 @@ public class ProxyMerchantSlot : ProxyElement
                     if (card.EnergyCost.CostsX)
                         parts.Add("X energy");
                     else
-                        parts.Add($"{card.EnergyCost.Canonical} energy");
+                        parts.Add($"{card.EnergyCost.GetWithModifiers(CostModifiers.All)} energy");
                 }
             }
             if (cardEntry.IsOnSale)
@@ -123,7 +123,7 @@ public class ProxyMerchantSlot : ProxyElement
                 if (card.EnergyCost.CostsX)
                     cardBuffer.Add("Cost: X energy");
                 else
-                    cardBuffer.Add($"Cost: {card.EnergyCost.Canonical} energy");
+                    cardBuffer.Add($"Cost: {card.EnergyCost.GetWithModifiers(CostModifiers.All)} energy");
             }
 
             if (card.CurrentStarCost > 0)
@@ -131,7 +131,7 @@ public class ProxyMerchantSlot : ProxyElement
 
             try
             {
-                var desc = card.Description.GetFormattedText();
+                var desc = card.GetDescriptionForPile(PileType.None);
                 if (!string.IsNullOrEmpty(desc))
                     cardBuffer.Add(StripBbcode(desc));
             }
@@ -194,7 +194,7 @@ public class ProxyMerchantSlot : ProxyElement
 
                     try
                     {
-                        var desc = clone.Description.GetFormattedText();
+                        var desc = clone.GetDescriptionForUpgradePreview();
                         if (!string.IsNullOrEmpty(desc))
                             upgradeBuffer.Add(StripBbcode(desc));
                     }

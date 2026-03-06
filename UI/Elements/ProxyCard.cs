@@ -56,7 +56,7 @@ public class ProxyCard : ProxyElement
             if (model.EnergyCost.CostsX)
                 parts.Add("X energy");
             else
-                parts.Add($"{model.EnergyCost.Canonical} energy");
+                parts.Add($"{model.EnergyCost.GetWithModifiers(CostModifiers.All)} energy");
         }
 
         // Star cost
@@ -88,7 +88,7 @@ public class ProxyCard : ProxyElement
                 if (model.EnergyCost.CostsX)
                     cardBuffer.Add("Cost: X energy");
                 else
-                    cardBuffer.Add($"Cost: {model.EnergyCost.Canonical} energy");
+                    cardBuffer.Add($"Cost: {model.EnergyCost.GetWithModifiers(CostModifiers.All)} energy");
             }
 
             // Star cost
@@ -104,10 +104,14 @@ public class ProxyCard : ProxyElement
             }
             catch
             {
-                // Description may fail if not in combat context
-                var desc = model.Description.GetFormattedText();
-                if (!string.IsNullOrEmpty(desc))
-                    cardBuffer.Add(StripBbcode(desc));
+                // Hand pile may fail outside combat — try without pile context
+                try
+                {
+                    var desc = model.GetDescriptionForPile(PileType.None);
+                    if (!string.IsNullOrEmpty(desc))
+                        cardBuffer.Add(StripBbcode(desc));
+                }
+                catch { }
             }
 
             // Rarity
@@ -173,16 +177,11 @@ public class ProxyCard : ProxyElement
 
                     try
                     {
-                        var desc = clone.GetDescriptionForPile(PileType.Hand);
+                        var desc = clone.GetDescriptionForUpgradePreview();
                         if (!string.IsNullOrEmpty(desc))
                             upgradeBuffer.Add(StripBbcode(desc));
                     }
-                    catch
-                    {
-                        var desc = clone.Description.GetFormattedText();
-                        if (!string.IsNullOrEmpty(desc))
-                            upgradeBuffer.Add(StripBbcode(desc));
-                    }
+                    catch { }
                 }
                 catch (System.Exception e)
                 {

@@ -1,0 +1,22 @@
+{
+  "NODE_TYPES.UNKNOWN": "Unknown",
+  "NODE_TYPES.SHOP": "Shop",
+  "NODE_TYPES.TREASURE": "Treasure",
+  "NODE_TYPES.REST_SITE": "Rest Site",
+  "NODE_TYPES.MONSTER": "Monster",
+  "NODE_TYPES.ELITE": "Elite",
+  "NODE_TYPES.BOSS": "Boss",
+  "NODE_TYPES.ANCIENT": "Ancient",
+  "STATE.TRAVELABLE": "travelable",
+  "STATE.TRAVELED": "traveled",
+  "STATE.UNTRAVELABLE": "untravelable",
+  "NAV.CHOICE": "choice, {count} paths",
+  "NAV.PATH_ITEM": "{type}",
+  "NAV.COORDINATES": "({col}, {row})",
+  "NAV.NODE": "{type} {coordinates}",
+  "NAV.NODE_WITH_STATE": "{type} {coordinates}, {state}",
+  "NAV.BRANCH": "path {position} of {total}: {type} {coordinates}",
+  "NAV.NO_FORWARD": "No path forward",
+  "NAV.NO_BACKWARD": "No path backward",
+  "NAV.NO_MORE_BRANCHES": "No more branches"
+}

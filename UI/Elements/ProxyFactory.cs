@@ -3,6 +3,7 @@ using MegaCrit.sts2.Core.Nodes.TopBar;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
+using MegaCrit.Sts2.Core.Nodes.Events;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Potions;
 using MegaCrit.Sts2.Core.Nodes.Relics;
@@ -10,6 +11,7 @@ using MegaCrit.Sts2.Core.Nodes.Rewards;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
+using MegaCrit.Sts2.Core.Nodes.Screens.TreasureRoomRelic;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -18,6 +20,9 @@ public static class ProxyFactory
     public static ProxyElement Create(Control control)
     {
         // Most specific types first
+        if (control is NEventOptionButton)
+            return new ProxyEventOptionButton(control);
+
         if (control is NCharacterSelectButton)
             return new ProxyCharacterButton(control);
 
@@ -45,7 +50,7 @@ public static class ProxyFactory
         if (control is NPotionHolder)
             return new ProxyPotionHolder(control);
 
-        if (control is NRelicInventoryHolder)
+        if (control is NRelicInventoryHolder or NTreasureRoomRelicHolder or NRelicBasicHolder)
             return new ProxyRelicHolder(control);
 
         // Reward buttons

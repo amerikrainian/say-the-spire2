@@ -3,6 +3,7 @@ using MegaCrit.Sts2.Core.Entities.Relics;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Relics;
+using MegaCrit.Sts2.Core.Nodes.Screens.TreasureRoomRelic;
 using SayTheSpire2.Buffers;
 
 namespace SayTheSpire2.UI.Elements;
@@ -11,13 +12,18 @@ public class ProxyRelicHolder : ProxyElement
 {
     public ProxyRelicHolder(Control control) : base(control) { }
 
-    private NRelicInventoryHolder? Holder => Control as NRelicInventoryHolder;
-
     private RelicModel? GetModel()
     {
-        var holder = Holder;
-        if (holder == null) return null;
-        return holder.Relic?.Model;
+        if (Control is NRelicInventoryHolder invHolder)
+            return invHolder.Relic?.Model;
+
+        if (Control is NTreasureRoomRelicHolder treasureHolder)
+            return treasureHolder.Relic?.Model;
+
+        if (Control is NRelicBasicHolder basicHolder)
+            return basicHolder.Relic?.Model;
+
+        return null;
     }
 
     public override string? GetLabel()
