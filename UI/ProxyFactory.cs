@@ -1,6 +1,7 @@
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
+using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 
 namespace Sts2AccessibilityMod.UI;
@@ -10,6 +11,9 @@ public static class ProxyFactory
     public static ProxyElement Create(Control control)
     {
         // Most specific types first
+        if (control is NCharacterSelectButton)
+            return new ProxyCharacterButton(control);
+
         if (control is NInputSettingsEntry)
             return new ProxyInputBinding(control);
 

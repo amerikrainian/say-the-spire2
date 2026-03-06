@@ -66,6 +66,8 @@ public static class ModEntry
     private static void InitializeBuffers()
     {
         BufferManager.Instance.Add(new Buffers.Buffer("ui"));
+        BufferManager.Instance.Add(new Buffers.Buffer("character"));
+        BufferManager.Instance.Add(new Buffers.Buffer("relic"));
     }
 
     private static void RegisterScreens()

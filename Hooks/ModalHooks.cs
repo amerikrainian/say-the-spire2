@@ -4,6 +4,7 @@ using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
+using MegaCrit.Sts2.Core.Nodes.Ftue;
 using Sts2AccessibilityMod.Speech;
 using Sts2AccessibilityMod.UI;
 
@@ -25,6 +26,21 @@ public static class ModalHooks
             Log.Error("[AccessibilityMod] Could not find NModalContainer.Add()!");
         }
 
+        // Patch page turn methods on NCombatRulesFtue to re-announce text
+        var toggleLeft = AccessTools.Method(typeof(NCombatRulesFtue), "ToggleLeft");
+        var toggleRight = AccessTools.Method(typeof(NCombatRulesFtue), "ToggleRight");
+        if (toggleLeft != null)
+        {
+            harmony.Patch(toggleLeft,
+                postfix: new HarmonyMethod(typeof(ModalHooks), nameof(FtuePageTurnPostfix)));
+        }
+        if (toggleRight != null)
+        {
+            harmony.Patch(toggleRight,
+                postfix: new HarmonyMethod(typeof(ModalHooks), nameof(FtuePageTurnPostfix)));
+        }
+        if (toggleLeft != null || toggleRight != null)
+            Log.Info("[AccessibilityMod] NCombatRulesFtue page turn hooks patched.");
     }
 
     public static void AddPostfix(Node modalToCreate)
@@ -71,6 +87,23 @@ public static class ModalHooks
         else
         {
             Log.Info($"[AccessibilityMod] Modal opened: {modal.GetType().Name} (no readable text found)");
+        }
+    }
+
+    public static void FtuePageTurnPostfix(NCombatRulesFtue __instance)
+    {
+        if (!GodotObject.IsInstanceValid(__instance)) return;
+
+        // Wait one frame for text to be updated
+        var tree = __instance.GetTree();
+        if (tree != null)
+        {
+            SignalAwaiter awaiter = __instance.ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+            awaiter.OnCompleted(() => AnnounceModal(__instance));
+        }
+        else
+        {
+            AnnounceModal(__instance);
         }
     }
 
