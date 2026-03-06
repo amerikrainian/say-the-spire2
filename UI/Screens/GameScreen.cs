@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
-using Sts2AccessibilityMod.UI.Elements;
+using SayTheSpire2.UI.Elements;
 
-namespace Sts2AccessibilityMod.UI.Screens;
+namespace SayTheSpire2.UI.Screens;
 
 public abstract class GameScreen : Screen
 {

@@ -2,9 +2,9 @@ using System.Reflection;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
-using Sts2AccessibilityMod.UI.Screens;
+using SayTheSpire2.UI.Screens;
 
-namespace Sts2AccessibilityMod.Hooks;
+namespace SayTheSpire2.Hooks;
 
 public static class ScreenHooks
 {

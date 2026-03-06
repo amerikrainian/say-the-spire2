@@ -1,9 +1,9 @@
 using Godot;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Nodes.Potions;
-using Sts2AccessibilityMod.Buffers;
+using SayTheSpire2.Buffers;
 
-namespace Sts2AccessibilityMod.UI.Elements;
+namespace SayTheSpire2.UI.Elements;
 
 public class ProxyPotionHolder : ProxyElement
 {

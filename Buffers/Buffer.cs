@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Sts2AccessibilityMod.Localization;
+using SayTheSpire2.Localization;
 
-namespace Sts2AccessibilityMod.Buffers;
+namespace SayTheSpire2.Buffers;
 
 public class Buffer
 {

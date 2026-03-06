@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using MegaCrit.Sts2.Core.Logging;
 
-namespace Sts2AccessibilityMod.Speech;
+namespace SayTheSpire2.Speech;
 
 public static class SpeechManager
 {

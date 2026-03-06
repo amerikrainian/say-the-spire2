@@ -5,9 +5,9 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
-using Sts2AccessibilityMod.Buffers;
+using SayTheSpire2.Buffers;
 
-namespace Sts2AccessibilityMod.UI.Elements;
+namespace SayTheSpire2.UI.Elements;
 
 public class ProxyCard : ProxyElement
 {

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
 
-namespace Sts2AccessibilityMod.Patches;
+namespace SayTheSpire2.Patches;
 
 /// <summary>
 /// Disables Godot's built-in AccessKit accessibility by subclassing the game window

@@ -1,7 +1,7 @@
 using System;
 using MegaCrit.Sts2.Core.Logging;
 
-namespace Sts2AccessibilityMod.Speech;
+namespace SayTheSpire2.Speech;
 
 public class TolkHandler : ISpeechHandler
 {

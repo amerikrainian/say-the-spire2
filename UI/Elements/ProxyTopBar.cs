@@ -5,9 +5,9 @@ using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
-using Sts2AccessibilityMod.Buffers;
+using SayTheSpire2.Buffers;
 
-namespace Sts2AccessibilityMod.UI.Elements;
+namespace SayTheSpire2.UI.Elements;
 
 public class ProxyTopBar : ProxyElement
 {

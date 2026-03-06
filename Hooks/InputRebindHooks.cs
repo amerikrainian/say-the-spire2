@@ -6,11 +6,11 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
-using Sts2AccessibilityMod.Localization;
-using Sts2AccessibilityMod.Speech;
-using Sts2AccessibilityMod.UI.Elements;
+using SayTheSpire2.Localization;
+using SayTheSpire2.Speech;
+using SayTheSpire2.UI.Elements;
 
-namespace Sts2AccessibilityMod.Hooks;
+namespace SayTheSpire2.Hooks;
 
 public static class InputRebindHooks
 {

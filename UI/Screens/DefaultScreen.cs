@@ -1,8 +1,8 @@
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
-using Sts2AccessibilityMod.Buffers;
-using Sts2AccessibilityMod.Input;
+using SayTheSpire2.Buffers;
+using SayTheSpire2.Input;
 
-namespace Sts2AccessibilityMod.UI.Screens;
+namespace SayTheSpire2.UI.Screens;
 
 public class DefaultScreen : Screen
 {

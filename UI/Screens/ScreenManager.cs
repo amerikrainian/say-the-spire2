@@ -6,10 +6,10 @@ using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
-using Sts2AccessibilityMod.Input;
-using Sts2AccessibilityMod.UI.Elements;
+using SayTheSpire2.Input;
+using SayTheSpire2.UI.Elements;
 
-namespace Sts2AccessibilityMod.UI.Screens;
+namespace SayTheSpire2.UI.Screens;
 
 public static class ScreenManager
 {

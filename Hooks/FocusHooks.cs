@@ -10,12 +10,12 @@ using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using MegaCrit.Sts2.Core.Nodes.Screens.Shops;
 using MegaCrit.Sts2.Core.Nodes.Vfx;
 using MegaCrit.Sts2.Core.Nodes.Vfx.Utilities;
-using Sts2AccessibilityMod.Events;
-using Sts2AccessibilityMod.Speech;
-using Sts2AccessibilityMod.UI;
-using Sts2AccessibilityMod.UI.Elements;
+using SayTheSpire2.Events;
+using SayTheSpire2.Speech;
+using SayTheSpire2.UI;
+using SayTheSpire2.UI.Elements;
 
-namespace Sts2AccessibilityMod.Hooks;
+namespace SayTheSpire2.Hooks;
 
 public static class FocusHooks
 {

@@ -4,9 +4,9 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
-using Sts2AccessibilityMod.UI.Screens;
+using SayTheSpire2.UI.Screens;
 
-namespace Sts2AccessibilityMod.Hooks;
+namespace SayTheSpire2.Hooks;
 
 /// <summary>
 /// Patches NControllerManager so that keyboard navigation keys (arrows, Enter, Escape, etc.)

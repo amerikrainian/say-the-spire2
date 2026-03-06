@@ -1,11 +1,11 @@
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
-using Sts2AccessibilityMod.Buffers;
-using Sts2AccessibilityMod.Speech;
-using Sts2AccessibilityMod.UI.Elements;
-using Sts2AccessibilityMod.UI.Screens;
+using SayTheSpire2.Buffers;
+using SayTheSpire2.Speech;
+using SayTheSpire2.UI.Elements;
+using SayTheSpire2.UI.Screens;
 
-namespace Sts2AccessibilityMod.UI;
+namespace SayTheSpire2.UI;
 
 public static class UIManager
 {

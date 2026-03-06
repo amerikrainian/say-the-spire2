@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Godot;
-using Sts2AccessibilityMod.Input;
-using Sts2AccessibilityMod.UI.Elements;
+using SayTheSpire2.Input;
+using SayTheSpire2.UI.Elements;
 
-namespace Sts2AccessibilityMod.UI.Screens;
+namespace SayTheSpire2.UI.Screens;
 
 public abstract class Screen
 {

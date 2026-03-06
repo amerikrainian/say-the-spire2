@@ -1,6 +1,6 @@
 using MegaCrit.Sts2.Core.Entities.Creatures;
 
-namespace Sts2AccessibilityMod.Events;
+namespace SayTheSpire2.Events;
 
 public class DeathEvent : GameEvent
 {

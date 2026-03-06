@@ -1,8 +1,8 @@
 using MegaCrit.Sts2.Core.Logging;
-using Sts2AccessibilityMod.Localization;
-using Sts2AccessibilityMod.Speech;
+using SayTheSpire2.Localization;
+using SayTheSpire2.Speech;
 
-namespace Sts2AccessibilityMod.Buffers;
+namespace SayTheSpire2.Buffers;
 
 public static class BufferControls
 {

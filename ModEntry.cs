@@ -6,14 +6,14 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
-using Sts2AccessibilityMod.Buffers;
-using Sts2AccessibilityMod.Events;
-using Sts2AccessibilityMod.Hooks;
-using Sts2AccessibilityMod.Input;
-using Sts2AccessibilityMod.Patches;
-using Sts2AccessibilityMod.UI.Screens;
+using SayTheSpire2.Buffers;
+using SayTheSpire2.Events;
+using SayTheSpire2.Hooks;
+using SayTheSpire2.Input;
+using SayTheSpire2.Patches;
+using SayTheSpire2.UI.Screens;
 
-namespace Sts2AccessibilityMod;
+namespace SayTheSpire2;
 
 [ModInitializer(nameof(Initialize))]
 public static class ModEntry

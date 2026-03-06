@@ -1,8 +1,8 @@
 using System.Text;
-using Sts2AccessibilityMod.Buffers;
-using Sts2AccessibilityMod.Localization;
+using SayTheSpire2.Buffers;
+using SayTheSpire2.Localization;
 
-namespace Sts2AccessibilityMod.UI.Elements;
+namespace SayTheSpire2.UI.Elements;
 
 public abstract class UIElement
 {

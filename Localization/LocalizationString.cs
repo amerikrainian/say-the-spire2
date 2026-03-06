@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Sts2AccessibilityMod.Localization;
+namespace SayTheSpire2.Localization;
 
 public class LocalizationString
 {

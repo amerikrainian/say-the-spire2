@@ -1,4 +1,4 @@
-namespace Sts2AccessibilityMod.Events;
+namespace SayTheSpire2.Events;
 
 public class DialogueEvent : GameEvent
 {

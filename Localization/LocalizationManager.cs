@@ -4,7 +4,7 @@ using System.Text.Json;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
 
-namespace Sts2AccessibilityMod.Localization;
+namespace SayTheSpire2.Localization;
 
 public static class LocalizationManager
 {

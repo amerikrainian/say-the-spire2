@@ -1,4 +1,4 @@
-namespace Sts2AccessibilityMod.Speech;
+namespace SayTheSpire2.Speech;
 
 public interface ISpeechHandler
 {

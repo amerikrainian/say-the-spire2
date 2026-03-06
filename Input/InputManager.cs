@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
 
-namespace Sts2AccessibilityMod.Input;
+namespace SayTheSpire2.Input;
 
 public static class InputManager
 {

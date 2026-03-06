@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sts2AccessibilityMod.Buffers;
+namespace SayTheSpire2.Buffers;
 
 public class BufferManager
 {

@@ -2,10 +2,10 @@ using System.Linq;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Players;
-using Sts2AccessibilityMod.Buffers;
-using Sts2AccessibilityMod.UI.Elements;
+using SayTheSpire2.Buffers;
+using SayTheSpire2.UI.Elements;
 
-namespace Sts2AccessibilityMod.UI;
+namespace SayTheSpire2.UI;
 
 public static class PlayerBufferHelper
 {

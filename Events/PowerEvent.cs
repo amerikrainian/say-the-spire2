@@ -1,7 +1,7 @@
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Models;
 
-namespace Sts2AccessibilityMod.Events;
+namespace SayTheSpire2.Events;
 
 public enum PowerEventType { Applied, Increased, Decreased, Removed }
 

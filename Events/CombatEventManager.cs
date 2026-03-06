@@ -5,10 +5,10 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Rooms;
-using Sts2AccessibilityMod.Buffers;
-using Sts2AccessibilityMod.Speech;
+using SayTheSpire2.Buffers;
+using SayTheSpire2.Speech;
 
-namespace Sts2AccessibilityMod.Events;
+namespace SayTheSpire2.Events;
 
 public static class CombatEventManager
 {
