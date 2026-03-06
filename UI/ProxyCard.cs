@@ -1,6 +1,7 @@
 using Godot;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.HoverTips;
+using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
@@ -137,6 +138,60 @@ public class ProxyCard : ProxyElement
             }
 
             buffers.EnableBuffer("card", true);
+        }
+
+        // Upgrade preview buffer
+        var upgradeBuffer = buffers.GetBuffer("upgrade");
+        if (upgradeBuffer != null)
+        {
+            upgradeBuffer.Clear();
+
+            if (!model.IsUpgradable)
+            {
+                upgradeBuffer.Add("No upgrade available");
+            }
+            else if (model.CardScope != null)
+            {
+                try
+                {
+                    var clone = model.CardScope.CloneCard(model);
+                    clone.UpgradeInternal();
+
+                    upgradeBuffer.Add(clone.Title);
+                    upgradeBuffer.Add(clone.Type.ToString());
+
+                    if (clone.EnergyCost != null)
+                    {
+                        if (clone.EnergyCost.CostsX)
+                            upgradeBuffer.Add("Cost: X energy");
+                        else
+                            upgradeBuffer.Add($"Cost: {clone.EnergyCost.Canonical} energy");
+                    }
+
+                    if (clone.CurrentStarCost > 0)
+                        upgradeBuffer.Add($"Star cost: {clone.CurrentStarCost}");
+
+                    try
+                    {
+                        var desc = clone.GetDescriptionForPile(PileType.Hand);
+                        if (!string.IsNullOrEmpty(desc))
+                            upgradeBuffer.Add(StripBbcode(desc));
+                    }
+                    catch
+                    {
+                        var desc = clone.Description.GetFormattedText();
+                        if (!string.IsNullOrEmpty(desc))
+                            upgradeBuffer.Add(StripBbcode(desc));
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Log.Error($"[AccessibilityMod] Card upgrade preview failed: {e.Message}");
+                    upgradeBuffer.Add("Upgrade preview unavailable");
+                }
+            }
+
+            buffers.EnableBuffer("upgrade", true);
         }
 
         // Also populate the player buffer during combat

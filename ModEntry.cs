@@ -51,6 +51,7 @@ public static class ModEntry
         ModalHooks.Initialize(_harmony);
         ScreenHooks.Initialize(_harmony);
         CombatNavigationHooks.Initialize(_harmony);
+        EventHooks.Initialize(_harmony);
         CombatEventManager.Initialize();
 
         Log.Info("[AccessibilityMod] Initialized. Custom TTS active.");
@@ -72,6 +73,7 @@ public static class ModEntry
         BufferManager.Instance.Add(new Buffers.Buffer("character"));
         BufferManager.Instance.Add(new Buffers.Buffer("relic"));
         BufferManager.Instance.Add(new Buffers.Buffer("card"));
+        BufferManager.Instance.Add(new Buffers.Buffer("upgrade"));
         BufferManager.Instance.Add(new Buffers.Buffer("creature"));
         BufferManager.Instance.Add(new Buffers.Buffer("player"));
         BufferManager.Instance.Add(new Buffers.Buffer("events"));

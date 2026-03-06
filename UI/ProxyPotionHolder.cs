@@ -53,35 +53,41 @@ public class ProxyPotionHolder : ProxyElement
             }
             else
             {
-                var model = holder.Potion!.Model;
-                uiBuffer.Add(model.Title.GetFormattedText());
-
-                var desc = model.DynamicDescription.GetFormattedText();
-                if (!string.IsNullOrEmpty(desc))
-                    uiBuffer.Add(StripBbcode(desc));
-
-                // Hover tips (extra keywords)
-                try
-                {
-                    foreach (var tip in model.HoverTips)
-                    {
-                        if (tip is HoverTip hoverTip)
-                        {
-                            var title = hoverTip.Title;
-                            var tipDesc = hoverTip.Description;
-                            if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(tipDesc))
-                                uiBuffer.Add($"{title}: {StripBbcode(tipDesc)}");
-                            else if (!string.IsNullOrEmpty(title))
-                                uiBuffer.Add(title);
-                        }
-                    }
-                }
-                catch { }
+                PopulatePotionBuffer(uiBuffer, holder.Potion!.Model);
             }
 
             buffers.EnableBuffer("ui", true);
         }
 
         return "ui";
+    }
+
+    public static void PopulatePotionBuffer(Buffer buffer, MegaCrit.Sts2.Core.Models.PotionModel model)
+    {
+        buffer.Add(model.Title.GetFormattedText());
+
+        var desc = model.DynamicDescription.GetFormattedText();
+        if (!string.IsNullOrEmpty(desc))
+            buffer.Add(StripBbcode(desc));
+
+        // Hover tips: skip first (it's the potion itself), rest are keywords
+        try
+        {
+            bool first = true;
+            foreach (var tip in model.HoverTips)
+            {
+                if (first) { first = false; continue; }
+                if (tip is HoverTip hoverTip)
+                {
+                    var title = hoverTip.Title;
+                    var tipDesc = hoverTip.Description;
+                    if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(tipDesc))
+                        buffer.Add($"{title}: {StripBbcode(tipDesc)}");
+                    else if (!string.IsNullOrEmpty(title))
+                        buffer.Add(title);
+                }
+            }
+        }
+        catch { }
     }
 }

@@ -59,39 +59,46 @@ public class ProxyRelicHolder : ProxyElement
         {
             uiBuffer.Clear();
 
-            uiBuffer.Add(model.Title.GetFormattedText());
-
-            var desc = model.DynamicDescription.GetFormattedText();
-            if (!string.IsNullOrEmpty(desc))
-                uiBuffer.Add(StripBbcode(desc));
-
-            if (model.ShowCounter && model.DisplayAmount != 0)
-                uiBuffer.Add($"Counter: {model.DisplayAmount}");
-
-            if (model.Status == RelicStatus.Disabled)
-                uiBuffer.Add("Disabled");
-
-            // Hover tips
-            try
-            {
-                foreach (var tip in model.HoverTips)
-                {
-                    if (tip is HoverTip hoverTip)
-                    {
-                        var title = hoverTip.Title;
-                        var tipDesc = hoverTip.Description;
-                        if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(tipDesc))
-                            uiBuffer.Add($"{title}: {StripBbcode(tipDesc)}");
-                        else if (!string.IsNullOrEmpty(title))
-                            uiBuffer.Add(title);
-                    }
-                }
-            }
-            catch { }
+            PopulateRelicBuffer(uiBuffer, model);
 
             buffers.EnableBuffer("ui", true);
         }
 
         return "ui";
+    }
+
+    public static void PopulateRelicBuffer(Buffer buffer, RelicModel model)
+    {
+        buffer.Add(model.Title.GetFormattedText());
+
+        var desc = model.DynamicDescription.GetFormattedText();
+        if (!string.IsNullOrEmpty(desc))
+            buffer.Add(StripBbcode(desc));
+
+        if (model.ShowCounter && model.DisplayAmount != 0)
+            buffer.Add($"Counter: {model.DisplayAmount}");
+
+        if (model.Status == RelicStatus.Disabled)
+            buffer.Add("Disabled");
+
+        // Hover tips: skip first (it's the relic itself), rest are keywords
+        try
+        {
+            bool first = true;
+            foreach (var tip in model.HoverTips)
+            {
+                if (first) { first = false; continue; }
+                if (tip is HoverTip hoverTip)
+                {
+                    var title = hoverTip.Title;
+                    var tipDesc = hoverTip.Description;
+                    if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(tipDesc))
+                        buffer.Add($"{title}: {StripBbcode(tipDesc)}");
+                    else if (!string.IsNullOrEmpty(title))
+                        buffer.Add(title);
+                }
+            }
+        }
+        catch { }
     }
 }

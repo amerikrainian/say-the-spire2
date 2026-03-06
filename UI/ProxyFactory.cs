@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Potions;
 using MegaCrit.Sts2.Core.Nodes.Relics;
+using MegaCrit.Sts2.Core.Nodes.Rewards;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using MegaCrit.sts2.Core.Nodes.TopBar;
@@ -45,6 +46,10 @@ public static class ProxyFactory
 
         if (control is NRelicInventoryHolder)
             return new ProxyRelicHolder(control);
+
+        // Reward buttons
+        if (control is NRewardButton)
+            return new ProxyRewardButton(control);
 
         // Check if this control is a hitbox inside a card holder or creature
         var ancestor = FindAncestor(control);
