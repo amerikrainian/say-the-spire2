@@ -6,7 +6,7 @@ using MegaCrit.Sts2.Core.Nodes.Rewards;
 using MegaCrit.Sts2.Core.Rewards;
 using Sts2AccessibilityMod.Buffers;
 
-namespace Sts2AccessibilityMod.UI;
+namespace Sts2AccessibilityMod.UI.Elements;
 
 public class ProxyRewardButton : ProxyElement
 {

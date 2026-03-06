@@ -2,6 +2,8 @@ using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using Sts2AccessibilityMod.Buffers;
 using Sts2AccessibilityMod.Speech;
+using Sts2AccessibilityMod.UI.Elements;
+using Sts2AccessibilityMod.UI.Screens;
 
 namespace Sts2AccessibilityMod.UI;
 
@@ -69,7 +71,7 @@ public static class UIManager
 
     private static UIElement ResolveElement(Control control)
     {
-        var screenElement = GameScreenManager.ActiveScreen?.GetElement(control);
+        var screenElement = ScreenManager.ResolveElement(control);
         if (screenElement != null)
             return screenElement;
 

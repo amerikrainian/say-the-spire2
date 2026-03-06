@@ -2,7 +2,7 @@ using System.Reflection;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
-using Sts2AccessibilityMod.UI;
+using Sts2AccessibilityMod.UI.Screens;
 
 namespace Sts2AccessibilityMod.Hooks;
 
@@ -24,6 +24,6 @@ public static class ScreenHooks
 
     public static void UpdatePostfix()
     {
-        GameScreenManager.OnScreenChanged();
+        ScreenManager.OnGameScreenChanged();
     }
 }

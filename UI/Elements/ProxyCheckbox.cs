@@ -2,7 +2,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using Sts2AccessibilityMod.Localization;
 
-namespace Sts2AccessibilityMod.UI;
+namespace Sts2AccessibilityMod.UI.Elements;
 
 public class ProxyCheckbox : ProxyElement
 {

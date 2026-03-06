@@ -1,13 +1,13 @@
 using System.Reflection;
 using Godot;
+using MegaCrit.sts2.Core.Nodes.TopBar;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
-using MegaCrit.sts2.Core.Nodes.TopBar;
 using Sts2AccessibilityMod.Buffers;
 
-namespace Sts2AccessibilityMod.UI;
+namespace Sts2AccessibilityMod.UI.Elements;
 
 public class ProxyTopBar : ProxyElement
 {

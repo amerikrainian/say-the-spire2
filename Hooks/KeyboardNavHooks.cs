@@ -4,7 +4,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
-using Sts2AccessibilityMod.Input;
+using Sts2AccessibilityMod.UI.Screens;
 
 namespace Sts2AccessibilityMod.Hooks;
 
@@ -54,7 +54,7 @@ public static class KeyboardNavHooks
             return true;
 
         // Dispatch through mod input system
-        if (InputManager.HandleKeyEvent(key))
+        if (ScreenManager.HandleKeyEvent(key))
         {
             __instance.GetViewport()?.SetInputAsHandled();
             return false;

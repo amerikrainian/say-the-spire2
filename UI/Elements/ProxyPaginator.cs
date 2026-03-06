@@ -1,28 +1,28 @@
 using Godot;
+using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 
-namespace Sts2AccessibilityMod.UI;
+namespace Sts2AccessibilityMod.UI.Elements;
 
-public class ProxyDropdown : ProxyElement
+public class ProxyPaginator : ProxyElement
 {
-    public ProxyDropdown(Control control) : base(control) { }
+    public ProxyPaginator(Control control) : base(control) { }
 
     public override string? GetLabel()
     {
         return OverrideLabel ?? FindSiblingLabel(Control) ?? CleanNodeName(Control.Name);
     }
 
+    public override string? GetTypeKey() => "slider";
+
     public override string? GetStatusString()
     {
-        // The dropdown's selected value is in %Label or a child text node
+        // The paginator's %Label child shows the current option
         var labelNode = Control.GetNodeOrNull("%Label");
         if (labelNode != null)
         {
             var text = FindChildText(labelNode);
             if (text != null) return text;
         }
-
-        return FindChildText(Control);
+        return null;
     }
-
-    public override string? GetTypeKey() => "dropdown";
 }

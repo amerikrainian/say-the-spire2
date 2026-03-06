@@ -3,15 +3,14 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using HarmonyLib;
-using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Logging;
+using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using Sts2AccessibilityMod.Buffers;
-using Sts2AccessibilityMod.Hooks;
 using Sts2AccessibilityMod.Events;
+using Sts2AccessibilityMod.Hooks;
 using Sts2AccessibilityMod.Input;
 using Sts2AccessibilityMod.Patches;
-using Sts2AccessibilityMod.UI;
 using Sts2AccessibilityMod.UI.Screens;
 
 namespace Sts2AccessibilityMod;
@@ -44,11 +43,12 @@ public static class ModEntry
         InitializeSpeech();
         InitializeLocalization();
         InitializeBuffers();
+        InputManager.Initialize();
+        ScreenManager.Initialize();
         RegisterScreens();
         DisableBuiltinAccessibility.Initialize();
         FocusHooks.Initialize(_harmony);
         InputRebindHooks.Initialize(_harmony);
-        InputManager.Initialize();
         KeyboardNavHooks.Initialize(_harmony);
         ModalHooks.Initialize(_harmony);
         ScreenHooks.Initialize(_harmony);
@@ -83,7 +83,7 @@ public static class ModEntry
 
     private static void RegisterScreens()
     {
-        GameScreenManager.RegisterScreen<NSettingsScreen>(
+        ScreenManager.RegisterGameScreen<NSettingsScreen>(
             () =>
             {
                 var context = MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext.ActiveScreenContext.Instance.GetCurrentScreen();

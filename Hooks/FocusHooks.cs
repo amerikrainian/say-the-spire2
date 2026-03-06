@@ -1,10 +1,10 @@
 using System.Reflection;
 using Godot;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
-using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using MegaCrit.Sts2.Core.Nodes.Screens.Shops;
@@ -13,6 +13,7 @@ using MegaCrit.Sts2.Core.Nodes.Vfx.Utilities;
 using Sts2AccessibilityMod.Events;
 using Sts2AccessibilityMod.Speech;
 using Sts2AccessibilityMod.UI;
+using Sts2AccessibilityMod.UI.Elements;
 
 namespace Sts2AccessibilityMod.Hooks;
 

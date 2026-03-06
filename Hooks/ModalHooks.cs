@@ -6,7 +6,7 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Ftue;
 using Sts2AccessibilityMod.Speech;
-using Sts2AccessibilityMod.UI;
+using Sts2AccessibilityMod.UI.Elements;
 
 namespace Sts2AccessibilityMod.Hooks;
 

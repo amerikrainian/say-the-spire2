@@ -1,9 +1,10 @@
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using Sts2AccessibilityMod.Buffers;
+using Sts2AccessibilityMod.Input;
 
-namespace Sts2AccessibilityMod.Input;
+namespace Sts2AccessibilityMod.UI.Screens;
 
-public class DefaultInputContext : InputContext
+public class DefaultScreen : Screen
 {
     public override bool OnActionJustPressed(InputAction action)
     {

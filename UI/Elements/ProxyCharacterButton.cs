@@ -1,10 +1,10 @@
 using Godot;
 using MegaCrit.Sts2.Core.Localization;
+using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using Sts2AccessibilityMod.Buffers;
-using MegaCrit.Sts2.Core.Logging;
 
-namespace Sts2AccessibilityMod.UI;
+namespace Sts2AccessibilityMod.UI.Elements;
 
 public class ProxyCharacterButton : ProxyElement
 {

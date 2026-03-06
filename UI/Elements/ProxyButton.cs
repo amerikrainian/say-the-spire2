@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Sts2AccessibilityMod.UI;
+namespace Sts2AccessibilityMod.UI.Elements;
 
 public class ProxyButton : ProxyElement
 {

@@ -2,7 +2,7 @@ using System.Text;
 using Sts2AccessibilityMod.Buffers;
 using Sts2AccessibilityMod.Localization;
 
-namespace Sts2AccessibilityMod.UI;
+namespace Sts2AccessibilityMod.UI.Elements;
 
 public abstract class UIElement
 {

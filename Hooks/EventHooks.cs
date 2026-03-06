@@ -3,7 +3,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Events;
 using Sts2AccessibilityMod.Speech;
-using Sts2AccessibilityMod.UI;
+using Sts2AccessibilityMod.UI.Elements;
 
 namespace Sts2AccessibilityMod.Hooks;
 
