@@ -9,6 +9,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using Sts2AccessibilityMod.Buffers;
 using Sts2AccessibilityMod.Hooks;
 using Sts2AccessibilityMod.Events;
+using Sts2AccessibilityMod.Input;
 using Sts2AccessibilityMod.Patches;
 using Sts2AccessibilityMod.UI;
 using Sts2AccessibilityMod.UI.Screens;
@@ -47,6 +48,7 @@ public static class ModEntry
         DisableBuiltinAccessibility.Initialize();
         FocusHooks.Initialize(_harmony);
         InputRebindHooks.Initialize(_harmony);
+        InputManager.Initialize();
         KeyboardNavHooks.Initialize(_harmony);
         ModalHooks.Initialize(_harmony);
         ScreenHooks.Initialize(_harmony);

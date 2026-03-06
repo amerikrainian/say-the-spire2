@@ -4,9 +4,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
-using Sts2AccessibilityMod.Buffers;
-using Sts2AccessibilityMod.Localization;
-using Sts2AccessibilityMod.Speech;
+using Sts2AccessibilityMod.Input;
 
 namespace Sts2AccessibilityMod.Hooks;
 
@@ -52,42 +50,17 @@ public static class KeyboardNavHooks
 
     public static bool InputPrefix(NControllerManager __instance, InputEvent inputEvent)
     {
-        if (inputEvent is not InputEventKey key || !key.Pressed || key.Echo)
+        if (inputEvent is not InputEventKey key)
             return true;
 
-        // Global hotkey: Ctrl+Shift+R resets all input bindings
-        if (key.Keycode == Key.R && key.CtrlPressed && key.ShiftPressed)
+        // Dispatch through mod input system
+        if (InputManager.HandleKeyEvent(key))
         {
-            Log.Info("[AccessibilityMod] Global hotkey: Ctrl+Shift+R - resetting bindings");
-            NInputManager.Instance?.ResetToDefaults();
             __instance.GetViewport()?.SetInputAsHandled();
             return false;
         }
 
-        // Buffer navigation: Ctrl+Arrow keys
-        if (key.CtrlPressed && !key.ShiftPressed && !key.AltPressed)
-        {
-            switch (key.Keycode)
-            {
-                case Key.Up:
-                    BufferControls.PreviousItem();
-                    __instance.GetViewport()?.SetInputAsHandled();
-                    return false;
-                case Key.Down:
-                    BufferControls.NextItem();
-                    __instance.GetViewport()?.SetInputAsHandled();
-                    return false;
-                case Key.Left:
-                    BufferControls.PreviousBuffer();
-                    __instance.GetViewport()?.SetInputAsHandled();
-                    return false;
-                case Key.Right:
-                    BufferControls.NextBuffer();
-                    __instance.GetViewport()?.SetInputAsHandled();
-                    return false;
-            }
-        }
-
+        // Not a mod action — let the game handle it
         return true;
     }
 
