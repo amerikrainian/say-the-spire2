@@ -5,9 +5,9 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.Nodes.Events;
-using SayTheSpire2.Events;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
+using SayTheSpire2.UI.Screens;
 
 namespace SayTheSpire2.Patches;
 
@@ -80,9 +80,7 @@ public static class EventHooks
         {
             var cardName = card?.Title;
             if (!string.IsNullOrEmpty(cardName))
-            {
-                EventDispatcher.Enqueue(new CardStolenEvent(cardName));
-            }
+                CombatScreen.Current?.OnCardStolen(cardName);
         }
         catch (System.Exception e)
         {

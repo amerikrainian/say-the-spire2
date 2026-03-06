@@ -5,7 +5,9 @@ using System.Runtime.Loader;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Modding;
+using MegaCrit.Sts2.Core.Nodes.Screens.GameOverScreen;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
+using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Events;
 using SayTheSpire2.Input;
@@ -82,11 +84,18 @@ public static class ModEntry
 
     private static void RegisterScreens()
     {
+        var getContext = () => MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext.ActiveScreenContext.Instance.GetCurrentScreen();
+
         ScreenManager.RegisterGameScreen<NSettingsScreen>(
-            () =>
-            {
-                var context = MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext.ActiveScreenContext.Instance.GetCurrentScreen();
-                return new SettingsGameScreen((NSettingsScreen)context!);
-            });
+            () => new SettingsGameScreen((NSettingsScreen)getContext()!));
+
+        ScreenManager.RegisterGameScreen<NGameOverScreen>(
+            () => new GameOverScreen());
+
+        ScreenManager.RegisterGameScreen<NTimelineScreen>(
+            () => new TimelineGameScreen((NTimelineScreen)getContext()!));
+
+        ScreenManager.RegisterGameScreen<NEpochInspectScreen>(
+            () => new EpochInspectScreen());
     }
 }
