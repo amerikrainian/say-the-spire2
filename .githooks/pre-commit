@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Get staged .cs files
+STAGED_CS=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cs$')
+
+if [ -z "$STAGED_CS" ]; then
+    exit 0
+fi
+
+# Run dotnet format on staged files only
+echo "Formatting staged C# files..."
+dotnet format --include $STAGED_CS --no-restore 2>/dev/null
+
+# Re-stage any files that were reformatted
+for file in $STAGED_CS; do
+    if [ -f "$file" ]; then
+        git add "$file"
+    fi
+done
