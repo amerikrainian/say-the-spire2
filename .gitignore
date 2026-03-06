@@ -3,3 +3,6 @@ obj/
 *.user
 *.suo
 .vs/
+.claude/
+tolk build/
+plan.md
