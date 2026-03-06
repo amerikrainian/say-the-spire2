@@ -8,8 +8,22 @@ namespace SayTheSpire2.UI.Screens;
 public abstract class Screen
 {
     private readonly Dictionary<string, bool> _claimedActions = new();
+    private FocusContext? _focusContext;
 
     public virtual string? ScreenName => null;
+
+    /// <summary>
+    /// Optional root of the container hierarchy for this screen.
+    /// When set, focus announcements use path diffing for container context.
+    /// </summary>
+    public Elements.Container? RootElement { get; protected set; }
+
+    /// <summary>
+    /// Gets the focus context for this screen, created lazily when RootElement is set.
+    /// </summary>
+    public FocusContext? FocusContext => RootElement != null
+        ? (_focusContext ??= new FocusContext())
+        : null;
 
     // Input handling — only called for claimed actions
     public virtual bool OnActionJustPressed(InputAction action) => false;

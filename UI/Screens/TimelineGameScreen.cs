@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
@@ -6,6 +7,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline.UnlockScreens;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
+using Container = SayTheSpire2.UI.Elements.Container;
 
 namespace SayTheSpire2.UI.Screens;
 
@@ -45,11 +47,15 @@ public class TimelineGameScreen : GameScreen
     {
         try
         {
-            FixFocusNeighbors();
+            var columns = GetSortedColumns();
+            if (columns == null) return;
+
+            FixFocusNeighbors(columns);
+            BuildContainerTree(columns);
         }
         catch (System.Exception ex)
         {
-            Log.Error($"[AccessibilityMod] Timeline focus fix error: {ex.Message}");
+            Log.Error($"[AccessibilityMod] Timeline EnableInput error: {ex.Message}");
         }
     }
 
@@ -130,33 +136,67 @@ public class TimelineGameScreen : GameScreen
         }
     }
 
-    private void FixFocusNeighbors()
+    private List<(NEraColumn era, List<NEpochSlot> slots)>? GetSortedColumns()
     {
-        var container = EpochSlotContainerField?.GetValue(_screen) as HBoxContainer;
-        if (container == null) return;
+        var hbox = EpochSlotContainerField?.GetValue(_screen) as HBoxContainer;
+        if (hbox == null) return null;
 
-        var columns = new List<List<NEpochSlot>>();
-        foreach (var child in container.GetChildren())
+        var columns = new List<(NEraColumn era, List<NEpochSlot> slots)>();
+        foreach (var child in hbox.GetChildren())
         {
             if (child is not NEraColumn eraCol) continue;
-            var slots = new List<NEpochSlot>();
-            foreach (var slotChild in eraCol.GetChildren())
-            {
-                if (slotChild is NEpochSlot slot)
-                    slots.Add(slot);
-            }
+            var slots = eraCol.GetChildren().OfType<NEpochSlot>().ToList();
             if (slots.Count > 0)
             {
                 slots.Sort((a, b) => a.eraPosition.CompareTo(b.eraPosition));
-                columns.Add(slots);
+                columns.Add((eraCol, slots));
             }
         }
 
-        if (columns.Count == 0) return;
+        return columns.Count > 0 ? columns : null;
+    }
 
+    private void BuildContainerTree(List<(NEraColumn era, List<NEpochSlot> slots)> columns)
+    {
+        var root = new Container { AnnounceName = false, AnnouncePosition = false };
+
+        ClearRegistry();
+
+        foreach (var (eraCol, slots) in columns)
+        {
+            // Read era name from the %Name node
+            var nameNode = eraCol.GetNodeOrNull<Control>("%Name");
+            var eraName = nameNode != null ? ProxyElement.FindChildTextPublic(nameNode) : null;
+            if (string.IsNullOrEmpty(eraName))
+                eraName = eraCol.era.ToString();
+
+            var eraContainer = new Container
+            {
+                ContainerLabel = eraName,
+                AnnounceName = true,
+                AnnouncePosition = true
+            };
+
+            foreach (var slot in slots)
+            {
+                var proxy = new ProxyEpochSlot(slot);
+                eraContainer.Add(proxy);
+                Register(slot, proxy);
+            }
+
+            root.Add(eraContainer);
+        }
+
+        RootElement = root;
+        FocusContext?.Reset();
+        Log.Info($"[AccessibilityMod] Timeline container tree: {columns.Count} eras");
+    }
+
+    private static void FixFocusNeighbors(List<(NEraColumn era, List<NEpochSlot> slots)> columns)
+    {
         for (int col = 0; col < columns.Count; col++)
         {
-            var slots = columns[col];
+            var slots = columns[col].slots;
             for (int row = 0; row < slots.Count; row++)
             {
                 var slot = slots[row];
@@ -173,8 +213,8 @@ public class TimelineGameScreen : GameScreen
                 // Left/Right: same row in adjacent column (clamped)
                 if (col > 0)
                 {
-                    var leftCol = columns[col - 1];
-                    slot.FocusNeighborLeft = leftCol[System.Math.Min(row, leftCol.Count - 1)].GetPath();
+                    var leftSlots = columns[col - 1].slots;
+                    slot.FocusNeighborLeft = leftSlots[System.Math.Min(row, leftSlots.Count - 1)].GetPath();
                 }
                 else
                 {
@@ -183,8 +223,8 @@ public class TimelineGameScreen : GameScreen
 
                 if (col < columns.Count - 1)
                 {
-                    var rightCol = columns[col + 1];
-                    slot.FocusNeighborRight = rightCol[System.Math.Min(row, rightCol.Count - 1)].GetPath();
+                    var rightSlots = columns[col + 1].slots;
+                    slot.FocusNeighborRight = rightSlots[System.Math.Min(row, rightSlots.Count - 1)].GetPath();
                 }
                 else
                 {

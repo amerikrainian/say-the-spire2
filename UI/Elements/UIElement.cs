@@ -6,6 +6,8 @@ namespace SayTheSpire2.UI.Elements;
 
 public abstract class UIElement
 {
+    public Container? Parent { get; set; }
+
     public abstract string? GetLabel();
     public virtual string? GetExtrasString() => null;
     public virtual string? GetTypeKey() => null;

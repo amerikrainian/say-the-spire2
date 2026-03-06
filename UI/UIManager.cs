@@ -60,7 +60,7 @@ public static class UIManager
         element ??= ResolveElement(control);
         _lastAnnouncedElement = element;
 
-        var text = element.GetFocusString();
+        var text = BuildFocusAnnouncement(element);
         Log.Info($"[AccessibilityMod] Focus: {control.GetType().Name} ({control.Name}) -> \"{text}\"");
         if (!string.IsNullOrEmpty(text))
         {
@@ -74,6 +74,25 @@ public static class UIManager
             buffers.SetCurrentBuffer(currentBufferKey);
 
         element.OnFocus();
+    }
+
+    private static string BuildFocusAnnouncement(UIElement element)
+    {
+        // If the element is in a container hierarchy, use path diffing
+        if (element.Parent != null)
+        {
+            var screen = ScreenManager.CurrentScreen;
+            var focusContext = screen?.FocusContext;
+            if (focusContext != null)
+            {
+                var announcement = focusContext.BuildAnnouncement(element);
+                if (!string.IsNullOrEmpty(announcement))
+                    return announcement;
+            }
+        }
+
+        // Fall back to the element's own focus string
+        return element.GetFocusString();
     }
 
     private static UIElement ResolveElement(Control control)

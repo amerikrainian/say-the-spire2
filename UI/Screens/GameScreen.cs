@@ -31,5 +31,10 @@ public abstract class GameScreen : Screen
         _registry[control] = element;
     }
 
+    protected void ClearRegistry()
+    {
+        _registry.Clear();
+    }
+
     protected abstract void BuildRegistry();
 }
