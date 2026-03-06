@@ -4,6 +4,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
+using Sts2AccessibilityMod.Buffers;
 using Sts2AccessibilityMod.Speech;
 using Sts2AccessibilityMod.UI;
 
@@ -77,6 +78,13 @@ public static class FocusHooks
         {
             SpeechManager.Output(text);
         }
+
+        // Update buffers for the focused element
+        var buffers = BufferManager.Instance;
+        buffers.DisableAll();
+        var currentBufferKey = element.HandleBuffers(buffers);
+        if (currentBufferKey != null)
+            buffers.SetCurrentBuffer(currentBufferKey);
     }
 
     private static UIElement ResolveElement(Control control)

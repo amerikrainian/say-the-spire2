@@ -1,4 +1,5 @@
 using System.Text;
+using Sts2AccessibilityMod.Buffers;
 using Sts2AccessibilityMod.Localization;
 
 namespace Sts2AccessibilityMod.UI;
@@ -10,6 +11,29 @@ public abstract class UIElement
     public virtual string? GetTypeKey() => null;
     public virtual string? GetStatusString() => null;
     public virtual LocalizationString? GetPosition() => null;
+
+    /// <summary>
+    /// Called when this element receives focus. Configure which buffers are enabled
+    /// and populate them with data. Return the key of the buffer to set as current,
+    /// or null to keep the default "ui" buffer.
+    /// </summary>
+    public virtual string? HandleBuffers(BufferManager buffers)
+    {
+        // Default: populate the UI buffer with label and status
+        var uiBuffer = buffers.GetBuffer("ui");
+        if (uiBuffer != null)
+        {
+            uiBuffer.Clear();
+            var label = GetLabel();
+            if (!string.IsNullOrEmpty(label))
+                uiBuffer.Add(label);
+            var status = GetStatusString();
+            if (!string.IsNullOrEmpty(status))
+                uiBuffer.Add(status);
+            buffers.EnableBuffer("ui", true);
+        }
+        return "ui";
+    }
 
     public string GetFocusString()
     {

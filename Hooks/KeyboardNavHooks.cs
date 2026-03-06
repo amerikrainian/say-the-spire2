@@ -4,6 +4,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
+using Sts2AccessibilityMod.Buffers;
 using Sts2AccessibilityMod.Localization;
 using Sts2AccessibilityMod.Speech;
 
@@ -51,13 +52,40 @@ public static class KeyboardNavHooks
 
     public static bool InputPrefix(NControllerManager __instance, InputEvent inputEvent)
     {
-        if (inputEvent is InputEventKey key && key.Pressed && !key.Echo
-            && key.Keycode == Key.R && key.CtrlPressed && key.ShiftPressed)
+        if (inputEvent is not InputEventKey key || !key.Pressed || key.Echo)
+            return true;
+
+        // Global hotkey: Ctrl+Shift+R resets all input bindings
+        if (key.Keycode == Key.R && key.CtrlPressed && key.ShiftPressed)
         {
             Log.Info("[AccessibilityMod] Global hotkey: Ctrl+Shift+R - resetting bindings");
             NInputManager.Instance?.ResetToDefaults();
             __instance.GetViewport()?.SetInputAsHandled();
             return false;
+        }
+
+        // Buffer navigation: Ctrl+Arrow keys
+        if (key.CtrlPressed && !key.ShiftPressed && !key.AltPressed)
+        {
+            switch (key.Keycode)
+            {
+                case Key.Up:
+                    BufferControls.PreviousItem();
+                    __instance.GetViewport()?.SetInputAsHandled();
+                    return false;
+                case Key.Down:
+                    BufferControls.NextItem();
+                    __instance.GetViewport()?.SetInputAsHandled();
+                    return false;
+                case Key.Left:
+                    BufferControls.PreviousBuffer();
+                    __instance.GetViewport()?.SetInputAsHandled();
+                    return false;
+                case Key.Right:
+                    BufferControls.NextBuffer();
+                    __instance.GetViewport()?.SetInputAsHandled();
+                    return false;
+            }
         }
 
         return true;

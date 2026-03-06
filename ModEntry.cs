@@ -6,6 +6,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
+using Sts2AccessibilityMod.Buffers;
 using Sts2AccessibilityMod.Hooks;
 using Sts2AccessibilityMod.Patches;
 using Sts2AccessibilityMod.UI;
@@ -40,11 +41,13 @@ public static class ModEntry
 
         InitializeSpeech();
         InitializeLocalization();
+        InitializeBuffers();
         RegisterScreens();
         DisableBuiltinAccessibility.Initialize();
         FocusHooks.Initialize(_harmony);
         InputRebindHooks.Initialize(_harmony);
         KeyboardNavHooks.Initialize(_harmony);
+        ModalHooks.Initialize(_harmony);
         ScreenHooks.Initialize(_harmony);
 
         Log.Info("[AccessibilityMod] Initialized. Custom TTS active.");
@@ -58,6 +61,11 @@ public static class ModEntry
     private static void InitializeLocalization()
     {
         Localization.LocalizationManager.Initialize();
+    }
+
+    private static void InitializeBuffers()
+    {
+        BufferManager.Instance.Add(new Buffers.Buffer("ui"));
     }
 
     private static void RegisterScreens()
