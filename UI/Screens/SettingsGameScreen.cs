@@ -63,7 +63,7 @@ public class SettingsGameScreen : GameScreen
             {
                 ContainerLabel = tabLabel,
                 AnnounceName = true,
-                AnnouncePosition = false,
+                AnnouncePosition = true,
             };
 
             RegisterControlsRecursive(panel, tabContainer, positioners);

@@ -4,8 +4,16 @@ public class ListContainer : Container
 {
     public override string? GetPositionString(UIElement child)
     {
-        var idx = IndexOf(child);
-        if (idx < 0) return null;
-        return $"{idx + 1} of {Children.Count}";
+        int position = 0;
+        int total = 0;
+        for (int i = 0; i < Children.Count; i++)
+        {
+            if (!Children[i].IsVisible) continue;
+            total++;
+            if (Children[i] == child)
+                position = total;
+        }
+        if (position == 0) return null;
+        return $"{position} of {total}";
     }
 }

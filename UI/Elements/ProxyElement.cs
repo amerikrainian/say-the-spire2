@@ -24,6 +24,9 @@ public abstract class ProxyElement : UIElement
 
     public string? OverrideLabel { get; set; }
 
+    public override bool IsVisible =>
+        GodotObject.IsInstanceValid(Control) && Control.IsVisibleInTree();
+
     protected ProxyElement(Control control)
     {
         Control = control;

@@ -6,6 +6,7 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Modding;
 using MegaCrit.Sts2.Core.Nodes.Screens.GameOverScreen;
+using MegaCrit.Sts2.Core.Nodes.Screens.MainMenu;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using SayTheSpire2.Buffers;
@@ -89,6 +90,9 @@ public static class ModEntry
         // Settings screen is managed via OnSubmenuOpened/Closed patches in ScreenHooks
         // instead of RegisterGameScreen, since ActiveScreenContext doesn't detect
         // settings opened from the pause menu during a run.
+
+        ScreenManager.RegisterGameScreen<NMainMenu>(
+            () => new MainMenuScreen());
 
         ScreenManager.RegisterGameScreen<NGameOverScreen>(
             () => new GameOverScreen());

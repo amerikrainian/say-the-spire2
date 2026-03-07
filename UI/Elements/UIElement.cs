@@ -8,6 +8,8 @@ public abstract class UIElement
 {
     public Container? Parent { get; set; }
 
+    public virtual bool IsVisible => true;
+
     public abstract string? GetLabel();
     public virtual string? GetExtrasString() => null;
     public virtual string? GetTypeKey() => null;
