@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
-using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using SayTheSpire2.Input;
 using SayTheSpire2.UI.Elements;
 
@@ -16,9 +13,6 @@ public static class ScreenManager
     private static readonly List<Screen> _screenStack = new();
     private static readonly Dictionary<Type, Func<GameScreen>> _gameScreenFactories = new();
     private static IScreenContext? _lastScreenContext;
-
-    private static readonly FieldInfo? ListeningEntryField =
-        typeof(NInputSettingsPanel).GetField("_listeningEntry", BindingFlags.Instance | BindingFlags.NonPublic);
 
     public static Screen? CurrentScreen =>
         _screenStack.Count > 0 ? _screenStack[^1] : null;
@@ -105,27 +99,18 @@ public static class ScreenManager
     }
 
     /// <summary>
-    /// Try to handle a key event. Returns true if consumed by a mod action.
+    /// Dispatch an action through the screen stack. Returns true if consumed.
     /// </summary>
-    public static bool HandleKeyEvent(InputEventKey key)
+    public static bool DispatchAction(InputAction action, InputActionState state)
     {
-        if (IsGameListeningForInput())
-            return false;
-
-        var action = InputManager.MatchAction(key);
-        if (action == null)
-            return false;
-
-        bool consumed = false;
-
-        if (key.Pressed && !key.Echo)
-            consumed = Dispatch(action, (s, a) => s.OnActionJustPressed(a));
-        else if (key.Pressed && key.Echo)
-            consumed = Dispatch(action, (s, a) => s.OnActionPressed(a));
-        else if (!key.Pressed)
-            consumed = Dispatch(action, (s, a) => s.OnActionJustReleased(a));
-
-        return consumed;
+        Func<Screen, InputAction, bool> handler = state switch
+        {
+            InputActionState.JustPressed => (s, a) => s.OnActionJustPressed(a),
+            InputActionState.Pressed => (s, a) => s.OnActionPressed(a),
+            InputActionState.JustReleased => (s, a) => s.OnActionJustReleased(a),
+            _ => (_, _) => false
+        };
+        return Dispatch(action, handler);
     }
 
     /// <summary>
@@ -186,21 +171,6 @@ public static class ScreenManager
         }
         // If no factory found, leave the current screen stack alone —
         // the screen may be manually managed (e.g., settings via ScreenHooks).
-    }
-
-    /// <summary>
-    /// Check if the game is in a state that needs raw input (e.g., rebinding keys).
-    /// </summary>
-    private static bool IsGameListeningForInput()
-    {
-        if (ListeningEntryField == null)
-            return false;
-
-        var screen = ActiveScreenContext.Instance.GetCurrentScreen();
-        if (screen is not NInputSettingsPanel panel)
-            return false;
-
-        return ListeningEntryField.GetValue(panel) != null;
     }
 
     private static void RemoveActiveGameScreen()
