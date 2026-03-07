@@ -57,6 +57,13 @@ public class NavigableContainer : ListContainer
         }
     }
 
+    public void SetFocusTo(UIElement element)
+    {
+        var index = IndexOf(element);
+        if (index >= 0)
+            SetFocus(index);
+    }
+
     private void SetFocus(int index)
     {
         if (_focusIndex >= 0 && _focusIndex < Children.Count)

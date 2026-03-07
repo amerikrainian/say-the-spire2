@@ -30,7 +30,17 @@ public class CheckboxElement : UIElement
     {
         var newValue = !_setting.Get();
         _setting.Set(newValue);
-        _control.ButtonPressed = newValue;
+        _control.SetPressedNoSignal(newValue);
         SpeechManager.Output(newValue ? "checked" : "unchecked");
+    }
+
+    /// <summary>
+    /// Called from mouse click. The CheckBox already toggled itself,
+    /// so just sync the setting to match.
+    /// </summary>
+    public void SyncFromControl()
+    {
+        _setting.Set(_control.ButtonPressed);
+        SpeechManager.Output(_control.ButtonPressed ? "checked" : "unchecked");
     }
 }

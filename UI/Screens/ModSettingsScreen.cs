@@ -9,7 +9,8 @@ namespace SayTheSpire2.UI.Screens;
 public class ModSettingsScreen : Screen
 {
     private readonly CategorySetting _category;
-    private readonly VBoxContainer _container;
+    private readonly PanelContainer _root;
+    private readonly VBoxContainer _itemList;
     private readonly NavigableContainer _navContainer;
 
     public override string? ScreenName => _category.Label;
@@ -17,7 +18,61 @@ public class ModSettingsScreen : Screen
     public ModSettingsScreen(CategorySetting category)
     {
         _category = category;
-        _container = new VBoxContainer { Name = "ModSettings_" + category.Key };
+
+        // Build visual layout
+        _root = new PanelContainer { Name = "ModSettings_" + category.Key };
+        _root.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+
+        // Semi-transparent dark background
+        var bg = new StyleBoxFlat
+        {
+            BgColor = new Color(0.1f, 0.1f, 0.1f, 0.9f),
+        };
+        _root.AddThemeStyleboxOverride("panel", bg);
+
+        // Centered content area
+        var centerContainer = new CenterContainer();
+        _root.AddChild(centerContainer);
+
+        var contentPanel = new PanelContainer();
+        var contentBg = new StyleBoxFlat
+        {
+            BgColor = new Color(0.15f, 0.15f, 0.2f, 1f),
+            CornerRadiusBottomLeft = 8,
+            CornerRadiusBottomRight = 8,
+            CornerRadiusTopLeft = 8,
+            CornerRadiusTopRight = 8,
+            ContentMarginLeft = 32,
+            ContentMarginRight = 32,
+            ContentMarginTop = 24,
+            ContentMarginBottom = 24,
+        };
+        contentPanel.AddThemeStyleboxOverride("panel", contentBg);
+        contentPanel.CustomMinimumSize = new Vector2(500, 0);
+        centerContainer.AddChild(contentPanel);
+
+        var outerVBox = new VBoxContainer();
+        outerVBox.AddThemeConstantOverride("separation", 16);
+        contentPanel.AddChild(outerVBox);
+
+        // Title
+        var title = new Label
+        {
+            Text = category.IsRoot ? "Mod Settings" : category.Label,
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+        title.AddThemeFontSizeOverride("font_size", 24);
+        outerVBox.AddChild(title);
+
+        // Separator
+        outerVBox.AddChild(new HSeparator());
+
+        // Item list
+        _itemList = new VBoxContainer();
+        _itemList.AddThemeConstantOverride("separation", 8);
+        outerVBox.AddChild(_itemList);
+
+        // Navigation container
         _navContainer = new NavigableContainer
         {
             ContainerLabel = category.Label,
@@ -31,6 +86,7 @@ public class ModSettingsScreen : Screen
         ClaimAction("ui_accept");
         ClaimAction("ui_select");
         ClaimAction("ui_cancel");
+        ClaimAction("mod_settings");
 
         BuildControls();
     }
@@ -38,27 +94,35 @@ public class ModSettingsScreen : Screen
     public override void OnPush()
     {
         var tree = (SceneTree)Engine.GetMainLoop();
-        tree.Root.AddChild(_container);
+        tree.Root.AddChild(_root);
         _navContainer.FocusFirst();
     }
 
     public override void OnFocus()
     {
+        if (GodotObject.IsInstanceValid(_root))
+            _root.Visible = true;
         _navContainer.FocusFirst();
+    }
+
+    public override void OnUnfocus()
+    {
+        if (GodotObject.IsInstanceValid(_root))
+            _root.Visible = false;
     }
 
     public override void OnPop()
     {
-        if (GodotObject.IsInstanceValid(_container))
+        if (GodotObject.IsInstanceValid(_root))
         {
-            _container.GetParent()?.RemoveChild(_container);
-            _container.QueueFree();
+            _root.GetParent()?.RemoveChild(_root);
+            _root.QueueFree();
         }
     }
 
     public override bool OnActionJustPressed(InputAction action)
     {
-        if (action.Key == "ui_cancel")
+        if (action.Key == "ui_cancel" || action.Key == "mod_settings")
         {
             ScreenManager.RemoveScreen(this);
             SpeechManager.Output("Closed");
@@ -82,15 +146,38 @@ public class ModSettingsScreen : Screen
                         ScreenManager.PushScreen(subScreen);
                     };
                     _navContainer.Add(button);
-                    _container.AddChild(button.Node);
+                    AddControl(button.Node, button);
                     break;
 
                 case BoolSetting boolSetting:
                     var checkbox = new CheckboxElement(boolSetting);
                     _navContainer.Add(checkbox);
-                    _container.AddChild(checkbox.Node);
+                    AddControl(checkbox.Node, checkbox);
                     break;
             }
+        }
+    }
+
+    private void AddControl(Node node, UIElement element)
+    {
+        var control = (Control)node;
+        control.FocusMode = Control.FocusModeEnum.All;
+        _itemList.AddChild(control);
+
+        // Sync keyboard navigation when mouse clicks a control
+        control.FocusEntered += () =>
+        {
+            _navContainer.SetFocusTo(element);
+        };
+
+        // Handle mouse activation
+        if (element is ButtonElement btn)
+        {
+            ((BaseButton)control).Pressed += () => btn.Activate();
+        }
+        else if (element is CheckboxElement cb)
+        {
+            ((CheckBox)control).Toggled += (_) => cb.SyncFromControl();
         }
     }
 }
