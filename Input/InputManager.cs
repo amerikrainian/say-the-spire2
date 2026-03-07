@@ -16,6 +16,8 @@ public static class InputManager
         _actions.Add(new InputAction("buffer_next").AddBinding(Key.Right, ctrl: true));
         _actions.Add(new InputAction("buffer_prev").AddBinding(Key.Left, ctrl: true));
         _actions.Add(new InputAction("reset_bindings").AddBinding(Key.R, ctrl: true, shift: true));
+        _actions.Add(new InputAction("announce_gold").AddBinding(Key.G, ctrl: true));
+        _actions.Add(new InputAction("announce_hp").AddBinding(Key.H, ctrl: true));
 
         Log.Info("[AccessibilityMod] InputManager initialized.");
     }

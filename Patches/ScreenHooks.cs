@@ -6,6 +6,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline.UnlockScreens;
+using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Timeline;
 using SayTheSpire2.UI.Screens;
 
@@ -51,6 +52,12 @@ public static class ScreenHooks
             nameof(SettingsOpenedPostfix), "Settings OnSubmenuOpened");
         PatchIfFound(harmony, typeof(NSettingsScreen), "OnSubmenuClosed",
             nameof(SettingsClosedPostfix), "Settings OnSubmenuClosed");
+
+        // Run lifecycle hooks
+        PatchIfFound(harmony, typeof(RunManager), "Launch",
+            nameof(RunLaunchPostfix), "Run Launch");
+        PatchIfFound(harmony, typeof(RunManager), "OnEnded",
+            nameof(RunEndedPostfix), "Run OnEnded");
     }
 
     private static void PatchIfFound(Harmony harmony, System.Type type, string methodName,
@@ -116,5 +123,18 @@ public static class ScreenHooks
     {
         if (SettingsGameScreen.Current != null)
             ScreenManager.RemoveScreen(SettingsGameScreen.Current);
+    }
+
+    // Run lifecycle delegates
+    public static void RunLaunchPostfix(RunState __result)
+    {
+        if (RunScreen.Current == null)
+            ScreenManager.PushScreen(new RunScreen(__result));
+    }
+
+    public static void RunEndedPostfix()
+    {
+        if (RunScreen.Current != null)
+            ScreenManager.RemoveScreen(RunScreen.Current);
     }
 }
