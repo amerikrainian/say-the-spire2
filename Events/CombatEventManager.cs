@@ -27,7 +27,7 @@ public static class CombatEventManager
     {
         if (_activeCombatScreen != null)
         {
-            ScreenManager.PopScreen();
+            ScreenManager.RemoveScreen(_activeCombatScreen);
             _activeCombatScreen = null;
         }
     }

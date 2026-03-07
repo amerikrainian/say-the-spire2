@@ -45,24 +45,6 @@ public static class ScreenManager
         Log.Info($"[AccessibilityMod] Screen pushed: {screen.GetType().Name} (stack depth: {_screenStack.Count})");
     }
 
-    public static void PopScreen()
-    {
-        if (_screenStack.Count <= 1)
-        {
-            Log.Error("[AccessibilityMod] Cannot pop the last Screen!");
-            return;
-        }
-
-        var screen = _screenStack[^1];
-        _screenStack.RemoveAt(_screenStack.Count - 1);
-        screen.OnPop();
-
-        if (_screenStack.Count > 0)
-            _screenStack[^1].OnFocus();
-
-        Log.Info($"[AccessibilityMod] Screen popped: {screen.GetType().Name} (stack depth: {_screenStack.Count})");
-    }
-
     /// <summary>
     /// Remove a specific screen from anywhere in the stack.
     /// Safe to call even if other screens have been pushed on top.
@@ -175,9 +157,8 @@ public static class ScreenManager
 
         if (currentContext == null)
         {
-            // Context cleared — pop any GameScreen on top
-            if (CurrentScreen is GameScreen)
-                PopScreen();
+            // Context cleared — remove any active GameScreen
+            RemoveActiveGameScreen();
             return;
         }
 
@@ -195,9 +176,8 @@ public static class ScreenManager
 
         if (matchedFactory != null)
         {
-            // Pop existing GameScreen before pushing the new one
-            if (CurrentScreen is GameScreen)
-                PopScreen();
+            // Remove existing GameScreen before pushing the new one
+            RemoveActiveGameScreen();
 
             var screen = matchedFactory();
             PushScreen(screen);
@@ -221,6 +201,18 @@ public static class ScreenManager
             return false;
 
         return ListeningEntryField.GetValue(panel) != null;
+    }
+
+    private static void RemoveActiveGameScreen()
+    {
+        for (int i = _screenStack.Count - 1; i >= 0; i--)
+        {
+            if (_screenStack[i] is GameScreen gs)
+            {
+                RemoveScreen(gs);
+                return;
+            }
+        }
     }
 
     private static bool Dispatch(InputAction action, Func<Screen, InputAction, bool> handler)
