@@ -35,16 +35,21 @@ public class TreeMapViewer : MapViewer
         if (children.Count == 0)
             return LocalizationManager.Get("map_nav", "NAV.NO_FORWARD");
 
-        // Move to first child (or only child)
-        var edge = children[0];
+        // Always move to leftmost child by column
+        var edge = children.OrderBy(e => e.To.Col).First();
         _pathStack.Push(edge);
         Current = edge.To;
         RefreshSiblings();
 
+        string announcement;
         if (_autoAdvance)
-            return AutoAdvanceForward();
+            announcement = AutoAdvanceForward();
+        else
+            announcement = AnnounceCurrentNode();
 
-        return AnnounceCurrentNode();
+        if (children.Count > 1)
+            announcement = GetChoiceText() + ", " + announcement;
+        return announcement;
     }
 
     public override string? MoveBackward()
@@ -84,11 +89,8 @@ public class TreeMapViewer : MapViewer
     public override string? NextBranch()
     {
         if (Current == null) return null;
-        if (_rowNodes.Count <= 1)
-            return LocalizationManager.Get("map_nav", "NAV.NO_MORE_BRANCHES");
-
-        if (_rowIndex >= _rowNodes.Count - 1)
-            return LocalizationManager.Get("map_nav", "NAV.NO_MORE_BRANCHES");
+        if (_rowNodes.Count <= 1 || _rowIndex >= _rowNodes.Count - 1)
+            return null;
 
         _rowIndex++;
         Current = _rowNodes[_rowIndex];
@@ -98,11 +100,8 @@ public class TreeMapViewer : MapViewer
     public override string? PreviousBranch()
     {
         if (Current == null) return null;
-        if (_rowNodes.Count <= 1)
-            return LocalizationManager.Get("map_nav", "NAV.NO_MORE_BRANCHES");
-
-        if (_rowIndex <= 0)
-            return LocalizationManager.Get("map_nav", "NAV.NO_MORE_BRANCHES");
+        if (_rowNodes.Count <= 1 || _rowIndex <= 0)
+            return null;
 
         _rowIndex--;
         Current = _rowNodes[_rowIndex];
@@ -149,17 +148,7 @@ public class TreeMapViewer : MapViewer
 
     private string AnnounceCurrentNode()
     {
-        var sb = new StringBuilder();
-        sb.Append(AnnounceNode(Current!));
-
-        // If this node has multiple children, hint at the choice
-        if (Current!.ForwardEdges.Count > 1)
-        {
-            sb.Append(", ");
-            sb.Append(GetChoiceText(Current.ForwardEdges.Count));
-        }
-
-        return sb.ToString();
+        return AnnounceNode(Current!);
     }
 
     private string AutoAdvanceForward()
@@ -181,12 +170,6 @@ public class TreeMapViewer : MapViewer
         {
             if (sb.Length > 0) sb.Append(", ");
             sb.Append(node.GetDisplayName());
-        }
-
-        if (Current.ForwardEdges.Count > 1)
-        {
-            sb.Append(", ");
-            sb.Append(GetChoiceText(Current.ForwardEdges.Count));
         }
 
         return sb.ToString();
@@ -241,10 +224,8 @@ public class TreeMapViewer : MapViewer
             .ToString();
     }
 
-    private static string GetChoiceText(int count)
+    private static string GetChoiceText()
     {
-        return new LocalizationString("map_nav", "NAV.CHOICE")
-            .Add("count", count.ToString())
-            .ToString();
+        return LocalizationManager.Get("map_nav", "NAV.CHOICE") ?? "choice";
     }
 }

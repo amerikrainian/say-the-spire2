@@ -10,7 +10,7 @@
   "STATE.TRAVELABLE": "travelable",
   "STATE.TRAVELED": "traveled",
   "STATE.UNTRAVELABLE": "untravelable",
-  "NAV.CHOICE": "choice, {count} paths",
+  "NAV.CHOICE": "choice",
   "NAV.PATH_ITEM": "{type}",
   "NAV.COORDINATES": "({col}, {row})",
   "NAV.NODE": "{type} {coordinates}",
