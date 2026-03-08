@@ -1,5 +1,5 @@
 {
-  "pck_name": "sts2-accessibility-mod",
+  "pck_name": "SayTheSpire2",
   "name": "Accessibility Mod",
   "author": "bradj",
   "description": "Custom accessibility system for blind players, replacing Godot's built-in screen reader with a purpose-built solution.",

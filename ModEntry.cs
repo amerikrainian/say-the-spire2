@@ -39,7 +39,7 @@ public static class ModEntry
             return null;
         };
 
-        _harmony = new Harmony("bradj.sts2-accessibility-mod");
+        _harmony = new Harmony("bradj.SayTheSpire2");
         _harmony.PatchAll(typeof(ModEntry).Assembly);
 
         InitializeSettings();

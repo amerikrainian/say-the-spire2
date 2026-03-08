@@ -6,3 +6,14 @@ obj/
 .claude/
 tolk build/
 plan.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+.venv/
+
+# Build artifacts
+*.zip
