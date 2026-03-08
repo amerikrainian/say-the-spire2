@@ -235,7 +235,7 @@ public class ProxyMerchantSlot : ProxyElement
         if (uiBuffer != null)
         {
             uiBuffer.Clear();
-            ProxyRelicHolder.PopulateRelicBuffer(uiBuffer, model, buffers);
+            RelicBuffer.PopulateBuffer(uiBuffer, model, buffers);
             uiBuffer.Add($"Price: {relicEntry.Cost} gold");
             buffers.EnableBuffer("ui", true);
         }

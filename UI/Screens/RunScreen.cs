@@ -10,6 +10,9 @@ public class RunScreen : Screen
 {
     public static RunScreen? Current { get; private set; }
 
+    private static readonly string[] _alwaysEnabled = { "player" };
+    public override System.Collections.Generic.IEnumerable<string> AlwaysEnabledBuffers => _alwaysEnabled;
+
     private readonly RunState _runState;
 
     public RunScreen(RunState runState)

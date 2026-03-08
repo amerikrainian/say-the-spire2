@@ -2,7 +2,6 @@ using Godot;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Enchantments;
 using MegaCrit.Sts2.Core.HoverTips;
-using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
@@ -87,154 +86,21 @@ public class ProxyCard : ProxyElement
         var model = GetCardModel();
         if (model == null) return base.HandleBuffers(buffers);
 
-        var cardBuffer = buffers.GetBuffer("card");
+        var cardBuffer = buffers.GetBuffer("card") as CardBuffer;
         if (cardBuffer != null)
         {
-            cardBuffer.Clear();
-
-            // Name
-            cardBuffer.Add(model.Title);
-
-            // Type and rarity
-            var typeRarity = model.Type.ToString();
-            if (model.Rarity != CardRarity.Common)
-                typeRarity += $", {model.Rarity}";
-            cardBuffer.Add(typeRarity);
-
-            // Energy cost
-            if (model.EnergyCost != null)
-            {
-                if (model.EnergyCost.CostsX)
-                    cardBuffer.Add("X energy");
-                else
-                    cardBuffer.Add($"{model.EnergyCost.GetWithModifiers(CostModifiers.All)} energy");
-            }
-
-            // Star cost
-            if (model.CurrentStarCost > 0)
-                cardBuffer.Add($"{model.CurrentStarCost}");
-
-            // Description
-            try
-            {
-                var desc = model.GetDescriptionForPile(PileType.Hand);
-                if (!string.IsNullOrEmpty(desc))
-                    cardBuffer.Add(StripBbcode(desc));
-            }
-            catch
-            {
-                // Hand pile may fail outside combat — try without pile context
-                try
-                {
-                    var desc = model.GetDescriptionForPile(PileType.None);
-                    if (!string.IsNullOrEmpty(desc))
-                        cardBuffer.Add(StripBbcode(desc));
-                }
-                catch { }
-            }
-
-            // Enchantment
-            if (model.Enchantment != null)
-            {
-                try
-                {
-                    var enchant = model.Enchantment;
-                    var enchTitle = enchant.Title.GetFormattedText();
-                    var enchDesc = enchant.DynamicDescription.GetFormattedText();
-                    if (!string.IsNullOrEmpty(enchTitle) && !string.IsNullOrEmpty(enchDesc))
-                        cardBuffer.Add($"Enchantment: {enchTitle} - {StripBbcode(enchDesc)}");
-                    else if (!string.IsNullOrEmpty(enchTitle))
-                        cardBuffer.Add($"Enchantment: {enchTitle}");
-
-                    if (enchant.ShowAmount && enchant.DisplayAmount != 0)
-                        cardBuffer.Add($"Enchantment amount: {enchant.DisplayAmount}");
-
-                    if (enchant.Status == EnchantmentStatus.Disabled)
-                        cardBuffer.Add("Enchantment disabled");
-                }
-                catch { }
-            }
-
-            // Hover tips (keywords, powers, etc.)
-            try
-            {
-                foreach (var tip in model.HoverTips)
-                {
-                    if (tip is HoverTip hoverTip)
-                    {
-                        var title = hoverTip.Title;
-                        var desc = hoverTip.Description;
-                        if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(desc))
-                            cardBuffer.Add($"{title}: {StripBbcode(desc)}");
-                        else if (!string.IsNullOrEmpty(title))
-                            cardBuffer.Add(title);
-                        else if (!string.IsNullOrEmpty(desc))
-                            cardBuffer.Add(StripBbcode(desc));
-                    }
-                }
-            }
-            catch
-            {
-                // Hover tips may fail outside combat context
-            }
-
+            cardBuffer.Bind(model);
+            cardBuffer.Update();
             buffers.EnableBuffer("card", true);
         }
 
-        // Upgrade preview buffer
-        var upgradeBuffer = buffers.GetBuffer("upgrade");
+        var upgradeBuffer = buffers.GetBuffer("upgrade") as UpgradeBuffer;
         if (upgradeBuffer != null)
         {
-            upgradeBuffer.Clear();
-
-            if (!model.IsUpgradable)
-            {
-                upgradeBuffer.Add("No upgrade available");
-            }
-            else if (model.CardScope != null)
-            {
-                try
-                {
-                    var clone = model.CardScope.CloneCard(model);
-                    clone.UpgradeInternal();
-
-                    upgradeBuffer.Add(clone.Title);
-                    var upgradeTypeRarity = clone.Type.ToString();
-                    if (clone.Rarity != CardRarity.Common)
-                        upgradeTypeRarity += $", {clone.Rarity}";
-                    upgradeBuffer.Add(upgradeTypeRarity);
-
-                    if (clone.EnergyCost != null)
-                    {
-                        if (clone.EnergyCost.CostsX)
-                            upgradeBuffer.Add("X energy");
-                        else
-                            upgradeBuffer.Add($"{clone.EnergyCost.GetWithModifiers(CostModifiers.All)} energy");
-                    }
-
-                    if (clone.CurrentStarCost > 0)
-                        upgradeBuffer.Add($"{clone.CurrentStarCost}");
-
-                    try
-                    {
-                        var desc = clone.GetDescriptionForUpgradePreview();
-                        if (!string.IsNullOrEmpty(desc))
-                            upgradeBuffer.Add(StripBbcode(desc));
-                    }
-                    catch { }
-                }
-                catch (System.Exception e)
-                {
-                    Log.Error($"[AccessibilityMod] Card upgrade preview failed: {e.Message}");
-                    upgradeBuffer.Add("Upgrade preview unavailable");
-                }
-            }
-
+            upgradeBuffer.Bind(model);
+            upgradeBuffer.Update();
             buffers.EnableBuffer("upgrade", true);
         }
-
-        // Also populate the player buffer during combat
-        PlayerBufferHelper.Populate(buffers);
 
         return "card";
     }

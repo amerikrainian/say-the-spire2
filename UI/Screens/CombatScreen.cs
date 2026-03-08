@@ -25,6 +25,9 @@ public class CombatScreen : Screen
 {
     public static CombatScreen? Current { get; private set; }
 
+    private static readonly string[] _alwaysEnabled = { "events" };
+    public override IEnumerable<string> AlwaysEnabledBuffers => _alwaysEnabled;
+
     private readonly CombatState _initialState;
     private readonly Dictionary<Creature, CreatureHandlers> _subscribedCreatures = new();
     private CardPileHandlers? _cardPileHandlers;

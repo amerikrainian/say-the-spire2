@@ -45,7 +45,7 @@ public static class UIManager
             SpeechManager.Output(text);
 
         var buffers = BufferManager.Instance;
-        buffers.DisableAll();
+        buffers.ResetToAlwaysEnabled(ScreenManager.GetAlwaysEnabledBuffers());
         var currentBufferKey = element.HandleBuffers(buffers);
         if (currentBufferKey != null)
             buffers.SetCurrentBuffer(currentBufferKey);
@@ -92,7 +92,7 @@ public static class UIManager
         }
 
         var buffers = BufferManager.Instance;
-        buffers.DisableAll();
+        buffers.ResetToAlwaysEnabled(ScreenManager.GetAlwaysEnabledBuffers());
         var currentBufferKey = element.HandleBuffers(buffers);
         if (currentBufferKey != null)
             buffers.SetCurrentBuffer(currentBufferKey);

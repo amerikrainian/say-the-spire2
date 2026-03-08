@@ -67,67 +67,17 @@ public class ProxyCreature : ProxyElement
         var entity = GetEntity();
         if (entity == null) return base.HandleBuffers(buffers);
 
-        // If this is the local player, use the player buffer instead
+        // If this is the local player, use the player buffer (always-enabled by RunScreen)
         if (LocalContext.IsMe(entity))
-        {
-            PlayerBufferHelper.Populate(buffers);
             return "player";
-        }
 
-        var creatureBuffer = buffers.GetBuffer("creature");
+        var creatureBuffer = buffers.GetBuffer("creature") as CreatureBuffer;
         if (creatureBuffer != null)
         {
-            creatureBuffer.Clear();
-
-            // Name
-            creatureBuffer.Add(entity.Name);
-
-            // HP
-            creatureBuffer.Add($"HP: {entity.CurrentHp}/{entity.MaxHp}");
-
-            // Block
-            if (entity.Block > 0)
-                creatureBuffer.Add($"Block: {entity.Block}");
-
-            // Intents for monsters
-            if (entity.IsMonster && entity.Monster != null)
-            {
-                try
-                {
-                    var intents = entity.Monster.NextMove.Intents;
-                    if (intents != null && intents.Count > 0)
-                    {
-                        var allies = entity.CombatState?.Allies;
-                        foreach (var intent in intents)
-                        {
-                            var tip = intent.GetHoverTip(allies ?? Enumerable.Empty<Creature>(), entity);
-                            var intentText = tip.Title ?? intent.IntentType.ToString();
-                            if (!string.IsNullOrEmpty(tip.Description))
-                                intentText += ": " + StripBbcode(tip.Description);
-                            creatureBuffer.Add(intentText);
-                        }
-                    }
-                }
-                catch
-                {
-                    // Intent access may fail outside combat
-                }
-            }
-
-            // Powers (buffs/debuffs)
-            if (entity.Powers.Count > 0)
-            {
-                foreach (var power in entity.Powers)
-                {
-                    PlayerBufferHelper.AddPowerToBuffer(creatureBuffer, power);
-                }
-            }
-
+            creatureBuffer.Bind(entity);
+            creatureBuffer.Update();
             buffers.EnableBuffer("creature", true);
         }
-
-        // Also populate the player buffer for non-player creatures
-        PlayerBufferHelper.Populate(buffers);
 
         return "creature";
     }

@@ -72,6 +72,17 @@ public class BufferManager
             buffer.Enabled = false;
     }
 
+    /// <summary>
+    /// Disable all buffers except those in the always-enabled set.
+    /// Used on focus changes to reset to the screen stack's baseline.
+    /// </summary>
+    public void ResetToAlwaysEnabled(HashSet<string> alwaysEnabled)
+    {
+        _position = -1;
+        foreach (var buffer in _buffers)
+            buffer.Enabled = alwaysEnabled.Contains(buffer.Key);
+    }
+
     public bool MoveToNext()
     {
         if (_buffers.Count == 0) return false;

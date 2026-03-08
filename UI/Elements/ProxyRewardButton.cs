@@ -47,7 +47,7 @@ public class ProxyRewardButton : ProxyElement
             case RelicReward relicReward:
                 var relic = RelicField?.GetValue(relicReward) as RelicModel;
                 if (relic != null)
-                    ProxyRelicHolder.PopulateRelicBuffer(uiBuffer, relic, buffers);
+                    RelicBuffer.PopulateBuffer(uiBuffer, relic, buffers);
                 else
                     uiBuffer.Add(reward.Description.GetFormattedText());
                 break;

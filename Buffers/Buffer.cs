@@ -8,7 +8,17 @@ public class Buffer
     private readonly List<string> _contents = new();
 
     public string Key { get; set; }
-    public bool Enabled { get; set; }
+    private bool _enabled;
+    public bool Enabled
+    {
+        get => _enabled;
+        set
+        {
+            _enabled = value;
+            if (!value)
+                ClearBinding();
+        }
+    }
     public int Position { get; private set; }
 
     public Buffer(string key)
@@ -80,5 +90,26 @@ public class Buffer
     /// </summary>
     public virtual void Update()
     {
+    }
+
+    /// <summary>
+    /// Called when the buffer is disabled. Override in subclasses to clear
+    /// the bound game object so stale data isn't shown if re-enabled.
+    /// </summary>
+    protected virtual void ClearBinding()
+    {
+    }
+
+    /// <summary>
+    /// Clear and repopulate the buffer while preserving the current position.
+    /// Use in Update() overrides to avoid resetting the user's scroll position.
+    /// </summary>
+    protected void Repopulate(System.Action populate)
+    {
+        var savedPos = Position;
+        Clear();
+        populate();
+        if (savedPos > 0 && savedPos < Count)
+            MoveToPosition(savedPos);
     }
 }

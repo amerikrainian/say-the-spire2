@@ -13,6 +13,12 @@ public abstract class Screen
     public virtual string? ScreenName => null;
 
     /// <summary>
+    /// Buffer keys that should remain enabled while this screen is in the stack.
+    /// Collected from all screens in the stack on each focus change.
+    /// </summary>
+    public virtual IEnumerable<string> AlwaysEnabledBuffers => System.Array.Empty<string>();
+
+    /// <summary>
     /// Optional root of the container hierarchy for this screen.
     /// When set, focus announcements use path diffing for container context.
     /// </summary>

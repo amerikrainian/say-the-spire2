@@ -1,85 +1,72 @@
-using System.Linq;
-using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Context;
-using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.HoverTips;
-using SayTheSpire2.Buffers;
+using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.UI.Elements;
 
-namespace SayTheSpire2.UI;
+namespace SayTheSpire2.Buffers;
 
-public static class PlayerBufferHelper
+public class PlayerBuffer : Buffer
 {
-    public static void Populate(BufferManager buffers)
+    public PlayerBuffer() : base("player") { }
+
+    public override void Update()
     {
-        var playerBuffer = buffers.GetBuffer("player");
-        if (playerBuffer == null) return;
+        Repopulate(Populate);
+    }
 
-        playerBuffer.Clear();
-
-        if (!CombatManager.Instance.IsInProgress) return;
+    private void Populate()
+    {
+        if (!RunManager.Instance.IsInProgress) return;
 
         try
         {
-            var combatState = CombatManager.Instance.DebugOnlyGetState();
-            if (combatState == null) return;
+            var runState = RunManager.Instance.DebugOnlyGetState();
+            if (runState == null) return;
 
-            var player = LocalContext.GetMe(combatState);
+            var player = LocalContext.GetMe(runState);
             if (player == null) return;
 
             var creature = player.Creature;
             var pcs = player.PlayerCombatState;
 
-            // HP
-            playerBuffer.Add($"HP: {creature.CurrentHp}/{creature.MaxHp}");
+            Add($"HP: {creature.CurrentHp}/{creature.MaxHp}");
 
-            // Block
             if (creature.Block > 0)
-                playerBuffer.Add($"Block: {creature.Block}");
+                Add($"Block: {creature.Block}");
 
-            // Energy
             if (pcs != null)
-                playerBuffer.Add($"Energy: {pcs.Energy}/{pcs.MaxEnergy}");
+                Add($"Energy: {pcs.Energy}/{pcs.MaxEnergy}");
 
-            // Gold
-            playerBuffer.Add($"Gold: {player.Gold}");
+            Add($"Gold: {player.Gold}");
 
-            // Deck/pile counts
             if (pcs != null)
             {
-                playerBuffer.Add($"Draw pile: {pcs.DrawPile.Cards.Count}");
-                playerBuffer.Add($"Hand: {pcs.Hand.Cards.Count}");
-                playerBuffer.Add($"Discard pile: {pcs.DiscardPile.Cards.Count}");
+                var piles = $"Draw: {pcs.DrawPile.Cards.Count}, Hand: {pcs.Hand.Cards.Count}, Discard: {pcs.DiscardPile.Cards.Count}";
                 if (pcs.ExhaustPile.Cards.Count > 0)
-                    playerBuffer.Add($"Exhaust pile: {pcs.ExhaustPile.Cards.Count}");
+                    piles += $", Exhaust: {pcs.ExhaustPile.Cards.Count}";
+                Add(piles);
             }
 
-            // Powers
             if (creature.Powers.Count > 0)
             {
                 foreach (var power in creature.Powers)
-                {
-                    AddPowerToBuffer(playerBuffer, power);
-                }
+                    AddPowerToBuffer(this, power);
             }
         }
         catch
         {
             // Combat state may not be accessible
         }
-
-        buffers.EnableBuffer("player", true);
     }
 
-    public static void AddPowerToBuffer(Buffer buffer, MegaCrit.Sts2.Core.Models.PowerModel power)
+    public static void AddPowerToBuffer(Buffer buffer, PowerModel power)
     {
         var title = power.Title.GetFormattedText();
         var amount = power.Amount;
         var line = amount != 0 ? $"{title} {amount}" : title;
         try
         {
-            // Use HoverTips to get the fully resolved description (with smart variables)
-            // plus any extra tips (e.g. enchantment/affliction tooltips)
             bool first = true;
             foreach (var tip in power.HoverTips)
             {

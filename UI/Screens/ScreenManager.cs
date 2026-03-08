@@ -114,6 +114,20 @@ public static class ScreenManager
     }
 
     /// <summary>
+    /// Collect all always-enabled buffer keys from the entire screen stack.
+    /// </summary>
+    public static HashSet<string> GetAlwaysEnabledBuffers()
+    {
+        var result = new HashSet<string>();
+        foreach (var screen in _screenStack)
+        {
+            foreach (var key in screen.AlwaysEnabledBuffers)
+                result.Add(key);
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Resolve a UI element for a control by walking the screen stack top-down.
     /// </summary>
     public static UIElement? ResolveElement(Godot.Control control)

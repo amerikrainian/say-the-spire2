@@ -1,6 +1,5 @@
 using Godot;
 using MegaCrit.Sts2.Core.Localization;
-using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using SayTheSpire2.Buffers;
 
@@ -58,36 +57,15 @@ public class ProxyCharacterButton : ProxyElement
             return base.HandleBuffers(buffers);
 
         // Character buffer
-        var charBuffer = buffers.GetBuffer("character");
+        var charBuffer = buffers.GetBuffer("character") as CharacterBuffer;
         if (charBuffer != null)
         {
-            charBuffer.Clear();
-
-            if (button.IsLocked)
-            {
-                charBuffer.Add(new LocString("main_menu_ui", "CHARACTER_SELECT.locked.title").GetFormattedText());
-
-                var unlockText = character.GetUnlockText().GetFormattedText();
-                if (!string.IsNullOrEmpty(unlockText))
-                    charBuffer.Add(StripBbcode(unlockText));
-            }
-            else
-            {
-                charBuffer.Add(new LocString("characters", character.CharacterSelectTitle).GetFormattedText());
-
-                var desc = new LocString("characters", character.CharacterSelectDesc).GetFormattedText();
-                if (!string.IsNullOrEmpty(desc))
-                    charBuffer.Add(StripBbcode(desc));
-
-                charBuffer.Add($"HP: {character.StartingHp}");
-                charBuffer.Add($"Gold: {character.StartingGold}");
-                charBuffer.Add($"Energy: {character.MaxEnergy}");
-            }
-
+            charBuffer.Bind(button);
+            charBuffer.Update();
             buffers.EnableBuffer("character", true);
         }
 
-        // Relic buffer
+        // Relic buffer (starting relic for character select)
         var relicBuffer = buffers.GetBuffer("relic");
         if (relicBuffer != null)
         {

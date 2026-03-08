@@ -123,12 +123,12 @@ public static class ModEntry
     private static void InitializeBuffers()
     {
         BufferManager.Instance.Add(new Buffers.Buffer("ui"));
-        BufferManager.Instance.Add(new Buffers.Buffer("character"));
-        BufferManager.Instance.Add(new Buffers.Buffer("relic"));
-        BufferManager.Instance.Add(new Buffers.Buffer("card"));
-        BufferManager.Instance.Add(new Buffers.Buffer("upgrade"));
-        BufferManager.Instance.Add(new Buffers.Buffer("creature"));
-        BufferManager.Instance.Add(new Buffers.Buffer("player"));
+        BufferManager.Instance.Add(new Buffers.CharacterBuffer());
+        BufferManager.Instance.Add(new Buffers.RelicBuffer());
+        BufferManager.Instance.Add(new Buffers.CardBuffer());
+        BufferManager.Instance.Add(new Buffers.UpgradeBuffer());
+        BufferManager.Instance.Add(new Buffers.CreatureBuffer());
+        BufferManager.Instance.Add(new Buffers.PlayerBuffer());
         BufferManager.Instance.Add(new Buffers.Buffer("events"));
     }
 
