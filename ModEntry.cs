@@ -83,6 +83,11 @@ public static class ModEntry
         Settings.EventRegistry.Register(typeof(PowerEvent));
         Settings.EventRegistry.Register(typeof(TurnEvent));
 
+        // Map settings
+        var mapCategory = new Settings.CategorySetting("map", "Map");
+        Settings.ModSettings.Root.Add(mapCategory);
+        mapCategory.Add(new Settings.BoolSetting("auto_advance", "Automatically Follow Paths until Choice Node", false));
+
         // Collect speech handler settings
         var speechCategory = new Settings.CategorySetting("speech", "Speech");
         Settings.ModSettings.Root.Add(speechCategory);

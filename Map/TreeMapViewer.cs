@@ -3,21 +3,22 @@ using System.Linq;
 using System.Text;
 using MegaCrit.Sts2.Core.Map;
 using SayTheSpire2.Localization;
+using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.Map;
 
 public class TreeMapViewer : MapViewer
 {
     private readonly Stack<MapEdge> _pathStack = new();
-    private bool _autoAdvance;
 
     // Cached row nodes for left/right navigation
     private List<MapNode> _rowNodes = new();
     private int _rowIndex;
 
-    public TreeMapViewer(MapHandler handler, bool autoAdvance = false) : base(handler)
+    private static bool AutoAdvance => ModSettings.GetValue<bool>("map.auto_advance");
+
+    public TreeMapViewer(MapHandler handler) : base(handler)
     {
-        _autoAdvance = autoAdvance;
     }
 
     public override void SetStartNode(MapNode focusedNode)
@@ -41,13 +42,11 @@ public class TreeMapViewer : MapViewer
         Current = edge.To;
         RefreshSiblings();
 
-        string announcement;
-        if (_autoAdvance)
-            announcement = AutoAdvanceForward();
-        else
-            announcement = AnnounceCurrentNode();
+        if (AutoAdvance)
+            return AutoAdvanceForward();
 
-        if (children.Count > 1)
+        var announcement = AnnounceCurrentNode();
+        if (_rowNodes.Count > 1)
             announcement = GetChoiceText() + ", " + announcement;
         return announcement;
     }
@@ -62,7 +61,7 @@ public class TreeMapViewer : MapViewer
             Current = edge.From;
             RefreshSiblings();
 
-            if (_autoAdvance)
+            if (AutoAdvance)
                 return AutoAdvanceBackward();
 
             return AnnounceCurrentNode();
@@ -80,7 +79,7 @@ public class TreeMapViewer : MapViewer
         Current = parent.From;
         RefreshSiblings();
 
-        if (_autoAdvance)
+        if (AutoAdvance)
             return AutoAdvanceBackward();
 
         return AnnounceCurrentNode();
@@ -154,22 +153,35 @@ public class TreeMapViewer : MapViewer
     private string AutoAdvanceForward()
     {
         var sb = new StringBuilder();
-        var visited = new List<MapNode> { Current! };
 
-        while (Current!.ForwardEdges.Count == 1)
+        // Current is already set by MoveForward, RefreshSiblings already called.
+        // Algorithm: if node has siblings (parent had >1 child) it's a choice — stop.
+        // Otherwise add to path and advance.
+        while (true)
         {
-            var edge = Current.ForwardEdges[0];
+            if (_rowNodes.Count > 1)
+            {
+                // Choice row — announce choice + this node, then stop
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append(GetChoiceText());
+                sb.Append(", ");
+                sb.Append(AnnounceNode(Current!));
+                break;
+            }
+
+            // Not a choice — add to path
+            if (sb.Length > 0) sb.Append(", ");
+            sb.Append(Current!.GetDisplayName());
+
+            // Try to advance
+            var edges = Current.ForwardEdges;
+            if (edges.Count == 0)
+                break;
+
+            var edge = edges.OrderBy(e => e.To.Col).First();
             _pathStack.Push(edge);
             Current = edge.To;
-            visited.Add(Current);
-        }
-
-        RefreshSiblings();
-
-        foreach (var node in visited)
-        {
-            if (sb.Length > 0) sb.Append(", ");
-            sb.Append(node.GetDisplayName());
+            RefreshSiblings();
         }
 
         return sb.ToString();
