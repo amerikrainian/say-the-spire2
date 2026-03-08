@@ -2,6 +2,7 @@
 
 import json
 import os
+import platform
 import re
 import shutil
 import threading
@@ -14,9 +15,45 @@ import wx
 
 GITHUB_REPO = "bradjrenshaw/say-the-spire2"
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
-STEAM_DEFAULT = Path("C:/Program Files (x86)/Steam")
 GAME_DIR_NAME = "Slay the Spire 2"
-APPDATA_MOD_DIR = Path(os.environ.get("APPDATA", "")) / "SlayTheSpire2" / "mods" / "SayTheSpire2"
+
+
+def _get_platform():
+    """Return 'windows', 'linux', or 'macos'."""
+    s = platform.system()
+    if s == "Windows":
+        return "windows"
+    elif s == "Darwin":
+        return "macos"
+    return "linux"
+
+
+def get_user_data_dir():
+    """Return the base user data directory matching Godot's user:// path."""
+    plat = _get_platform()
+    if plat == "windows":
+        return Path(os.environ.get("APPDATA", "")) / "SlayTheSpire2"
+    elif plat == "macos":
+        return Path.home() / "Library" / "Application Support" / "SlayTheSpire2"
+    else:
+        return Path.home() / ".local" / "share" / "SlayTheSpire2"
+
+
+def get_steam_defaults():
+    """Return a list of default Steam install paths to check, per platform."""
+    plat = _get_platform()
+    if plat == "windows":
+        return [Path("C:/Program Files (x86)/Steam")]
+    elif plat == "macos":
+        return [Path.home() / "Library" / "Application Support" / "Steam"]
+    else:
+        return [
+            Path.home() / ".steam" / "steam",
+            Path.home() / ".local" / "share" / "Steam",
+        ]
+
+
+APPDATA_MOD_DIR = get_user_data_dir() / "mods" / "SayTheSpire2"
 VERSION_FILE = APPDATA_MOD_DIR / "version"
 
 # Files the installer manages (for uninstall)
@@ -35,17 +72,18 @@ ROOT_FILES = [
 
 def detect_game_path():
     """Try to find the game install directory automatically."""
-    # 1. Try libraryfolders.vdf
-    vdf_path = STEAM_DEFAULT / "steamapps" / "libraryfolders.vdf"
-    if vdf_path.exists():
-        game_path = _find_game_in_vdf(vdf_path)
-        if game_path and game_path.exists():
-            return game_path
+    for steam_dir in get_steam_defaults():
+        # 1. Try libraryfolders.vdf
+        vdf_path = steam_dir / "steamapps" / "libraryfolders.vdf"
+        if vdf_path.exists():
+            game_path = _find_game_in_vdf(vdf_path)
+            if game_path and game_path.exists():
+                return game_path
 
-    # 2. Try default Steam common directory
-    default_path = STEAM_DEFAULT / "steamapps" / "common" / GAME_DIR_NAME
-    if default_path.exists():
-        return default_path
+        # 2. Try default Steam common directory
+        default_path = steam_dir / "steamapps" / "common" / GAME_DIR_NAME
+        if default_path.exists():
+            return default_path
 
     return None
 
@@ -69,7 +107,16 @@ def _find_game_in_vdf(vdf_path):
 def validate_game_path(path):
     """Check that the path looks like a valid game install."""
     p = Path(path)
-    return (p / "data_sts2_windows_x86_64").exists() or (p / "Slay the Spire 2.exe").exists()
+    markers = [
+        "data_sts2_windows_x86_64",
+        "data_sts2_linux_x86_64",
+        "data_sts2_macos_arm64",
+        "data_sts2_macos_x86_64",
+        "Slay the Spire 2.exe",
+        "Slay the Spire 2.x86_64",
+        "Slay the Spire 2.app",
+    ]
+    return any((p / m).exists() for m in markers)
 
 
 def get_installed_version():
@@ -93,7 +140,7 @@ def is_mod_installed(game_path):
 
 def enable_mods_in_settings():
     """Find settings.save and enable mods."""
-    steam_dir = Path(os.environ.get("APPDATA", "")) / "SlayTheSpire2" / "steam"
+    steam_dir = get_user_data_dir() / "steam"
     if not steam_dir.exists():
         return False
 
