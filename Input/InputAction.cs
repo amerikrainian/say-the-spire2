@@ -8,7 +8,8 @@ public class InputAction
 {
     public string Key { get; }
     public string? GameAction { get; }
-    private readonly List<InputBinding> _bindings = new();
+    private readonly List<InputBinding> _keyBindings = new();
+    private readonly List<ControllerInput> _controllerBindings = new();
 
     public InputAction(string key, string? gameAction = null)
     {
@@ -18,17 +19,28 @@ public class InputAction
 
     public InputAction AddBinding(Godot.Key keycode, bool ctrl = false, bool shift = false, bool alt = false)
     {
-        _bindings.Add(new InputBinding(keycode, ctrl, shift, alt));
+        _keyBindings.Add(new InputBinding(keycode, ctrl, shift, alt));
+        return this;
+    }
+
+    public InputAction AddBinding(ControllerInput input)
+    {
+        _controllerBindings.Add(input);
         return this;
     }
 
     /// <summary>
-    /// Check if any binding matches the given key event (keycode + modifiers).
+    /// Check if any keyboard binding matches the given key event.
     /// </summary>
-    public bool MatchesKeyEvent(InputEventKey key) => _bindings.Any(b => b.Matches(key));
+    public bool MatchesKeyEvent(InputEventKey key) => _keyBindings.Any(b => b.Matches(key));
 
     /// <summary>
-    /// Check if any binding uses the given key (for release detection).
+    /// Check if any keyboard binding uses the given key (for release detection).
     /// </summary>
-    public bool UsesKey(Godot.Key keycode) => _bindings.Any(b => b.Keycode == keycode);
+    public bool UsesKey(Godot.Key keycode) => _keyBindings.Any(b => b.Keycode == keycode);
+
+    /// <summary>
+    /// Check if any controller binding matches the given input.
+    /// </summary>
+    public bool MatchesControllerInput(ControllerInput input) => _controllerBindings.Contains(input);
 }

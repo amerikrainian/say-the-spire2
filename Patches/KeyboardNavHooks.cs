@@ -34,7 +34,16 @@ public static class KeyboardNavHooks
             Log.Info("[AccessibilityMod] NInputManager._UnhandledKeyInput suppression patched.");
         }
 
-        Log.Info("[AccessibilityMod] Keyboard input hooks patched.");
+        var unhandledInputMethod = AccessTools.Method(typeof(NInputManager), "_UnhandledInput");
+        if (unhandledInputMethod != null)
+        {
+            harmony.Patch(unhandledInputMethod,
+                prefix: new HarmonyMethod(typeof(KeyboardNavHooks).GetMethod(
+                    nameof(UnhandledInputPrefix), BindingFlags.Static | BindingFlags.Public)));
+            Log.Info("[AccessibilityMod] NInputManager._UnhandledInput suppression patched.");
+        }
+
+        Log.Info("[AccessibilityMod] Input hooks patched.");
     }
 
     /// <summary>
@@ -55,6 +64,16 @@ public static class KeyboardNavHooks
     /// Suppress the game's own key-to-action remapping when the mod is intercepting input.
     /// </summary>
     public static bool UnhandledKeyInputPrefix()
+    {
+        return !InputManager.InterceptInput;
+    }
+
+    /// <summary>
+    /// Suppress the game's controller-to-action remapping when the mod is intercepting input.
+    /// Without this, the game's NInputManager would also process controller actions and
+    /// inject duplicate game actions.
+    /// </summary>
+    public static bool UnhandledInputPrefix()
     {
         return !InputManager.InterceptInput;
     }
