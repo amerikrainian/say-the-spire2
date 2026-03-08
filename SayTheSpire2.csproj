@@ -182,25 +182,75 @@ public class CreatePck : Task
     </Task>
   </UsingTask>
 
-  <Target Name="DeployMod" AfterTargets="Build">
-    <!-- Create PCK -->
+  <!-- Debug: deploy to local game directory for testing -->
+  <Target Name="DeployMod" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
     <CreatePck Files="@(PckFile)" OutputPath="$(ModsDir)\$(ModName).pck" />
-
-    <!-- Copy mod DLL -->
     <Copy SourceFiles="$(OutputPath)$(ModName).dll" DestinationFolder="$(ModsDir)" />
-
-    <!-- Copy System.Speech.dll -->
     <Copy SourceFiles="$(OutputPath)System.Speech.dll" DestinationFolder="$(ModsDir)" Condition="Exists('$(OutputPath)System.Speech.dll')" />
-
-    <!-- Copy TolkDotNet.dll (managed) to mods/ -->
     <Copy SourceFiles="$(TolkBuildDir)\TolkDotNet.dll" DestinationFolder="$(ModsDir)" Condition="Exists('$(TolkBuildDir)\TolkDotNet.dll')" />
-
-    <!-- Copy native Tolk DLLs to game root (Windows DLL search path) -->
     <Copy SourceFiles="$(TolkBuildDir)\x64\Tolk.dll" DestinationFolder="$(GameDir)" Condition="Exists('$(TolkBuildDir)\x64\Tolk.dll')" />
     <Copy SourceFiles="$(TolkBuildDir)\x64\nvdaControllerClient64.dll" DestinationFolder="$(GameDir)" Condition="Exists('$(TolkBuildDir)\x64\nvdaControllerClient64.dll')" />
     <Copy SourceFiles="$(TolkBuildDir)\x64\SAAPI64.dll" DestinationFolder="$(GameDir)" Condition="Exists('$(TolkBuildDir)\x64\SAAPI64.dll')" />
-
     <Message Text="Mod deployed to $(ModsDir)" Importance="high" />
+  </Target>
+
+  <!-- Release: create PCK in build output and bundle distributable zip -->
+  <UsingTask TaskName="CreateReleaseZip" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <OutputPath ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Code Type="Class" Language="cs"><![CDATA[
+using System.IO;
+using System.IO.Compression;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
+
+public class CreateReleaseZip : Task
+{
+    [Required] public ITaskItem[] Files { get; set; }
+    [Required] public string OutputPath { get; set; }
+
+    public override bool Execute()
+    {
+        if (File.Exists(OutputPath)) File.Delete(OutputPath);
+        using (var zip = ZipFile.Open(OutputPath, ZipArchiveMode.Create))
+        {
+            foreach (var item in Files)
+            {
+                var src = item.ItemSpec;
+                var arcName = item.GetMetadata("ArcName");
+                if (!File.Exists(src))
+                {
+                    Log.LogError("Missing file: " + src);
+                    return false;
+                }
+                zip.CreateEntryFromFile(src, arcName, CompressionLevel.Optimal);
+                Log.LogMessage(MessageImportance.High, "  " + arcName + " <- " + src);
+            }
+        }
+        var size = new FileInfo(OutputPath).Length / 1024.0;
+        Log.LogMessage(MessageImportance.High, "Created " + OutputPath + " (" + size.ToString("F1") + " KB)");
+        return true;
+    }
+}
+]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="CreateRelease" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <CreatePck Files="@(PckFile)" OutputPath="$(OutputPath)$(ModName).pck" />
+    <ItemGroup>
+      <ReleaseFile Include="$(OutputPath)$(ModName).dll" ArcName="mods/$(ModName).dll" />
+      <ReleaseFile Include="$(OutputPath)$(ModName).pck" ArcName="mods/$(ModName).pck" />
+      <ReleaseFile Include="$(OutputPath)System.Speech.dll" ArcName="mods/System.Speech.dll" />
+      <ReleaseFile Include="$(TolkBuildDir)\TolkDotNet.dll" ArcName="mods/TolkDotNet.dll" />
+      <ReleaseFile Include="$(TolkBuildDir)\x64\Tolk.dll" ArcName="Tolk.dll" />
+      <ReleaseFile Include="$(TolkBuildDir)\x64\nvdaControllerClient64.dll" ArcName="nvdaControllerClient64.dll" />
+      <ReleaseFile Include="$(TolkBuildDir)\x64\SAAPI64.dll" ArcName="SAAPI64.dll" />
+    </ItemGroup>
+    <CreateReleaseZip Files="@(ReleaseFile)" OutputPath="$(MSBuildProjectDirectory)\SayTheSpire2.zip" />
   </Target>
 
 </Project>
