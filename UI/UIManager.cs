@@ -61,6 +61,7 @@ public static class UIManager
         _lastAnnouncedControl = null;
     }
 
+
     private static void ProcessPending()
     {
         _processingScheduled = false;

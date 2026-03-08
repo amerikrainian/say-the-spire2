@@ -229,7 +229,7 @@ public class CombatScreen : Screen
             if (combatRoom == null) return;
 
             var firstCreature = combatRoom.CreatureNodes
-                .FirstOrDefault(c => c != null && c.IsInteractable && c.Hitbox != null);
+                .FirstOrDefault(c => c != null && c.Hitbox != null);
             if (firstCreature == null) return;
 
             var creaturePath = firstCreature.Hitbox.GetPath();

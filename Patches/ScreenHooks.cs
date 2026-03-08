@@ -1,8 +1,12 @@
 using System.Reflection;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Logging;
+using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Screens;
+using MegaCrit.Sts2.Core.Nodes.Screens.CardSelection;
 using MegaCrit.Sts2.Core.Nodes.Screens.GameOverScreen;
+using MegaCrit.Sts2.Core.Nodes.Screens.Overlays;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
@@ -10,6 +14,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens.Timeline.UnlockScreens;
 using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Timeline;
 using SayTheSpire2.Events;
+using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Screens;
 
 namespace SayTheSpire2.Patches;
@@ -66,6 +71,18 @@ public static class ScreenHooks
             nameof(DeckViewShowPostfix), "DeckView ShowScreen");
         PatchIfFound(harmony, typeof(NDeckViewScreen), "AfterCapstoneClosed",
             nameof(DeckViewClosedPostfix), "DeckView AfterCapstoneClosed");
+
+        // Hand card selection hooks
+        PatchIfFound(harmony, typeof(NPlayerHand), "SelectCards",
+            nameof(SelectCardsPostfix), "Hand SelectCards");
+        PatchIfFound(harmony, typeof(NPlayerHand), "AfterCardsSelected",
+            nameof(HandSelectClosedPostfix), "Hand AfterCardsSelected");
+
+        // Overlay stack hooks (card grid selection screens)
+        PatchIfFound(harmony, typeof(NOverlayStack), "Push",
+            nameof(OverlayPushPostfix), "Overlay Push");
+        PatchIfFound(harmony, typeof(NOverlayStack), "Remove",
+            nameof(OverlayRemovePostfix), "Overlay Remove");
 
         // Run lifecycle hooks
         PatchIfFound(harmony, typeof(RunManager), "Launch",
@@ -172,6 +189,49 @@ public static class ScreenHooks
     {
         if (CardPileGameScreen.Current != null)
             ScreenManager.RemoveScreen(CardPileGameScreen.Current);
+    }
+
+    // Hand card selection delegates
+    public static void SelectCardsPostfix(NPlayerHand __instance, CardSelectorPrefs prefs)
+    {
+        if (HandSelectGameScreen.Current != null) return;
+
+        string label = "Card Selection";
+        try
+        {
+            var text = prefs.Prompt.GetFormattedText();
+            if (!string.IsNullOrEmpty(text))
+                label = text;
+        }
+        catch { }
+
+        ScreenManager.PushScreen(new HandSelectGameScreen(__instance, label));
+        SpeechManager.Output(label);
+    }
+
+    public static void HandSelectClosedPostfix()
+    {
+        if (HandSelectGameScreen.Current != null)
+            ScreenManager.RemoveScreen(HandSelectGameScreen.Current);
+    }
+
+    // Overlay delegates (card grid selection screens)
+    public static void OverlayPushPostfix(IOverlayScreen screen)
+    {
+        if (screen is NCardGridSelectionScreen gridScreen
+            && CardGridSelectionGameScreen.Current == null)
+        {
+            ScreenManager.PushScreen(new CardGridSelectionGameScreen(gridScreen));
+        }
+    }
+
+    public static void OverlayRemovePostfix(IOverlayScreen screen)
+    {
+        if (screen is NCardGridSelectionScreen
+            && CardGridSelectionGameScreen.Current != null)
+        {
+            ScreenManager.RemoveScreen(CardGridSelectionGameScreen.Current);
+        }
     }
 
     // Run lifecycle delegates
