@@ -91,6 +91,17 @@ public static class CombatNavigationHooks
                     nameof(RefreshLayoutPostfix)));
             Log.Info("[AccessibilityMod] Hand card navigation hook patched.");
         }
+
+        // Fix navigation after card selection (e.g. Survivor discard choice).
+        // AfterCardsSelected calls RestrictControllerNavigation but never re-enables it.
+        var afterCardsSelected = AccessTools.Method(typeof(NPlayerHand), "AfterCardsSelected");
+        if (afterCardsSelected != null)
+        {
+            harmony.Patch(afterCardsSelected,
+                postfix: new HarmonyMethod(typeof(CombatNavigationHooks),
+                    nameof(AfterCardsSelectedPostfix)));
+            Log.Info("[AccessibilityMod] AfterCardsSelected hook patched.");
+        }
     }
 
     public static bool UpdateCreatureNavigationPrefix()
@@ -162,6 +173,24 @@ public static class CombatNavigationHooks
 
     public static void RefreshLayoutPostfix(NPlayerHand __instance)
         => CombatScreen.Current?.OnHandLayoutRefreshed(__instance);
+
+    public static void AfterCardsSelectedPostfix()
+    {
+        // AfterCardsSelected never calls EnableControllerNavigation, leaving
+        // creature hitboxes with FocusMode=None. Re-enable them so hand→creature
+        // navigation works after card selection (e.g. Survivor discard).
+        try
+        {
+            var combatRoom = NCombatRoom.Instance;
+            if (combatRoom == null) return;
+            combatRoom.EnableControllerNavigation();
+            SetCreatureFocusToRelics(combatRoom);
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] AfterCardsSelected postfix failed: {e.Message}");
+        }
+    }
 
     public static void ShufflePrefix(Player player)
         => CombatScreen.Current?.OnShuffleStarted();
