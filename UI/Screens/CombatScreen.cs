@@ -45,6 +45,7 @@ public class CombatScreen : Screen
     public override void OnPush()
     {
         Current = this;
+        Log.Info($"[EventDebug] CombatScreen.OnPush: this={GetHashCode()}, Previous Current was null={Current == null}");
         SubscribeToAllCreatures(_initialState);
         CombatManager.Instance.CreaturesChanged += OnCreaturesChanged;
         CombatManager.Instance.TurnStarted += OnTurnStarted;
@@ -54,6 +55,7 @@ public class CombatScreen : Screen
         {
             _cardPileHandlers = new CardPileHandlers(player.PlayerCombatState);
             _cardPileHandlers.Subscribe();
+            Log.Info("[EventDebug] CardPileHandlers subscribed.");
         }
 
         Log.Info("[AccessibilityMod] CombatScreen pushed.");
@@ -61,6 +63,7 @@ public class CombatScreen : Screen
 
     public override void OnPop()
     {
+        Log.Info($"[EventDebug] CombatScreen.OnPop: this={GetHashCode()}, Current matches={Current == this}");
         CombatManager.Instance.CreaturesChanged -= OnCreaturesChanged;
         CombatManager.Instance.TurnStarted -= OnTurnStarted;
         _cardPileHandlers?.Unsubscribe();
@@ -306,6 +309,8 @@ public class CombatScreen : Screen
         creature.PowerDecreased += handlers.OnPowerDecreased;
         creature.PowerRemoved += handlers.OnPowerRemoved;
         creature.Died += handlers.OnDied;
+
+        Log.Info($"[EventDebug] Subscribed to creature: {creature.Name} (alive={creature.IsAlive}, total subs={_subscribedCreatures.Count})");
     }
 
     private void UnsubscribeAll()
@@ -367,6 +372,7 @@ public class CombatScreen : Screen
 
         private void OnHandCardAdded(CardModel card)
         {
+            Log.Info($"[EventDebug] CardPile.HandAdded: {card.Title} handler={GetHashCode()}");
             EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.Drew, card.Title));
         }
 
@@ -378,6 +384,7 @@ public class CombatScreen : Screen
                 if (!_endOfTurnDiscardAnnounced)
                 {
                     _endOfTurnDiscardAnnounced = true;
+                    Log.Info($"[EventDebug] CardPile.HandDiscarded handler={GetHashCode()}");
                     EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.HandDiscarded));
                 }
                 return;
@@ -387,17 +394,20 @@ public class CombatScreen : Screen
                 && pca.NetCombatCard.ToCardModelOrNull() == card)
                 return;
 
+            Log.Info($"[EventDebug] CardPile.Discarded: {card.Title} handler={GetHashCode()}");
             EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.Discarded, card.Title));
         }
 
         private void OnExhaustCardAdded(CardModel card)
         {
+            Log.Info($"[EventDebug] CardPile.Exhausted: {card.Title} handler={GetHashCode()}");
             EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.Exhausted, card.Title));
         }
 
         private void OnDrawCardAdded(CardModel card)
         {
             if (_isShuffling) return;
+            Log.Info($"[EventDebug] CardPile.AddedToDraw: {card.Title} handler={GetHashCode()}");
             EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.AddedToDraw, card.Title));
         }
     }
@@ -413,31 +423,37 @@ public class CombatScreen : Screen
 
         public void OnBlockChanged(int oldBlock, int newBlock)
         {
+            Log.Info($"[EventDebug] CreatureHandler.BlockChanged: {_creature.Name} {oldBlock}->{newBlock} handler={GetHashCode()}");
             EventDispatcher.Enqueue(new BlockEvent(_creature, oldBlock, newBlock));
         }
 
         public void OnCurrentHpChanged(int oldHp, int newHp)
         {
+            Log.Info($"[EventDebug] CreatureHandler.HpChanged: {_creature.Name} {oldHp}->{newHp} handler={GetHashCode()}");
             EventDispatcher.Enqueue(new HpEvent(_creature, oldHp, newHp));
         }
 
         public void OnPowerIncreased(PowerModel power, int change, bool silent)
         {
+            Log.Info($"[EventDebug] CreatureHandler.PowerIncreased: {_creature.Name} {power.Title.GetFormattedText()} +{change} silent={silent} handler={GetHashCode()}");
             if (!silent) EventDispatcher.Enqueue(new PowerEvent(_creature, power, PowerEventType.Increased, change));
         }
 
         public void OnPowerDecreased(PowerModel power, bool silent)
         {
+            Log.Info($"[EventDebug] CreatureHandler.PowerDecreased: {_creature.Name} {power.Title.GetFormattedText()} silent={silent} handler={GetHashCode()}");
             if (!silent) EventDispatcher.Enqueue(new PowerEvent(_creature, power, PowerEventType.Decreased));
         }
 
         public void OnPowerRemoved(PowerModel power)
         {
+            Log.Info($"[EventDebug] CreatureHandler.PowerRemoved: {_creature.Name} {power.Title.GetFormattedText()} handler={GetHashCode()}");
             EventDispatcher.Enqueue(new PowerEvent(_creature, power, PowerEventType.Removed));
         }
 
         public void OnDied(Creature c)
         {
+            Log.Info($"[EventDebug] CreatureHandler.Died: {c.Name} handler={GetHashCode()}");
             EventDispatcher.Enqueue(new DeathEvent(c));
         }
     }

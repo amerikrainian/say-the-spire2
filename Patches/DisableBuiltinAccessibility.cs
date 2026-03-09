@@ -31,7 +31,6 @@ public static class DisableBuiltinAccessibility
     {
         try
         {
-            // Get the game's native window handle from Godot
             var hwnd = (IntPtr)(long)DisplayServer.WindowGetNativeHandle(
                 DisplayServer.HandleType.WindowHandle);
 
@@ -43,7 +42,6 @@ public static class DisableBuiltinAccessibility
 
             Log.Info($"[AccessibilityMod] Window handle: 0x{hwnd:X}");
 
-            // Keep a reference to the delegate so it doesn't get GC'd
             _wndProcDelegate = WndProc;
             var newWndProc = Marshal.GetFunctionPointerForDelegate(_wndProcDelegate);
 
@@ -68,7 +66,6 @@ public static class DisableBuiltinAccessibility
     {
         if (msg == WM_GETOBJECT)
         {
-            // Return 0 to tell Windows "no accessibility provider here"
             return IntPtr.Zero;
         }
 

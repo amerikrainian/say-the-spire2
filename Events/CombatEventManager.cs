@@ -19,12 +19,14 @@ public static class CombatEventManager
 
     private static void OnCombatSetUp(CombatState state)
     {
+        Log.Info($"[EventDebug] CombatEventManager.OnCombatSetUp: existing screen={_activeCombatScreen != null}, creatures={state.Creatures.Count}");
         _activeCombatScreen = new CombatScreen(state);
         ScreenManager.PushScreen(_activeCombatScreen);
     }
 
     private static void OnCombatEnded(CombatRoom _)
     {
+        Log.Info($"[EventDebug] CombatEventManager.OnCombatEnded: active screen={_activeCombatScreen != null}");
         CleanUp();
     }
 

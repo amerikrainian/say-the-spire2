@@ -230,7 +230,7 @@ public class ProxyTopBar : ProxyElement
 
     private static string GetUnknownRoomPrefix(IRunState runState)
     {
-        var roomType = runState.BaseRoom.RoomType;
+        var roomType = runState.BaseRoom?.RoomType;
         return roomType switch
         {
             RoomType.Monster => "ROOM_UNKNOWN_ENEMY",

@@ -13,3 +13,4 @@ dependencies = [
 dev = [
     "pyinstaller>=6.0",
 ]
+

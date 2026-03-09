@@ -139,10 +139,11 @@ def is_mod_installed(game_path):
 
 
 def enable_mods_in_settings():
-    """Find settings.save and enable mods."""
-    steam_dir = get_user_data_dir() / "steam"
+    """Find settings.save and enable mods. Returns (success, message)."""
+    user_data = get_user_data_dir()
+    steam_dir = user_data / "steam"
     if not steam_dir.exists():
-        return False
+        return False, f"Steam directory not found at {steam_dir}. Please run the game once first."
 
     # Find the most recently modified settings.save
     settings_files = []
@@ -153,19 +154,27 @@ def enable_mods_in_settings():
                 settings_files.append(settings_file)
 
     if not settings_files:
-        return False
+        return False, f"No settings.save found in {steam_dir}. Please run the game once first."
 
-    settings_file = max(settings_files, key=lambda f: f.stat().st_mtime)
+    # Enable mods in ALL settings files (multiple Steam accounts)
+    errors = []
+    for settings_file in settings_files:
+        try:
+            raw = settings_file.read_bytes()
+            # Strip BOM if present
+            if raw.startswith(b"\xef\xbb\xbf"):
+                raw = raw[3:]
+            data = json.loads(raw.decode("utf-8"))
+            if not isinstance(data.get("mod_settings"), dict):
+                data["mod_settings"] = {}
+            data["mod_settings"]["mods_enabled"] = True
+            settings_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        except Exception as e:
+            errors.append(f"{settings_file}: {e}")
 
-    try:
-        data = json.loads(settings_file.read_text(encoding="utf-8"))
-        if "mod_settings" not in data:
-            data["mod_settings"] = {}
-        data["mod_settings"]["mods_enabled"] = True
-        settings_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
-        return True
-    except Exception:
-        return False
+    if errors:
+        return False, "Failed to modify settings:\n" + "\n".join(errors)
+    return True, f"Mods enabled in {len(settings_files)} settings file(s)."
 
 
 def fetch_latest_release():
@@ -455,11 +464,8 @@ class InstallerFrame(wx.Frame):
             wx.MessageBox(f"Failed to extract zip:\n{e}", "Error", wx.OK | wx.ICON_ERROR)
             return
 
-        if enable_mods_in_settings():
-            self._log_message("Mods enabled in game settings.")
-        else:
-            self._log_message("Note: Could not find settings.save to enable mods. "
-                              "You may need to run the game once first, then re-run the installer.")
+        success, msg = enable_mods_in_settings()
+        self._log_message(msg)
 
         self._log_message(f"Installed from {os.path.basename(zip_path)}.")
         self._uninstall_btn.Enable()
@@ -483,11 +489,10 @@ class InstallerFrame(wx.Frame):
         save_installed_version(version)
 
         # Enable mods in settings
-        if enable_mods_in_settings():
-            self._log_message("Mods enabled in game settings.")
-        else:
-            self._log_message("Note: Could not find settings.save to enable mods. "
-                              "You may need to run the game once first, then re-run the installer.")
+        success, msg = enable_mods_in_settings()
+        self._log_message(msg)
+        if not success:
+            self._log_message("You may need to enable mods manually in settings.save.")
 
         self._log_message(f"Successfully installed version {version}.")
         self._progress.Hide()
