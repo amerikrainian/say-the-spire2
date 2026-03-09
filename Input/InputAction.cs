@@ -8,53 +8,79 @@ namespace SayTheSpire2.Input;
 public class InputAction
 {
     public string Key { get; }
+    public string Label { get; }
     public string? GameAction { get; }
-    private readonly List<InputBinding> _keyBindings = new();
-    private readonly List<ControllerBinding> _controllerBindings = new();
+    private readonly List<InputBinding> _bindings = new();
 
-    public InputAction(string key, string? gameAction = null)
+    public IReadOnlyList<InputBinding> Bindings => _bindings;
+
+    public event Action? BindingsChanged;
+
+    public InputAction(string key, string label, string? gameAction = null)
     {
         Key = key;
+        Label = label;
         GameAction = gameAction;
+    }
+
+    public InputAction AddBinding(InputBinding binding)
+    {
+        _bindings.Add(binding);
+        BindingsChanged?.Invoke();
+        return this;
     }
 
     public InputAction AddBinding(Godot.Key keycode, bool ctrl = false, bool shift = false, bool alt = false)
     {
-        _keyBindings.Add(new InputBinding(keycode, ctrl, shift, alt));
+        _bindings.Add(new KeyboardBinding(keycode, ctrl, shift, alt));
+        BindingsChanged?.Invoke();
         return this;
     }
 
     public InputAction AddBinding(ControllerInput input, ControllerInput? modifier = null)
     {
-        _controllerBindings.Add(new ControllerBinding(input, modifier));
+        _bindings.Add(new ControllerBinding(input, modifier));
+        BindingsChanged?.Invoke();
         return this;
+    }
+
+    public void RemoveBinding(InputBinding binding)
+    {
+        _bindings.Remove(binding);
+        BindingsChanged?.Invoke();
+    }
+
+    public void ClearBindings()
+    {
+        _bindings.Clear();
+        BindingsChanged?.Invoke();
     }
 
     /// <summary>
     /// Check if any keyboard binding matches the given key event.
     /// </summary>
-    public bool MatchesKeyEvent(InputEventKey key) => _keyBindings.Any(b => b.Matches(key));
+    public bool MatchesKeyEvent(InputEventKey key) => _bindings.OfType<KeyboardBinding>().Any(b => b.Matches(key));
 
     /// <summary>
     /// Check if any keyboard binding uses the given key (for release detection).
     /// </summary>
-    public bool UsesKey(Godot.Key keycode) => _keyBindings.Any(b => b.Keycode == keycode);
+    public bool UsesKey(Godot.Key keycode) => _bindings.OfType<KeyboardBinding>().Any(b => b.Keycode == keycode);
 
     /// <summary>
     /// Check if any controller binding matches the given input, considering held modifiers.
     /// </summary>
     public bool MatchesControllerInput(ControllerInput input, Func<ControllerInput, bool> isHeld)
-        => _controllerBindings.Any(b => b.Matches(input, isHeld));
+        => _bindings.OfType<ControllerBinding>().Any(b => b.Matches(input, isHeld));
 
     /// <summary>
     /// Check if any controller binding uses the given input (primary or modifier) for release detection.
     /// </summary>
     public bool UsesControllerInput(ControllerInput input)
-        => _controllerBindings.Any(b => b.Uses(input));
+        => _bindings.OfType<ControllerBinding>().Any(b => b.Uses(input));
 
     /// <summary>
     /// Whether any controller binding requires a modifier.
     /// Used to prioritize modified bindings over unmodified ones.
     /// </summary>
-    public bool HasControllerModifier => _controllerBindings.Any(b => b.Modifier != null);
+    public bool HasControllerModifier => _bindings.OfType<ControllerBinding>().Any(b => b.Modifier != null);
 }

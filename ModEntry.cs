@@ -47,6 +47,7 @@ public static class ModEntry
         InitializeLocalization();
         InitializeBuffers();
         InputManager.Initialize();
+        InitializeKeybindingSettings();
         ScreenManager.Initialize();
         RegisterScreens();
         DisableBuiltinAccessibility.Initialize();
@@ -112,6 +113,21 @@ public static class ModEntry
 
         // Load saved values (overrides defaults) and write file if first run
         Settings.ModSettings.Initialize(settingsDir);
+    }
+
+    private static void InitializeKeybindingSettings()
+    {
+        var keybindingsCategory = new Settings.CategorySetting("keybindings", "Keybindings");
+        Settings.ModSettings.Root.Add(keybindingsCategory);
+
+        foreach (var action in InputManager.Actions)
+        {
+            var bindingSetting = new Settings.BindingSetting(action);
+            keybindingsCategory.Add(bindingSetting);
+        }
+
+        // Re-load to pick up any saved keybinding overrides
+        Settings.ModSettings.Load();
     }
 
     private static void InitializeSpeech()

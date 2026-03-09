@@ -13,6 +13,7 @@ namespace SayTheSpire2.Input;
 public static class InputManager
 {
     private static readonly List<InputAction> _actions = new();
+    public static IReadOnlyList<InputAction> Actions => _actions;
     private static readonly HashSet<InputAction> _activeActions = new();
     private static readonly HashSet<ControllerInput> _heldControllerInputs = new();
 
@@ -32,6 +33,19 @@ public static class InputManager
     /// default handling. Set to false to let the game handle input normally.
     /// </summary>
     public static bool InterceptInput { get; set; } = true;
+
+    private static System.Action<InputBinding>? _listenCallback;
+    public static bool IsListening => _listenCallback != null;
+
+    public static void StartListening(System.Action<InputBinding> callback)
+    {
+        _listenCallback = callback;
+    }
+
+    public static void StopListening()
+    {
+        _listenCallback = null;
+    }
 
     private static NControllerManager? _controllerManager;
 
@@ -79,96 +93,96 @@ public static class InputManager
 
     private static void RegisterGameActions()
     {
-        _actions.Add(new InputAction("ui_accept", gameAction: "ui_accept")
+        _actions.Add(new InputAction("ui_accept", "Accept", gameAction: "ui_accept")
             .AddBinding(Key.E)
             .AddBinding(ControllerInput.Y));
-        _actions.Add(new InputAction("ui_select", gameAction: "ui_select")
+        _actions.Add(new InputAction("ui_select", "Select", gameAction: "ui_select")
             .AddBinding(Key.Enter)
             .AddBinding(ControllerInput.A));
-        _actions.Add(new InputAction("ui_cancel", gameAction: "ui_cancel")
+        _actions.Add(new InputAction("ui_cancel", "Cancel", gameAction: "ui_cancel")
             .AddBinding(Key.Escape)
             .AddBinding(ControllerInput.B));
-        _actions.Add(new InputAction("ui_up", gameAction: "ui_up")
+        _actions.Add(new InputAction("ui_up", "Navigate Up", gameAction: "ui_up")
             .AddBinding(Key.Up)
             .AddBinding(ControllerInput.DpadUp)
             .AddBinding(ControllerInput.LeftStickUp));
-        _actions.Add(new InputAction("ui_down", gameAction: "ui_down")
+        _actions.Add(new InputAction("ui_down", "Navigate Down", gameAction: "ui_down")
             .AddBinding(Key.Down)
             .AddBinding(ControllerInput.DpadDown)
             .AddBinding(ControllerInput.LeftStickDown));
-        _actions.Add(new InputAction("ui_left", gameAction: "ui_left")
+        _actions.Add(new InputAction("ui_left", "Navigate Left", gameAction: "ui_left")
             .AddBinding(Key.Left)
             .AddBinding(ControllerInput.DpadLeft)
             .AddBinding(ControllerInput.LeftStickLeft));
-        _actions.Add(new InputAction("ui_right", gameAction: "ui_right")
+        _actions.Add(new InputAction("ui_right", "Navigate Right", gameAction: "ui_right")
             .AddBinding(Key.Right)
             .AddBinding(ControllerInput.DpadRight)
             .AddBinding(ControllerInput.LeftStickRight));
-        _actions.Add(new InputAction("mega_peek", gameAction: "mega_peek")
+        _actions.Add(new InputAction("mega_peek", "Peek", gameAction: "mega_peek")
             .AddBinding(Key.Space)
             .AddBinding(ControllerInput.LeftStickClick));
-        _actions.Add(new InputAction("mega_view_draw_pile", gameAction: "mega_view_draw_pile")
+        _actions.Add(new InputAction("mega_view_draw_pile", "View Draw Pile", gameAction: "mega_view_draw_pile")
             .AddBinding(Key.A)
             .AddBinding(ControllerInput.LeftShoulder, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("mega_view_discard_pile", gameAction: "mega_view_discard_pile")
+        _actions.Add(new InputAction("mega_view_discard_pile", "View Discard Pile", gameAction: "mega_view_discard_pile")
             .AddBinding(Key.S)
             .AddBinding(ControllerInput.RightShoulder, modifier: ControllerInput.RightTrigger));
-        _actions.Add(new InputAction("mega_view_deck_and_tab_left", gameAction: "mega_view_deck_and_tab_left")
+        _actions.Add(new InputAction("mega_view_deck_and_tab_left", "View Deck / Tab Left", gameAction: "mega_view_deck_and_tab_left")
             .AddBinding(Key.D)
             .AddBinding(ControllerInput.LeftShoulder));
-        _actions.Add(new InputAction("mega_view_exhaust_pile_and_tab_right", gameAction: "mega_view_exhaust_pile_and_tab_right")
+        _actions.Add(new InputAction("mega_view_exhaust_pile_and_tab_right", "View Exhaust / Tab Right", gameAction: "mega_view_exhaust_pile_and_tab_right")
             .AddBinding(Key.X)
             .AddBinding(ControllerInput.RightShoulder));
-        _actions.Add(new InputAction("mega_view_map", gameAction: "mega_view_map")
+        _actions.Add(new InputAction("mega_view_map", "View Map", gameAction: "mega_view_map")
             .AddBinding(Key.M)
             .AddBinding(ControllerInput.Back));
-        _actions.Add(new InputAction("mega_pause_and_back", gameAction: "mega_pause_and_back")
+        _actions.Add(new InputAction("mega_pause_and_back", "Pause / Back", gameAction: "mega_pause_and_back")
             .AddBinding(Key.Escape)
             .AddBinding(ControllerInput.Start));
-        _actions.Add(new InputAction("mega_top_panel", gameAction: "mega_top_panel")
+        _actions.Add(new InputAction("mega_top_panel", "Top Panel", gameAction: "mega_top_panel")
             .AddBinding(Key.Tab)
             .AddBinding(ControllerInput.X));
-        _actions.Add(new InputAction("mega_select_card_1", gameAction: "mega_select_card_1").AddBinding(Key.Key1));
-        _actions.Add(new InputAction("mega_select_card_2", gameAction: "mega_select_card_2").AddBinding(Key.Key2));
-        _actions.Add(new InputAction("mega_select_card_3", gameAction: "mega_select_card_3").AddBinding(Key.Key3));
-        _actions.Add(new InputAction("mega_select_card_4", gameAction: "mega_select_card_4").AddBinding(Key.Key4));
-        _actions.Add(new InputAction("mega_select_card_5", gameAction: "mega_select_card_5").AddBinding(Key.Key5));
-        _actions.Add(new InputAction("mega_select_card_6", gameAction: "mega_select_card_6").AddBinding(Key.Key6));
-        _actions.Add(new InputAction("mega_select_card_7", gameAction: "mega_select_card_7").AddBinding(Key.Key7));
-        _actions.Add(new InputAction("mega_select_card_8", gameAction: "mega_select_card_8").AddBinding(Key.Key8));
-        _actions.Add(new InputAction("mega_select_card_9", gameAction: "mega_select_card_9").AddBinding(Key.Key9));
-        _actions.Add(new InputAction("mega_select_card_10", gameAction: "mega_select_card_10").AddBinding(Key.Key0));
-        _actions.Add(new InputAction("mega_release_card", gameAction: "mega_release_card").AddBinding(Key.Down));
+        _actions.Add(new InputAction("mega_select_card_1", "Select Card 1", gameAction: "mega_select_card_1").AddBinding(Key.Key1));
+        _actions.Add(new InputAction("mega_select_card_2", "Select Card 2", gameAction: "mega_select_card_2").AddBinding(Key.Key2));
+        _actions.Add(new InputAction("mega_select_card_3", "Select Card 3", gameAction: "mega_select_card_3").AddBinding(Key.Key3));
+        _actions.Add(new InputAction("mega_select_card_4", "Select Card 4", gameAction: "mega_select_card_4").AddBinding(Key.Key4));
+        _actions.Add(new InputAction("mega_select_card_5", "Select Card 5", gameAction: "mega_select_card_5").AddBinding(Key.Key5));
+        _actions.Add(new InputAction("mega_select_card_6", "Select Card 6", gameAction: "mega_select_card_6").AddBinding(Key.Key6));
+        _actions.Add(new InputAction("mega_select_card_7", "Select Card 7", gameAction: "mega_select_card_7").AddBinding(Key.Key7));
+        _actions.Add(new InputAction("mega_select_card_8", "Select Card 8", gameAction: "mega_select_card_8").AddBinding(Key.Key8));
+        _actions.Add(new InputAction("mega_select_card_9", "Select Card 9", gameAction: "mega_select_card_9").AddBinding(Key.Key9));
+        _actions.Add(new InputAction("mega_select_card_10", "Select Card 10", gameAction: "mega_select_card_10").AddBinding(Key.Key0));
+        _actions.Add(new InputAction("mega_release_card", "Release Card", gameAction: "mega_release_card").AddBinding(Key.Down));
     }
 
     private static void RegisterModActions()
     {
-        _actions.Add(new InputAction("buffer_next_item").AddBinding(Key.Up, ctrl: true)
+        _actions.Add(new InputAction("buffer_next_item", "Buffer Next Item").AddBinding(Key.Up, ctrl: true)
             .AddBinding(ControllerInput.RightStickUp));
-        _actions.Add(new InputAction("buffer_prev_item").AddBinding(Key.Down, ctrl: true)
+        _actions.Add(new InputAction("buffer_prev_item", "Buffer Previous Item").AddBinding(Key.Down, ctrl: true)
             .AddBinding(ControllerInput.RightStickDown));
-        _actions.Add(new InputAction("buffer_next").AddBinding(Key.Right, ctrl: true)
+        _actions.Add(new InputAction("buffer_next", "Next Buffer").AddBinding(Key.Right, ctrl: true)
             .AddBinding(ControllerInput.RightStickRight));
-        _actions.Add(new InputAction("buffer_prev").AddBinding(Key.Left, ctrl: true)
+        _actions.Add(new InputAction("buffer_prev", "Previous Buffer").AddBinding(Key.Left, ctrl: true)
             .AddBinding(ControllerInput.RightStickLeft));
-        _actions.Add(new InputAction("reset_bindings").AddBinding(Key.R, ctrl: true, shift: true));
-        _actions.Add(new InputAction("announce_gold").AddBinding(Key.G, ctrl: true));
-        _actions.Add(new InputAction("announce_hp").AddBinding(Key.H, ctrl: true)
+        _actions.Add(new InputAction("reset_bindings", "Reset Bindings").AddBinding(Key.R, ctrl: true, shift: true));
+        _actions.Add(new InputAction("announce_gold", "Announce Gold").AddBinding(Key.G, ctrl: true));
+        _actions.Add(new InputAction("announce_hp", "Announce HP").AddBinding(Key.H, ctrl: true)
             .AddBinding(ControllerInput.A, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_block").AddBinding(Key.B, ctrl: true)
+        _actions.Add(new InputAction("announce_block", "Announce Block").AddBinding(Key.B, ctrl: true)
             .AddBinding(ControllerInput.B, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_energy").AddBinding(Key.Y, ctrl: true)
+        _actions.Add(new InputAction("announce_energy", "Announce Energy").AddBinding(Key.Y, ctrl: true)
             .AddBinding(ControllerInput.X, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_powers").AddBinding(Key.P, ctrl: true)
+        _actions.Add(new InputAction("announce_powers", "Announce Powers").AddBinding(Key.P, ctrl: true)
             .AddBinding(ControllerInput.Y, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_intents").AddBinding(Key.I, ctrl: true));
-        _actions.Add(new InputAction("mod_settings").AddBinding(Key.M, ctrl: true)
+        _actions.Add(new InputAction("announce_intents", "Announce Intents").AddBinding(Key.I, ctrl: true));
+        _actions.Add(new InputAction("mod_settings", "Mod Settings").AddBinding(Key.M, ctrl: true)
             .AddBinding(ControllerInput.Start, modifier: ControllerInput.LeftTrigger));
     }
 
     /// <summary>
-    /// All controller buttons polled from hardware in _Process.
-    /// Bypasses the game's input system entirely for consistent handling.
+    /// Controller buttons polled from device 0 via IsJoyButtonPressed.
+    /// Requires Steam Input to be disabled for the game.
     /// </summary>
     private static readonly Dictionary<JoyButton, ControllerInput> _polledButtons = new()
     {
@@ -183,7 +197,6 @@ public static class InputManager
         { JoyButton.LeftShoulder, ControllerInput.LeftShoulder },
         { JoyButton.RightShoulder, ControllerInput.RightShoulder },
         { JoyButton.LeftStick, ControllerInput.LeftStickClick },
-        { JoyButton.RightStick, ControllerInput.RightStickClick },
         { JoyButton.Start, ControllerInput.Start },
         { JoyButton.Back, ControllerInput.Back },
     };
@@ -191,8 +204,8 @@ public static class InputManager
     private static readonly HashSet<JoyButton> _activePolledButtons = new();
 
     /// <summary>
-    /// All controller axes polled from hardware in _Process.
-    /// Maps (axis, positive direction?) to ControllerInput.
+    /// Controller axes polled from device 0 via GetJoyAxis.
+    /// Covers both sticks and triggers.
     /// </summary>
     private static readonly Dictionary<(JoyAxis, bool), ControllerInput> _polledAxes = new()
     {
@@ -249,57 +262,50 @@ public static class InputManager
 
         _controllerManager = controller;
 
-        foreach (var (button, controllerInput) in _polledButtons)
+        try
         {
-            bool isPressed = false;
-            foreach (int device in Godot.Input.GetConnectedJoypads())
+            // Poll buttons from device 0
+            foreach (var (button, controllerInput) in _polledButtons)
             {
-                if (Godot.Input.IsJoyButtonPressed(device, button))
+                bool isPressed = Godot.Input.IsJoyButtonPressed(0, button);
+                bool wasPressed = _activePolledButtons.Contains(button);
+
+                if (isPressed && !wasPressed)
                 {
-                    isPressed = true;
-                    break;
+                    _activePolledButtons.Add(button);
+                    OnControllerInputPressed(controllerInput);
+                }
+                else if (!isPressed && wasPressed)
+                {
+                    _activePolledButtons.Remove(button);
+                    OnControllerInputReleased(controllerInput);
                 }
             }
 
-            bool wasPressed = _activePolledButtons.Contains(button);
+            // Poll analog sticks via raw axis values (these work with Steam Input)
+            foreach (var ((axis, positive), controllerInput) in _polledAxes)
+            {
+                float value = Godot.Input.GetJoyAxis(0, axis);
 
-            if (isPressed && !wasPressed)
-            {
-                _activePolledButtons.Add(button);
-                OnControllerInputPressed(controllerInput);
-            }
-            else if (!isPressed && wasPressed)
-            {
-                _activePolledButtons.Remove(button);
-                OnControllerInputReleased(controllerInput);
+                bool isPressed = positive ? value > StickDeadzone : value < -StickDeadzone;
+                var key = (axis, positive);
+                bool wasPressed = _activePolledAxes.Contains(key);
+
+                if (isPressed && !wasPressed)
+                {
+                    _activePolledAxes.Add(key);
+                    OnControllerInputPressed(controllerInput);
+                }
+                else if (!isPressed && wasPressed)
+                {
+                    _activePolledAxes.Remove(key);
+                    OnControllerInputReleased(controllerInput);
+                }
             }
         }
-
-        // Poll right stick axes
-        foreach (var ((axis, positive), controllerInput) in _polledAxes)
+        catch (System.Exception e)
         {
-            float value = 0f;
-            foreach (int device in Godot.Input.GetConnectedJoypads())
-            {
-                float v = Godot.Input.GetJoyAxis(device, axis);
-                if (System.Math.Abs(v) > System.Math.Abs(value))
-                    value = v;
-            }
-
-            bool isPressed = positive ? value > StickDeadzone : value < -StickDeadzone;
-            var key = (axis, positive);
-            bool wasPressed = _activePolledAxes.Contains(key);
-
-            if (isPressed && !wasPressed)
-            {
-                _activePolledAxes.Add(key);
-                OnControllerInputPressed(controllerInput);
-            }
-            else if (!isPressed && wasPressed)
-            {
-                _activePolledAxes.Remove(key);
-                OnControllerInputReleased(controllerInput);
-            }
+            Log.Error($"[AccessibilityMod] PollCustomActions CRASHED: {e}");
         }
     }
 
@@ -309,6 +315,13 @@ public static class InputManager
 
         if (_modifierKeys.Contains(keyEvent.Keycode))
             return;
+
+        if (IsListening)
+        {
+            _listenCallback?.Invoke(new KeyboardBinding(
+                keyEvent.Keycode, keyEvent.CtrlPressed, keyEvent.ShiftPressed, keyEvent.AltPressed));
+            return;
+        }
 
         bool anyConsumed = false;
         foreach (var action in _actions)
@@ -357,6 +370,22 @@ public static class InputManager
     {
         Speech.SpeechManager.Silence();
         _heldControllerInputs.Add(input);
+
+        if (IsListening)
+        {
+            // Check if any other button is held as a modifier
+            ControllerInput? modifier = null;
+            foreach (var held in _heldControllerInputs)
+            {
+                if (held != input)
+                {
+                    modifier = held;
+                    break;
+                }
+            }
+            _listenCallback?.Invoke(new ControllerBinding(input, modifier));
+            return true;
+        }
 
         bool anyConsumed = false;
         InputAction? unmatchedFallback = null;

@@ -183,6 +183,7 @@ public static class ModSettings
             JsonValueKind.Number when element.TryGetInt32(out var i) => i,
             JsonValueKind.Number when element.TryGetInt64(out var l) => l,
             JsonValueKind.Number => element.GetDouble(),
+            JsonValueKind.Array => element,
             _ => null
         };
     }

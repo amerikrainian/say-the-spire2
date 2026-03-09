@@ -1,3 +1,4 @@
+using System.Linq;
 using Godot;
 using SayTheSpire2.Input;
 using SayTheSpire2.Localization;
@@ -169,8 +170,30 @@ public class ModSettingsScreen : Screen
                     _navContainer.Add(dropdown);
                     AddControl(dropdown.Node, dropdown);
                     break;
+
+                case BindingSetting bindingSetting:
+                    var bindingLabel = GetBindingSummary(bindingSetting);
+                    var bindingButton = new ButtonElement(bindingLabel);
+                    bindingButton.OnActivated = () =>
+                    {
+                        var screen = new BindingListScreen(bindingSetting);
+                        ScreenManager.PushScreen(screen);
+                    };
+                    _navContainer.Add(bindingButton);
+                    AddControl(bindingButton.Node, bindingButton);
+                    break;
             }
         }
+    }
+
+    private static string GetBindingSummary(BindingSetting setting)
+    {
+        var action = setting.Action;
+        var bindings = action.Bindings;
+        if (bindings.Count == 0)
+            return $"{action.Label}: (none)";
+        var names = string.Join(", ", bindings.Select(b => b.DisplayName));
+        return $"{action.Label}: {names}";
     }
 
     private void AddControl(Node node, UIElement element)

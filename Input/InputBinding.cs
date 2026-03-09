@@ -1,27 +1,20 @@
-using Godot;
-
 namespace SayTheSpire2.Input;
 
-public class InputBinding
+public abstract class InputBinding
 {
-    public Key Keycode { get; }
-    public bool Ctrl { get; }
-    public bool Shift { get; }
-    public bool Alt { get; }
+    public abstract string Serialize();
+    public abstract string Type { get; }
+    public abstract string TypeLabel { get; }
+    public abstract string ComboName { get; }
+    public string DisplayName => $"{TypeLabel}: {ComboName}";
 
-    public InputBinding(Key keycode, bool ctrl = false, bool shift = false, bool alt = false)
+    public static InputBinding? Deserialize(string type, string binding)
     {
-        Keycode = keycode;
-        Ctrl = ctrl;
-        Shift = shift;
-        Alt = alt;
-    }
-
-    public bool Matches(InputEventKey key)
-    {
-        return key.Keycode == Keycode
-            && key.CtrlPressed == Ctrl
-            && key.ShiftPressed == Shift
-            && key.AltPressed == Alt;
+        return type switch
+        {
+            "keyboard" => KeyboardBinding.Parse(binding),
+            "controller" => ControllerBinding.Parse(binding),
+            _ => null
+        };
     }
 }
