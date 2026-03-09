@@ -143,10 +143,14 @@ public static class InputManager
 
     private static void RegisterModActions()
     {
-        _actions.Add(new InputAction("buffer_next_item").AddBinding(Key.Up, ctrl: true));
-        _actions.Add(new InputAction("buffer_prev_item").AddBinding(Key.Down, ctrl: true));
-        _actions.Add(new InputAction("buffer_next").AddBinding(Key.Right, ctrl: true));
-        _actions.Add(new InputAction("buffer_prev").AddBinding(Key.Left, ctrl: true));
+        _actions.Add(new InputAction("buffer_next_item").AddBinding(Key.Up, ctrl: true)
+            .AddBinding(ControllerInput.RightStickUp));
+        _actions.Add(new InputAction("buffer_prev_item").AddBinding(Key.Down, ctrl: true)
+            .AddBinding(ControllerInput.RightStickDown));
+        _actions.Add(new InputAction("buffer_next").AddBinding(Key.Right, ctrl: true)
+            .AddBinding(ControllerInput.RightStickRight));
+        _actions.Add(new InputAction("buffer_prev").AddBinding(Key.Left, ctrl: true)
+            .AddBinding(ControllerInput.RightStickLeft));
         _actions.Add(new InputAction("reset_bindings").AddBinding(Key.R, ctrl: true, shift: true));
         _actions.Add(new InputAction("announce_gold").AddBinding(Key.G, ctrl: true));
         _actions.Add(new InputAction("announce_hp").AddBinding(Key.H, ctrl: true)
@@ -163,42 +167,49 @@ public static class InputManager
     }
 
     /// <summary>
-    /// Maps game controller action names to ControllerInput.
-    /// Controller events arrive at _UnhandledInput as InputEventAction with these names.
-    /// </summary>
-    private static readonly Dictionary<string, ControllerInput> _controllerActionMap = new()
-    {
-        { "controller_d_pad_north", ControllerInput.DpadUp },
-        { "controller_d_pad_south", ControllerInput.DpadDown },
-        { "controller_d_pad_west", ControllerInput.DpadLeft },
-        { "controller_d_pad_east", ControllerInput.DpadRight },
-        { "controller_face_button_north", ControllerInput.Y },
-        { "controller_face_button_south", ControllerInput.A },
-        { "controller_face_button_east", ControllerInput.B },
-        { "controller_face_button_west", ControllerInput.X },
-        { "controller_left_bumper", ControllerInput.LeftShoulder },
-        { "controller_right_bumper", ControllerInput.RightShoulder },
-        { "controller_left_trigger", ControllerInput.LeftTrigger },
-        { "controller_right_trigger", ControllerInput.RightTrigger },
-        { "controller_select_button", ControllerInput.Back },
-        { "controller_start_button", ControllerInput.Start },
-        { "controller_joystick_press", ControllerInput.LeftStickClick },
-        { "controller_joystick_up", ControllerInput.LeftStickUp },
-        { "controller_joystick_down", ControllerInput.LeftStickDown },
-        { "controller_joystick_left", ControllerInput.LeftStickLeft },
-        { "controller_joystick_right", ControllerInput.LeftStickRight },
-    };
-
-    /// <summary>
-    /// Controller buttons polled directly from hardware in _Process, bypassing
-    /// the game's input system. For buttons the game doesn't deliver as actions.
+    /// All controller buttons polled from hardware in _Process.
+    /// Bypasses the game's input system entirely for consistent handling.
     /// </summary>
     private static readonly Dictionary<JoyButton, ControllerInput> _polledButtons = new()
     {
+        { JoyButton.DpadUp, ControllerInput.DpadUp },
+        { JoyButton.DpadDown, ControllerInput.DpadDown },
+        { JoyButton.DpadLeft, ControllerInput.DpadLeft },
+        { JoyButton.DpadRight, ControllerInput.DpadRight },
+        { JoyButton.A, ControllerInput.A },
+        { JoyButton.B, ControllerInput.B },
+        { JoyButton.X, ControllerInput.X },
+        { JoyButton.Y, ControllerInput.Y },
+        { JoyButton.LeftShoulder, ControllerInput.LeftShoulder },
+        { JoyButton.RightShoulder, ControllerInput.RightShoulder },
+        { JoyButton.LeftStick, ControllerInput.LeftStickClick },
         { JoyButton.RightStick, ControllerInput.RightStickClick },
+        { JoyButton.Start, ControllerInput.Start },
+        { JoyButton.Back, ControllerInput.Back },
     };
 
     private static readonly HashSet<JoyButton> _activePolledButtons = new();
+
+    /// <summary>
+    /// All controller axes polled from hardware in _Process.
+    /// Maps (axis, positive direction?) to ControllerInput.
+    /// </summary>
+    private static readonly Dictionary<(JoyAxis, bool), ControllerInput> _polledAxes = new()
+    {
+        { (JoyAxis.LeftX, false), ControllerInput.LeftStickLeft },
+        { (JoyAxis.LeftX, true), ControllerInput.LeftStickRight },
+        { (JoyAxis.LeftY, false), ControllerInput.LeftStickUp },
+        { (JoyAxis.LeftY, true), ControllerInput.LeftStickDown },
+        { (JoyAxis.RightX, false), ControllerInput.RightStickLeft },
+        { (JoyAxis.RightX, true), ControllerInput.RightStickRight },
+        { (JoyAxis.RightY, false), ControllerInput.RightStickUp },
+        { (JoyAxis.RightY, true), ControllerInput.RightStickDown },
+        { (JoyAxis.TriggerLeft, true), ControllerInput.LeftTrigger },
+        { (JoyAxis.TriggerRight, true), ControllerInput.RightTrigger },
+    };
+
+    private static readonly HashSet<(JoyAxis, bool)> _activePolledAxes = new();
+    private const float StickDeadzone = 0.5f;
 
     /// <summary>
     /// Called from _Input prefix on NControllerManager.
@@ -228,37 +239,8 @@ public static class InputManager
     }
 
     /// <summary>
-    /// Called from _UnhandledInput prefix on NInputManager.
-    /// Controller InputEventAction events arrive here (not at _Input).
-    /// Returns true to consume the event and skip the game's controller remapping.
-    /// </summary>
-    public static bool OnUnhandledInput(NInputManager inputManager, InputEvent inputEvent)
-    {
-        if (!InterceptInput || IsGameListeningForRebind())
-            return false;
-
-        _controllerManager ??= inputManager.ControllerManager;
-
-        foreach (var (actionName, controllerInput) in _controllerActionMap)
-        {
-            if (inputEvent.IsActionPressed(actionName))
-            {
-                OnControllerInputPressed(controllerInput);
-                return true;
-            }
-            else if (inputEvent.IsActionReleased(actionName))
-            {
-                OnControllerInputReleased(controllerInput);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Called from _Process postfix on NControllerManager. Polls raw hardware state
-    /// for controller buttons that the game's input system doesn't deliver.
+    /// Called from _Process postfix on NControllerManager. Polls all controller
+    /// buttons and axes directly from hardware, bypassing the game's input system.
     /// </summary>
     public static void PollCustomActions(NControllerManager controller)
     {
@@ -289,6 +271,33 @@ public static class InputManager
             else if (!isPressed && wasPressed)
             {
                 _activePolledButtons.Remove(button);
+                OnControllerInputReleased(controllerInput);
+            }
+        }
+
+        // Poll right stick axes
+        foreach (var ((axis, positive), controllerInput) in _polledAxes)
+        {
+            float value = 0f;
+            foreach (int device in Godot.Input.GetConnectedJoypads())
+            {
+                float v = Godot.Input.GetJoyAxis(device, axis);
+                if (System.Math.Abs(v) > System.Math.Abs(value))
+                    value = v;
+            }
+
+            bool isPressed = positive ? value > StickDeadzone : value < -StickDeadzone;
+            var key = (axis, positive);
+            bool wasPressed = _activePolledAxes.Contains(key);
+
+            if (isPressed && !wasPressed)
+            {
+                _activePolledAxes.Add(key);
+                OnControllerInputPressed(controllerInput);
+            }
+            else if (!isPressed && wasPressed)
+            {
+                _activePolledAxes.Remove(key);
                 OnControllerInputReleased(controllerInput);
             }
         }

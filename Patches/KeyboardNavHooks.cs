@@ -89,20 +89,16 @@ public static class KeyboardNavHooks
     }
 
     /// <summary>
-    /// Intercept controller events on NInputManager._UnhandledInput.
+    /// Suppress the game's controller-to-action remapping. We handle all controller
+    /// input via hardware polling in _Process instead.
     /// </summary>
-    public static bool UnhandledInputPrefix(NInputManager __instance, InputEvent inputEvent)
+    public static bool UnhandledInputPrefix()
     {
-        if (InputManager.OnUnhandledInput(__instance, inputEvent))
-        {
-            __instance.GetViewport()?.SetInputAsHandled();
-            return false;
-        }
-        return true;
+        return !InputManager.InterceptInput;
     }
 
     /// <summary>
-    /// Poll for custom controller actions that the game doesn't know about.
+    /// Poll all controller buttons and axes from hardware.
     /// </summary>
     public static void ProcessPostfix(NControllerManager __instance)
     {
