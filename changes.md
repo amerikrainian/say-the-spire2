@@ -5,3 +5,4 @@
 * Fixed an issue where the controller focus could get stuck on the character select screen if the user moved the cursor to panels that aren't yet available (such as the ascension panel.)
 * Fixed an issue for rest sites where the focus would move in extremely unpredictable ways. The buttons are now properly a navigable row.
 * Added events and announcements for card upgrades and when cards are added to your deck.
+* Mod settings menus are now sorted alphabetically.
