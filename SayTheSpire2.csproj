@@ -249,6 +249,9 @@ public class CreateReleaseZip : Task
       <ReleaseFile Include="$(TolkBuildDir)\x64\Tolk.dll" ArcName="Tolk.dll" />
       <ReleaseFile Include="$(TolkBuildDir)\x64\nvdaControllerClient64.dll" ArcName="nvdaControllerClient64.dll" />
       <ReleaseFile Include="$(TolkBuildDir)\x64\SAAPI64.dll" ArcName="SAAPI64.dll" />
+      <ReleaseFile Include="$(MSBuildProjectDirectory)\jaws\SlayTheSpire2.JCF" ArcName="jaws/SlayTheSpire2.JCF" />
+      <ReleaseFile Include="$(MSBuildProjectDirectory)\jaws\SlayTheSpire2.JDF" ArcName="jaws/SlayTheSpire2.JDF" />
+      <ReleaseFile Include="$(MSBuildProjectDirectory)\jaws\SlayTheSpire2.jkm" ArcName="jaws/SlayTheSpire2.jkm" />
     </ItemGroup>
     <CreateReleaseZip Files="@(ReleaseFile)" OutputPath="$(MSBuildProjectDirectory)\SayTheSpire2.zip" />
   </Target>

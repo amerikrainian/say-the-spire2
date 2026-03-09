@@ -300,7 +300,10 @@ class InstallerFrame(wx.Frame):
         btn_sizer.Add(self._install_file_btn, 0, wx.RIGHT, 5)
         self._uninstall_btn = wx.Button(panel, label="Uninstall")
         self._uninstall_btn.Disable()
-        btn_sizer.Add(self._uninstall_btn, 0)
+        btn_sizer.Add(self._uninstall_btn, 0, wx.RIGHT, 5)
+        self._jaws_btn = wx.Button(panel, label="Install JAWS config files")
+        self._jaws_btn.Disable()
+        btn_sizer.Add(self._jaws_btn, 0)
         sizer.Add(btn_sizer, 0, wx.ALIGN_RIGHT | wx.RIGHT | wx.BOTTOM, 10)
 
         panel.SetSizer(sizer)
@@ -312,6 +315,7 @@ class InstallerFrame(wx.Frame):
         self._install_btn.Bind(wx.EVT_BUTTON, self._on_install)
         self._install_file_btn.Bind(wx.EVT_BUTTON, self._on_install_from_file)
         self._uninstall_btn.Bind(wx.EVT_BUTTON, self._on_uninstall)
+        self._jaws_btn.Bind(wx.EVT_BUTTON, self._on_install_jaws)
 
         # Start detection
         self.Show()
@@ -367,6 +371,14 @@ class InstallerFrame(wx.Frame):
             self._status.SetLabel("Could not connect to GitHub. Install/update unavailable.")
 
     def _update_ui_state(self):
+        # JAWS button: enable if game path has jaws/ with files
+        if self._game_path:
+            jaws_dir = Path(self._game_path) / "jaws"
+            if jaws_dir.exists() and any(jaws_dir.iterdir()):
+                self._jaws_btn.Enable()
+            else:
+                self._jaws_btn.Disable()
+
         if not self._game_path or not self._release_info:
             return
 
@@ -551,6 +563,48 @@ class InstallerFrame(wx.Frame):
 
         wx.MessageBox("SayTheSpire2 has been uninstalled.", "Uninstall Complete",
                       wx.OK | wx.ICON_INFORMATION)
+
+    def _on_install_jaws(self, event):
+        if not self._game_path:
+            return
+
+        jaws_src = Path(self._game_path) / "jaws"
+        if not jaws_src.exists():
+            wx.MessageBox("JAWS config files not found in the game directory.\n"
+                          "Please install the mod first.",
+                          "Error", wx.OK | wx.ICON_ERROR)
+            return
+
+        dlg = wx.DirDialog(self, "Select JAWS settings directory",
+                           style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+        if dlg.ShowModal() != wx.ID_OK:
+            dlg.Destroy()
+            return
+
+        dest = Path(dlg.GetPath())
+        dlg.Destroy()
+
+        copied = []
+        errors = []
+        for src_file in jaws_src.iterdir():
+            if src_file.is_file():
+                try:
+                    shutil.copy2(src_file, dest / src_file.name)
+                    copied.append(src_file.name)
+                except Exception as e:
+                    errors.append(f"{src_file.name}: {e}")
+
+        if copied:
+            self._log_message(f"JAWS files copied to {dest}: {', '.join(copied)}")
+        if errors:
+            self._log_message(f"Failed to copy: {'; '.join(errors)}")
+
+        if errors:
+            wx.MessageBox(f"Some files failed to copy:\n{chr(10).join(errors)}",
+                          "Error", wx.OK | wx.ICON_ERROR)
+        else:
+            wx.MessageBox(f"JAWS config files installed to {dest}.",
+                          "JAWS Install Complete", wx.OK | wx.ICON_INFORMATION)
 
 
 def main():
