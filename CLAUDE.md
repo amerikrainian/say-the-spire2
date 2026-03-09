@@ -5,9 +5,11 @@ Accessibility mod for blind players of Slay the Spire 2. Replaces Godot's buggy 
 
 ## Build & Deploy
 ```
-dotnet build -c Release
+dotnet build
 ```
 This builds the DLL, creates the PCK, and copies everything to the game's `mods/` directory via MSBuild post-build targets. Then restart the game to test.
+
+**Important:** Use `dotnet build` (Debug), NOT `dotnet build -c Release`. The post-build copy to the mods directory only runs in Debug configuration. Release builds the DLL but does not deploy it.
 
 ## Check Logs
 Game logs are at: `%APPDATA%/SlayTheSpire2/logs/godot.log`

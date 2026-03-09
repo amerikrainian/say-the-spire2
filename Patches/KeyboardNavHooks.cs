@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using Godot;
 using HarmonyLib;
@@ -8,47 +9,74 @@ using SayTheSpire2.Input;
 namespace SayTheSpire2.Patches;
 
 /// <summary>
-/// Patches NControllerManager._Input to intercept keyboard input for the mod's
-/// input system, and NInputManager._UnhandledKeyInput to suppress the game's
-/// default key-to-action remapping when the mod is intercepting.
+/// Patches input hooks:
+/// - NControllerManager._Input: intercepts keyboard events
+/// - NInputManager._UnhandledKeyInput: suppresses game's keyboard remapping
+/// - NInputManager._UnhandledInput: intercepts controller events (they arrive here, not _Input)
+/// - NControllerManager._Process: polls hardware for buttons the game doesn't map
 /// </summary>
 public static class KeyboardNavHooks
 {
     public static void Initialize(Harmony harmony)
     {
-        var inputMethod = AccessTools.Method(typeof(NControllerManager), "_Input");
-        if (inputMethod != null)
+        try
         {
-            harmony.Patch(inputMethod,
-                prefix: new HarmonyMethod(typeof(KeyboardNavHooks).GetMethod(
-                    nameof(InputPrefix), BindingFlags.Static | BindingFlags.Public)));
-            Log.Info("[AccessibilityMod] NControllerManager._Input hook patched.");
+            PatchSafe(harmony, typeof(NControllerManager), "_Input",
+                nameof(InputPrefix), isPrefix: true, "NControllerManager._Input");
+            PatchSafe(harmony, typeof(NInputManager), "_UnhandledKeyInput",
+                nameof(UnhandledKeyInputPrefix), isPrefix: true, "NInputManager._UnhandledKeyInput");
+            PatchSafe(harmony, typeof(NInputManager), "_UnhandledInput",
+                nameof(UnhandledInputPrefix), isPrefix: true, "NInputManager._UnhandledInput");
+            PatchSafe(harmony, typeof(NControllerManager), "_Process",
+                nameof(ProcessPostfix), isPrefix: false, "NControllerManager._Process");
+            Log.Info("[AccessibilityMod] Input hooks patched.");
         }
-
-        var unhandledKeyMethod = AccessTools.Method(typeof(NInputManager), "_UnhandledKeyInput");
-        if (unhandledKeyMethod != null)
+        catch (Exception e)
         {
-            harmony.Patch(unhandledKeyMethod,
-                prefix: new HarmonyMethod(typeof(KeyboardNavHooks).GetMethod(
-                    nameof(UnhandledKeyInputPrefix), BindingFlags.Static | BindingFlags.Public)));
-            Log.Info("[AccessibilityMod] NInputManager._UnhandledKeyInput suppression patched.");
+            Log.Error($"[AccessibilityMod] Input hooks Initialize CRASHED: {e}");
         }
+    }
 
-        var unhandledInputMethod = AccessTools.Method(typeof(NInputManager), "_UnhandledInput");
-        if (unhandledInputMethod != null)
+    private static void PatchSafe(Harmony harmony, Type targetType, string methodName,
+        string patchMethodName, bool isPrefix, string label)
+    {
+        try
         {
-            harmony.Patch(unhandledInputMethod,
-                prefix: new HarmonyMethod(typeof(KeyboardNavHooks).GetMethod(
-                    nameof(UnhandledInputPrefix), BindingFlags.Static | BindingFlags.Public)));
-            Log.Info("[AccessibilityMod] NInputManager._UnhandledInput suppression patched.");
-        }
+            var method = targetType.GetMethod(methodName,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 
-        Log.Info("[AccessibilityMod] Input hooks patched.");
+            if (method == null)
+            {
+                // Try without DeclaredOnly in case it's inherited
+                method = AccessTools.Method(targetType, methodName);
+            }
+
+            if (method == null)
+            {
+                Log.Warn($"[AccessibilityMod] {label} NOT found. Available methods:");
+                foreach (var m in targetType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                    Log.Info($"[AccessibilityMod]   {m.Name}({string.Join(", ", Array.ConvertAll(m.GetParameters(), p => p.ParameterType.Name))})");
+                return;
+            }
+
+            var patchMethod = new HarmonyMethod(typeof(KeyboardNavHooks).GetMethod(
+                patchMethodName, BindingFlags.Static | BindingFlags.Public));
+
+            if (isPrefix)
+                harmony.Patch(method, prefix: patchMethod);
+            else
+                harmony.Patch(method, postfix: patchMethod);
+
+            Log.Info($"[AccessibilityMod] {label} hook patched.");
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[AccessibilityMod] {label} patch FAILED: {e.Message}");
+        }
     }
 
     /// <summary>
-    /// Intercept all input events on NControllerManager. Keyboard events are
-    /// captured and processed immediately; non-keyboard events pass through.
+    /// Intercept keyboard events on NControllerManager._Input.
     /// </summary>
     public static bool InputPrefix(NControllerManager __instance, InputEvent inputEvent)
     {
@@ -61,6 +89,27 @@ public static class KeyboardNavHooks
     }
 
     /// <summary>
+    /// Intercept controller events on NInputManager._UnhandledInput.
+    /// </summary>
+    public static bool UnhandledInputPrefix(NInputManager __instance, InputEvent inputEvent)
+    {
+        if (InputManager.OnUnhandledInput(__instance, inputEvent))
+        {
+            __instance.GetViewport()?.SetInputAsHandled();
+            return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Poll for custom controller actions that the game doesn't know about.
+    /// </summary>
+    public static void ProcessPostfix(NControllerManager __instance)
+    {
+        InputManager.PollCustomActions(__instance);
+    }
+
+    /// <summary>
     /// Suppress the game's own key-to-action remapping when the mod is intercepting input.
     /// </summary>
     public static bool UnhandledKeyInputPrefix()
@@ -68,13 +117,4 @@ public static class KeyboardNavHooks
         return !InputManager.InterceptInput;
     }
 
-    /// <summary>
-    /// Suppress the game's controller-to-action remapping when the mod is intercepting input.
-    /// Without this, the game's NInputManager would also process controller actions and
-    /// inject duplicate game actions.
-    /// </summary>
-    public static bool UnhandledInputPrefix()
-    {
-        return !InputManager.InterceptInput;
-    }
 }

@@ -14,6 +14,7 @@ public static class InputManager
 {
     private static readonly List<InputAction> _actions = new();
     private static readonly HashSet<InputAction> _activeActions = new();
+    private static readonly HashSet<ControllerInput> _heldControllerInputs = new();
 
     private static readonly HashSet<Key> _modifierKeys = new()
     {
@@ -45,9 +46,35 @@ public static class InputManager
 
     public static void Initialize()
     {
+        RegisterCustomInputMapActions();
         RegisterGameActions();
         RegisterModActions();
         Log.Info($"[AccessibilityMod] InputManager initialized with {_actions.Count} actions.");
+    }
+
+    /// <summary>
+    /// Modify Godot input map so the game doesn't also handle right stick click
+    /// (it maps both stick clicks to controller_joystick_press by default).
+    /// </summary>
+    private static void RegisterCustomInputMapActions()
+    {
+        try
+        {
+            if (!InputMap.HasAction("controller_joystick_press")) return;
+            foreach (var evt in InputMap.ActionGetEvents("controller_joystick_press"))
+            {
+                if (evt is InputEventJoypadButton joyEvt && joyEvt.ButtonIndex == JoyButton.RightStick)
+                {
+                    InputMap.ActionEraseEvent("controller_joystick_press", evt);
+                    Log.Info("[AccessibilityMod] Removed RightStick from controller_joystick_press");
+                    return;
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Failed to modify controller_joystick_press: {e.Message}");
+        }
     }
 
     private static void RegisterGameActions()
@@ -82,10 +109,10 @@ public static class InputManager
             .AddBinding(ControllerInput.LeftStickClick));
         _actions.Add(new InputAction("mega_view_draw_pile", gameAction: "mega_view_draw_pile")
             .AddBinding(Key.A)
-            .AddBinding(ControllerInput.LeftTrigger));
+            .AddBinding(ControllerInput.LeftShoulder, modifier: ControllerInput.LeftTrigger));
         _actions.Add(new InputAction("mega_view_discard_pile", gameAction: "mega_view_discard_pile")
             .AddBinding(Key.S)
-            .AddBinding(ControllerInput.RightTrigger));
+            .AddBinding(ControllerInput.RightShoulder, modifier: ControllerInput.RightTrigger));
         _actions.Add(new InputAction("mega_view_deck_and_tab_left", gameAction: "mega_view_deck_and_tab_left")
             .AddBinding(Key.D)
             .AddBinding(ControllerInput.LeftShoulder));
@@ -122,17 +149,22 @@ public static class InputManager
         _actions.Add(new InputAction("buffer_prev").AddBinding(Key.Left, ctrl: true));
         _actions.Add(new InputAction("reset_bindings").AddBinding(Key.R, ctrl: true, shift: true));
         _actions.Add(new InputAction("announce_gold").AddBinding(Key.G, ctrl: true));
-        _actions.Add(new InputAction("announce_hp").AddBinding(Key.H, ctrl: true));
-        _actions.Add(new InputAction("announce_block").AddBinding(Key.B, ctrl: true));
-        _actions.Add(new InputAction("announce_energy").AddBinding(Key.Y, ctrl: true));
-        _actions.Add(new InputAction("announce_powers").AddBinding(Key.P, ctrl: true));
+        _actions.Add(new InputAction("announce_hp").AddBinding(Key.H, ctrl: true)
+            .AddBinding(ControllerInput.A, modifier: ControllerInput.LeftTrigger));
+        _actions.Add(new InputAction("announce_block").AddBinding(Key.B, ctrl: true)
+            .AddBinding(ControllerInput.B, modifier: ControllerInput.LeftTrigger));
+        _actions.Add(new InputAction("announce_energy").AddBinding(Key.Y, ctrl: true)
+            .AddBinding(ControllerInput.X, modifier: ControllerInput.LeftTrigger));
+        _actions.Add(new InputAction("announce_powers").AddBinding(Key.P, ctrl: true)
+            .AddBinding(ControllerInput.Y, modifier: ControllerInput.LeftTrigger));
         _actions.Add(new InputAction("announce_intents").AddBinding(Key.I, ctrl: true));
-        _actions.Add(new InputAction("mod_settings").AddBinding(Key.M, ctrl: true));
+        _actions.Add(new InputAction("mod_settings").AddBinding(Key.M, ctrl: true)
+            .AddBinding(ControllerInput.Start, modifier: ControllerInput.LeftTrigger));
     }
 
     /// <summary>
-    /// Maps game controller action names (from InputEventAction) to ControllerInput.
-    /// These arrive pre-remapped by the game's input system.
+    /// Maps game controller action names to ControllerInput.
+    /// Controller events arrive at _UnhandledInput as InputEventAction with these names.
     /// </summary>
     private static readonly Dictionary<string, ControllerInput> _controllerActionMap = new()
     {
@@ -158,57 +190,19 @@ public static class InputManager
     };
 
     /// <summary>
-    /// Maps raw JoyButton values to our ControllerInput enum.
-    /// Used as fallback if raw joypad events arrive instead of actions.
+    /// Controller buttons polled directly from hardware in _Process, bypassing
+    /// the game's input system. For buttons the game doesn't deliver as actions.
     /// </summary>
-    private static readonly Dictionary<JoyButton, ControllerInput> _joyButtonMap = new()
+    private static readonly Dictionary<JoyButton, ControllerInput> _polledButtons = new()
     {
-        { JoyButton.DpadUp, ControllerInput.DpadUp },
-        { JoyButton.DpadDown, ControllerInput.DpadDown },
-        { JoyButton.DpadLeft, ControllerInput.DpadLeft },
-        { JoyButton.DpadRight, ControllerInput.DpadRight },
-        { JoyButton.A, ControllerInput.A },
-        { JoyButton.B, ControllerInput.B },
-        { JoyButton.X, ControllerInput.X },
-        { JoyButton.Y, ControllerInput.Y },
-        { JoyButton.LeftShoulder, ControllerInput.LeftShoulder },
-        { JoyButton.RightShoulder, ControllerInput.RightShoulder },
-        { JoyButton.LeftStick, ControllerInput.LeftStickClick },
         { JoyButton.RightStick, ControllerInput.RightStickClick },
-        { JoyButton.Start, ControllerInput.Start },
-        { JoyButton.Back, ControllerInput.Back },
     };
 
-    /// <summary>
-    /// Maps JoyAxis + direction to ControllerInput for stick and trigger inputs.
-    /// Positive = right/down/trigger pressed, Negative = left/up.
-    /// </summary>
-    private static readonly Dictionary<(JoyAxis, bool positive), ControllerInput> _joyAxisMap = new()
-    {
-        { (JoyAxis.LeftX, false), ControllerInput.LeftStickLeft },
-        { (JoyAxis.LeftX, true), ControllerInput.LeftStickRight },
-        { (JoyAxis.LeftY, false), ControllerInput.LeftStickUp },
-        { (JoyAxis.LeftY, true), ControllerInput.LeftStickDown },
-        { (JoyAxis.RightX, false), ControllerInput.RightStickLeft },
-        { (JoyAxis.RightX, true), ControllerInput.RightStickRight },
-        { (JoyAxis.RightY, false), ControllerInput.RightStickUp },
-        { (JoyAxis.RightY, true), ControllerInput.RightStickDown },
-        { (JoyAxis.TriggerLeft, true), ControllerInput.LeftTrigger },
-        { (JoyAxis.TriggerRight, true), ControllerInput.RightTrigger },
-    };
-
-    private const float StickDeadzone = 0.5f;
+    private static readonly HashSet<JoyButton> _activePolledButtons = new();
 
     /// <summary>
-    /// Tracks which axis-based ControllerInputs are currently "pressed" so we can
-    /// detect press/release transitions for analog inputs.
-    /// </summary>
-    private static readonly HashSet<ControllerInput> _activeAxisInputs = new();
-
-    /// <summary>
-    /// Called from _Input prefix on NControllerManager. Updates key states,
-    /// matches actions immediately, and consumes the event.
-    /// Returns true if the event was consumed.
+    /// Called from _Input prefix on NControllerManager.
+    /// Handles keyboard events. Controller events don't arrive here.
     /// </summary>
     public static bool OnInputEvent(NControllerManager controller, InputEvent inputEvent)
     {
@@ -220,7 +214,7 @@ public static class InputManager
         if (inputEvent is InputEventKey keyEvent)
         {
             if (keyEvent.Echo)
-                return true; // consume but don't process
+                return true;
 
             if (keyEvent.Pressed)
                 OnKeyPressed(keyEvent);
@@ -230,37 +224,83 @@ public static class InputManager
             return true;
         }
 
-        if (inputEvent is InputEventJoypadButton or InputEventJoypadMotion)
-        {
-            // Always consume raw joypad events — process matched ones,
-            // silently swallow unmatched to prevent leaking to the game.
-            OnControllerEvent(inputEvent);
-            return true;
-        }
+        return false;
+    }
 
-        // Controller inputs arrive as InputEventAction (already remapped by the game).
-        // Handle controller_* actions via ControllerInput matching; ignore the
-        // remapped ui_*/mega_* duplicates. Always consume to prevent leaking.
-        if (inputEvent is InputEventAction actionEvent)
+    /// <summary>
+    /// Called from _UnhandledInput prefix on NInputManager.
+    /// Controller InputEventAction events arrive here (not at _Input).
+    /// Returns true to consume the event and skip the game's controller remapping.
+    /// </summary>
+    public static bool OnUnhandledInput(NInputManager inputManager, InputEvent inputEvent)
+    {
+        if (!InterceptInput || IsGameListeningForRebind())
+            return false;
+
+        _controllerManager ??= inputManager.ControllerManager;
+
+        foreach (var (actionName, controllerInput) in _controllerActionMap)
         {
-            OnControllerActionEvent(actionEvent);
-            return true;
+            if (inputEvent.IsActionPressed(actionName))
+            {
+                OnControllerInputPressed(controllerInput);
+                return true;
+            }
+            else if (inputEvent.IsActionReleased(actionName))
+            {
+                OnControllerInputReleased(controllerInput);
+                return true;
+            }
         }
 
         return false;
     }
 
+    /// <summary>
+    /// Called from _Process postfix on NControllerManager. Polls raw hardware state
+    /// for controller buttons that the game's input system doesn't deliver.
+    /// </summary>
+    public static void PollCustomActions(NControllerManager controller)
+    {
+        if (!InterceptInput || IsGameListeningForRebind())
+            return;
+
+        _controllerManager = controller;
+
+        foreach (var (button, controllerInput) in _polledButtons)
+        {
+            bool isPressed = false;
+            foreach (int device in Godot.Input.GetConnectedJoypads())
+            {
+                if (Godot.Input.IsJoyButtonPressed(device, button))
+                {
+                    isPressed = true;
+                    break;
+                }
+            }
+
+            bool wasPressed = _activePolledButtons.Contains(button);
+
+            if (isPressed && !wasPressed)
+            {
+                _activePolledButtons.Add(button);
+                OnControllerInputPressed(controllerInput);
+            }
+            else if (!isPressed && wasPressed)
+            {
+                _activePolledButtons.Remove(button);
+                OnControllerInputReleased(controllerInput);
+            }
+        }
+    }
+
     private static void OnKeyPressed(InputEventKey keyEvent)
     {
-        // Any keypress interrupts current speech
         Speech.SpeechManager.Silence();
 
-        // If it's a modifier key, don't trigger actions — just wait for the
-        // non-modifier key that completes the combo
         if (_modifierKeys.Contains(keyEvent.Keycode))
             return;
 
-        // Find matching actions based on keycode + current modifiers
         bool anyConsumed = false;
         foreach (var action in _actions)
         {
@@ -272,8 +312,6 @@ public static class InputManager
                 _activeActions.Add(action);
                 EnsureFocusMode(action);
 
-                // If any action for this key was consumed by the screen stack,
-                // don't inject game actions for remaining matches either
                 if (!anyConsumed)
                 {
                     bool consumed = ScreenManager.DispatchAction(action, InputActionState.JustPressed);
@@ -288,8 +326,6 @@ public static class InputManager
 
     private static void OnKeyReleased(InputEventKey keyEvent)
     {
-        // Check which active actions are no longer satisfied
-        // (released key was part of their binding)
         var toRelease = new List<InputAction>();
         foreach (var action in _activeActions)
         {
@@ -306,121 +342,54 @@ public static class InputManager
         }
     }
 
-    private static bool OnControllerEvent(InputEvent inputEvent)
-    {
-        if (inputEvent is InputEventJoypadButton buttonEvent)
-        {
-            if (!_joyButtonMap.TryGetValue(buttonEvent.ButtonIndex, out var input))
-                return false;
-
-            if (buttonEvent.Pressed)
-                return OnControllerInputPressed(input);
-            else
-                return OnControllerInputReleased(input);
-        }
-
-        if (inputEvent is InputEventJoypadMotion motionEvent)
-        {
-            return OnAxisMotion(motionEvent);
-        }
-
-        return false;
-    }
-
-    private static bool OnAxisMotion(InputEventJoypadMotion motionEvent)
-    {
-        bool anyHandled = false;
-        var axis = motionEvent.Axis;
-        var value = motionEvent.AxisValue;
-
-        // Check both directions for this axis
-        var positiveKey = (axis, true);
-        var negativeKey = (axis, false);
-
-        if (_joyAxisMap.TryGetValue(positiveKey, out var positiveInput))
-        {
-            bool nowPressed = value > StickDeadzone;
-            bool wasPressed = _activeAxisInputs.Contains(positiveInput);
-
-            if (nowPressed && !wasPressed)
-            {
-                _activeAxisInputs.Add(positiveInput);
-                if (OnControllerInputPressed(positiveInput))
-                    anyHandled = true;
-            }
-            else if (!nowPressed && wasPressed)
-            {
-                _activeAxisInputs.Remove(positiveInput);
-                if (OnControllerInputReleased(positiveInput))
-                    anyHandled = true;
-            }
-        }
-
-        if (_joyAxisMap.TryGetValue(negativeKey, out var negativeInput))
-        {
-            bool nowPressed = value < -StickDeadzone;
-            bool wasPressed = _activeAxisInputs.Contains(negativeInput);
-
-            if (nowPressed && !wasPressed)
-            {
-                _activeAxisInputs.Add(negativeInput);
-                if (OnControllerInputPressed(negativeInput))
-                    anyHandled = true;
-            }
-            else if (!nowPressed && wasPressed)
-            {
-                _activeAxisInputs.Remove(negativeInput);
-                if (OnControllerInputReleased(negativeInput))
-                    anyHandled = true;
-            }
-        }
-
-        return anyHandled;
-    }
-
-    /// <summary>
-    /// Handle InputEventAction from controller. The game sends both raw controller
-    /// actions (controller_d_pad_south) and remapped game actions (ui_down).
-    /// We handle the controller_* ones via ControllerInput matching and ignore
-    /// the remapped ui_* ones to avoid double-handling.
-    /// </summary>
-    private static bool OnControllerActionEvent(InputEventAction actionEvent)
-    {
-        var actionName = actionEvent.Action.ToString();
-
-        // Only handle controller_* actions — the remapped ui_*/mega_* ones would
-        // double-fire since we dispatch from the controller_* match.
-        if (!_controllerActionMap.TryGetValue(actionName, out var controllerInput))
-            return false;
-
-        if (actionEvent.Pressed)
-            return OnControllerInputPressed(controllerInput);
-        else
-            return OnControllerInputReleased(controllerInput);
-    }
+    private static bool IsControllerInputHeld(ControllerInput input) => _heldControllerInputs.Contains(input);
 
     private static bool OnControllerInputPressed(ControllerInput input)
     {
         Speech.SpeechManager.Silence();
+        _heldControllerInputs.Add(input);
 
         bool anyConsumed = false;
+        InputAction? unmatchedFallback = null;
+
         foreach (var action in _actions)
         {
             if (_activeActions.Contains(action))
                 continue;
 
-            if (action.MatchesControllerInput(input))
+            if (action.MatchesControllerInput(input, IsControllerInputHeld))
             {
-                _activeActions.Add(action);
-
-                if (!anyConsumed)
+                if (action.HasControllerModifier)
                 {
-                    bool consumed = ScreenManager.DispatchAction(action, InputActionState.JustPressed);
-                    if (consumed)
-                        anyConsumed = true;
-                    else if (action.GameAction != null)
-                        InjectGameAction(action.GameAction, pressed: true);
+                    _activeActions.Add(action);
+                    if (!anyConsumed)
+                    {
+                        bool consumed = ScreenManager.DispatchAction(action, InputActionState.JustPressed);
+                        if (consumed)
+                            anyConsumed = true;
+                        else if (action.GameAction != null)
+                            InjectGameAction(action.GameAction, pressed: true);
+                    }
+                    unmatchedFallback = null;
+                    break;
                 }
+                else if (unmatchedFallback == null)
+                {
+                    unmatchedFallback = action;
+                }
+            }
+        }
+
+        if (unmatchedFallback != null)
+        {
+            _activeActions.Add(unmatchedFallback);
+            if (!anyConsumed)
+            {
+                bool consumed = ScreenManager.DispatchAction(unmatchedFallback, InputActionState.JustPressed);
+                if (consumed)
+                    anyConsumed = true;
+                else if (unmatchedFallback.GameAction != null)
+                    InjectGameAction(unmatchedFallback.GameAction, pressed: true);
             }
         }
 
@@ -429,10 +398,12 @@ public static class InputManager
 
     private static bool OnControllerInputReleased(ControllerInput input)
     {
+        _heldControllerInputs.Remove(input);
+
         var toRelease = new List<InputAction>();
         foreach (var action in _activeActions)
         {
-            if (action.MatchesControllerInput(input))
+            if (action.UsesControllerInput(input))
                 toRelease.Add(action);
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -9,7 +10,7 @@ public class InputAction
     public string Key { get; }
     public string? GameAction { get; }
     private readonly List<InputBinding> _keyBindings = new();
-    private readonly List<ControllerInput> _controllerBindings = new();
+    private readonly List<ControllerBinding> _controllerBindings = new();
 
     public InputAction(string key, string? gameAction = null)
     {
@@ -23,9 +24,9 @@ public class InputAction
         return this;
     }
 
-    public InputAction AddBinding(ControllerInput input)
+    public InputAction AddBinding(ControllerInput input, ControllerInput? modifier = null)
     {
-        _controllerBindings.Add(input);
+        _controllerBindings.Add(new ControllerBinding(input, modifier));
         return this;
     }
 
@@ -40,7 +41,20 @@ public class InputAction
     public bool UsesKey(Godot.Key keycode) => _keyBindings.Any(b => b.Keycode == keycode);
 
     /// <summary>
-    /// Check if any controller binding matches the given input.
+    /// Check if any controller binding matches the given input, considering held modifiers.
     /// </summary>
-    public bool MatchesControllerInput(ControllerInput input) => _controllerBindings.Contains(input);
+    public bool MatchesControllerInput(ControllerInput input, Func<ControllerInput, bool> isHeld)
+        => _controllerBindings.Any(b => b.Matches(input, isHeld));
+
+    /// <summary>
+    /// Check if any controller binding uses the given input (primary or modifier) for release detection.
+    /// </summary>
+    public bool UsesControllerInput(ControllerInput input)
+        => _controllerBindings.Any(b => b.Uses(input));
+
+    /// <summary>
+    /// Whether any controller binding requires a modifier.
+    /// Used to prioritize modified bindings over unmodified ones.
+    /// </summary>
+    public bool HasControllerModifier => _controllerBindings.Any(b => b.Modifier != null);
 }
