@@ -35,16 +35,20 @@ public static class InputManager
     public static bool InterceptInput { get; set; } = true;
 
     private static System.Action<InputBinding>? _listenCallback;
+    private static HashSet<ControllerInput>? _listenInitialHeld;
     public static bool IsListening => _listenCallback != null;
 
     public static void StartListening(System.Action<InputBinding> callback)
     {
         _listenCallback = callback;
+        // Snapshot currently held buttons so we ignore their release
+        _listenInitialHeld = new HashSet<ControllerInput>(_heldControllerInputs);
     }
 
     public static void StopListening()
     {
         _listenCallback = null;
+        _listenInitialHeld = null;
     }
 
     private static NControllerManager? _controllerManager;
@@ -166,7 +170,8 @@ public static class InputManager
         _actions.Add(new InputAction("buffer_prev", "Previous Buffer").AddBinding(Key.Left, ctrl: true)
             .AddBinding(ControllerInput.RightStickLeft));
         _actions.Add(new InputAction("reset_bindings", "Reset Bindings").AddBinding(Key.R, ctrl: true, shift: true));
-        _actions.Add(new InputAction("announce_gold", "Announce Gold").AddBinding(Key.G, ctrl: true));
+        _actions.Add(new InputAction("announce_gold", "Announce Gold").AddBinding(Key.G, ctrl: true)
+            .AddBinding(ControllerInput.A, modifier: ControllerInput.RightTrigger));
         _actions.Add(new InputAction("announce_hp", "Announce HP").AddBinding(Key.H, ctrl: true)
             .AddBinding(ControllerInput.A, modifier: ControllerInput.LeftTrigger));
         _actions.Add(new InputAction("announce_block", "Announce Block").AddBinding(Key.B, ctrl: true)
@@ -175,7 +180,8 @@ public static class InputManager
             .AddBinding(ControllerInput.X, modifier: ControllerInput.LeftTrigger));
         _actions.Add(new InputAction("announce_powers", "Announce Powers").AddBinding(Key.P, ctrl: true)
             .AddBinding(ControllerInput.Y, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_intents", "Announce Intents").AddBinding(Key.I, ctrl: true));
+        _actions.Add(new InputAction("announce_intents", "Announce Intents").AddBinding(Key.I, ctrl: true)
+            .AddBinding(ControllerInput.Y, modifier: ControllerInput.RightTrigger));
         _actions.Add(new InputAction("mod_settings", "Mod Settings").AddBinding(Key.M, ctrl: true)
             .AddBinding(ControllerInput.Start, modifier: ControllerInput.LeftTrigger));
     }
@@ -373,17 +379,7 @@ public static class InputManager
 
         if (IsListening)
         {
-            // Check if any other button is held as a modifier
-            ControllerInput? modifier = null;
-            foreach (var held in _heldControllerInputs)
-            {
-                if (held != input)
-                {
-                    modifier = held;
-                    break;
-                }
-            }
-            _listenCallback?.Invoke(new ControllerBinding(input, modifier));
+            // Don't capture on press — wait for release so modifiers can be held first
             return true;
         }
 
@@ -437,6 +433,23 @@ public static class InputManager
     private static bool OnControllerInputReleased(ControllerInput input)
     {
         _heldControllerInputs.Remove(input);
+
+        if (IsListening)
+        {
+            // Ignore releases of buttons that were already held when listening started
+            if (_listenInitialHeld != null && _listenInitialHeld.Remove(input))
+                return true;
+
+            // Released button is the main input, anything still held is the modifier
+            ControllerInput? modifier = null;
+            foreach (var held in _heldControllerInputs)
+            {
+                modifier = held;
+                break;
+            }
+            _listenCallback?.Invoke(new ControllerBinding(input, modifier));
+            return true;
+        }
 
         var toRelease = new List<InputAction>();
         foreach (var action in _activeActions)
