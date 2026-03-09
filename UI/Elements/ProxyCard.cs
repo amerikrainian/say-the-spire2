@@ -6,11 +6,17 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.UI.Elements;
 
+[ModSettings("ui.card", "UI/Card")]
 public class ProxyCard : ProxyElement
 {
+    public static void RegisterSettings(CategorySetting category)
+    {
+        category.Add(new BoolSetting("verbose_costs", "Verbose Costs", true));
+    }
     public ProxyCard(Control control) : base(control) { }
 
     private NCardHolder? FindCardHolder()
@@ -51,34 +57,43 @@ public class ProxyCard : ProxyElement
         return model.Type.ToString().ToLower();
     }
 
-    public override string? GetStatusString()
+    public override string? GetExtrasString()
     {
         var model = GetCardModel();
         if (model == null) return null;
 
         var parts = new System.Collections.Generic.List<string>();
 
-        // Energy cost
+        bool verbose = ModSettings.GetValue<bool>("ui.card.verbose_costs");
         if (model.EnergyCost != null)
         {
             if (model.EnergyCost.CostsX)
-                parts.Add("X energy");
+                parts.Add(verbose ? "X energy" : "X");
             else
-                parts.Add($"{model.EnergyCost.GetWithModifiers(CostModifiers.All)} energy");
+            {
+                var cost = model.EnergyCost.GetWithModifiers(CostModifiers.All);
+                parts.Add(verbose ? $"{cost} energy" : $"{cost}");
+            }
         }
 
-        // Star cost
         if (model.CurrentStarCost > 0)
-            parts.Add($"{model.CurrentStarCost} stars");
+            parts.Add(verbose ? $"{model.CurrentStarCost} stars" : $"{model.CurrentStarCost}");
 
-        // Enchantment
+        return parts.Count > 0 ? string.Join(", ", parts) : null;
+    }
+
+    public override string? GetStatusString()
+    {
+        var model = GetCardModel();
+        if (model == null) return null;
+
         if (model.Enchantment != null)
         {
-            try { parts.Add($"Enchanted: {model.Enchantment.Title.GetFormattedText()}"); }
+            try { return $"Enchanted: {model.Enchantment.Title.GetFormattedText()}"; }
             catch { }
         }
 
-        return parts.Count > 0 ? string.Join(", ", parts) : null;
+        return null;
     }
 
     public override string? HandleBuffers(BufferManager buffers)

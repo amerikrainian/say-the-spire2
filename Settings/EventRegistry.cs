@@ -6,14 +6,8 @@ namespace SayTheSpire2.Settings;
 public static class EventRegistry
 {
     private static readonly Dictionary<string, EventSettingsAttribute> _descriptors = new();
-    private static CategorySetting? _eventsCategory;
 
     public static IReadOnlyDictionary<string, EventSettingsAttribute> Descriptors => _descriptors;
-
-    public static void Initialize(CategorySetting eventsCategory)
-    {
-        _eventsCategory = eventsCategory;
-    }
 
     public static void Register(Type eventType)
     {
@@ -23,13 +17,14 @@ public static class EventRegistry
 
         _descriptors[attr.Key] = attr;
 
-        if (_eventsCategory != null)
-        {
-            var cat = new CategorySetting(attr.Key, attr.Label);
+        // Generic system creates/finds the category and calls RegisterSettings
+        var cat = ModSettingsRegistry.Register(eventType);
+
+        // Event-specific: add standard announce + buffer settings
+        if (cat.GetByKey("announce") == null)
             cat.Add(new BoolSetting("announce", "Announce", attr.DefaultAnnounce));
+        if (cat.GetByKey("buffer") == null)
             cat.Add(new BoolSetting("buffer", "Add to buffer", attr.DefaultBuffer));
-            _eventsCategory.Add(cat);
-        }
     }
 
     public static bool ShouldAnnounce(string eventKey)

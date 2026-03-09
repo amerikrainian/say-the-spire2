@@ -13,15 +13,11 @@ public class EventRegistryTests
     [Fact]
     public void Register_CreatesDescriptor()
     {
-        var eventsCategory = new CategorySetting("events_a", "Events");
-        ModSettings.Root.Add(eventsCategory);
-        EventRegistry.Initialize(eventsCategory);
-
         EventRegistry.Register(typeof(TestCombatEvent));
 
         Assert.True(EventRegistry.Descriptors.ContainsKey("test_combat"));
         var desc = EventRegistry.Descriptors["test_combat"];
-        Assert.Equal("Combat Events", desc.Label);
+        Assert.Equal("test_combat", desc.Key);
         Assert.True(desc.DefaultAnnounce);
         Assert.True(desc.DefaultBuffer);
     }
@@ -29,14 +25,10 @@ public class EventRegistryTests
     [Fact]
     public void Register_CreatesSettingsEntries()
     {
-        var eventsCategory = new CategorySetting("events_b", "Events");
-        ModSettings.Root.Add(eventsCategory);
-        EventRegistry.Initialize(eventsCategory);
-
         EventRegistry.Register(typeof(TestDialogueEvent));
 
-        var announce = ModSettings.GetSetting<BoolSetting>("events_b.test_dialogue.announce");
-        var buffer = ModSettings.GetSetting<BoolSetting>("events_b.test_dialogue.buffer");
+        var announce = ModSettings.GetSetting<BoolSetting>("events.test_dialogue.announce");
+        var buffer = ModSettings.GetSetting<BoolSetting>("events.test_dialogue.buffer");
 
         Assert.NotNull(announce);
         Assert.NotNull(buffer);

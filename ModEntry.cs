@@ -69,11 +69,10 @@ public static class ModEntry
         var settingsDir = Path.Combine(
             Godot.OS.GetUserDataDir(), "mods", "SayTheSpire2");
 
-        // Build events category and register all event types
-        var eventsCategory = new Settings.CategorySetting("events", "Events");
-        Settings.ModSettings.Root.Add(eventsCategory);
-        Settings.EventRegistry.Initialize(eventsCategory);
+        // Register UI element settings
+        Settings.ModSettingsRegistry.Register(typeof(UI.Elements.ProxyCard));
 
+        // Register all event types (categories created automatically)
         Settings.EventRegistry.Register(typeof(BlockEvent));
         Settings.EventRegistry.Register(typeof(CardPileEvent));
         Settings.EventRegistry.Register(typeof(CardStolenEvent));
