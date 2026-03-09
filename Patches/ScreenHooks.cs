@@ -5,6 +5,8 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Combat;
+using MegaCrit.Sts2.Core.Nodes.RestSite;
+using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardSelection;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
@@ -91,6 +93,14 @@ public static class ScreenHooks
         // Character select hooks
         PatchIfFound(harmony, typeof(NCharacterSelectScreen), "OnSubmenuOpened",
             nameof(CharacterSelectOpenedPostfix), "CharacterSelect OnSubmenuOpened");
+        PatchIfFound(harmony, typeof(NCharacterSelectScreen), "OnSubmenuClosed",
+            nameof(CharacterSelectClosedPostfix), "CharacterSelect OnSubmenuClosed");
+
+        // Rest site hooks
+        PatchIfFound(harmony, typeof(NRestSiteRoom), "_Ready",
+            nameof(RestSiteReadyPostfix), "RestSite _Ready");
+        PatchIfFound(harmony, typeof(NRestSiteRoom), "_ExitTree",
+            nameof(RestSiteExitPostfix), "RestSite _ExitTree");
 
         // Run lifecycle hooks
         PatchIfFound(harmony, typeof(RunManager), "Launch",
@@ -245,30 +255,27 @@ public static class ScreenHooks
     // Character select delegates
     public static void CharacterSelectOpenedPostfix(NCharacterSelectScreen __instance)
     {
-        try
-        {
-            var container = __instance.GetNodeOrNull<Control>("CharSelectButtons/ButtonContainer");
-            if (container == null) return;
+        if (CharacterSelectGameScreen.Current == null)
+            ScreenManager.PushScreen(new CharacterSelectGameScreen(__instance));
+    }
 
-            var buttons = container.GetChildren().OfType<NCharacterSelectButton>().Where(b => b.Visible).ToList();
-            if (buttons.Count == 0) return;
+    public static void CharacterSelectClosedPostfix()
+    {
+        if (CharacterSelectGameScreen.Current != null)
+            ScreenManager.RemoveScreen(CharacterSelectGameScreen.Current);
+    }
 
-            // Constrain focus so it can't escape the character buttons
-            for (int i = 0; i < buttons.Count; i++)
-            {
-                var self = buttons[i].GetPath();
-                buttons[i].FocusNeighborTop = self;
-                buttons[i].FocusNeighborBottom = self;
-                buttons[i].FocusNeighborLeft = i > 0 ? buttons[i - 1].GetPath() : self;
-                buttons[i].FocusNeighborRight = i < buttons.Count - 1 ? buttons[i + 1].GetPath() : self;
-            }
+    // Rest site delegates
+    public static void RestSiteReadyPostfix(NRestSiteRoom __instance)
+    {
+        if (RestSiteGameScreen.Current == null)
+            ScreenManager.PushScreen(new RestSiteGameScreen(__instance));
+    }
 
-            Log.Info($"[AccessibilityMod] Character select: constrained focus on {buttons.Count} buttons.");
-        }
-        catch (System.Exception e)
-        {
-            Log.Error($"[AccessibilityMod] Character select focus fix failed: {e.Message}");
-        }
+    public static void RestSiteExitPostfix()
+    {
+        if (RestSiteGameScreen.Current != null)
+            ScreenManager.RemoveScreen(RestSiteGameScreen.Current);
     }
 
     // Run lifecycle delegates
