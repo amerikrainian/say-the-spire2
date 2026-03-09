@@ -1,10 +1,15 @@
+using System.Collections.Generic;
 using System.Reflection;
 using Godot;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Powers;
+using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Events;
+using SayTheSpire2.Events;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Screens;
@@ -61,6 +66,20 @@ public static class EventHooks
             Log.Error("[AccessibilityMod] Could not find SwipePower.Steal!");
         }
 
+        // Card upgrade
+        var upgradeMethod = AccessTools.Method(typeof(CardCmd), "Upgrade",
+            new[] { typeof(IEnumerable<CardModel>), typeof(CardPreviewStyle) });
+        if (upgradeMethod != null)
+        {
+            harmony.Patch(upgradeMethod,
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardUpgradePostfix)));
+            Log.Info("[AccessibilityMod] CardCmd.Upgrade hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find CardCmd.Upgrade!");
+        }
+
         var setDialogueLine = AccessTools.Method(typeof(NAncientEventLayout), "SetDialogueLineAndAnimate");
         if (setDialogueLine != null)
         {
@@ -71,6 +90,23 @@ public static class EventHooks
         else
         {
             Log.Error("[AccessibilityMod] Could not find NAncientEventLayout.SetDialogueLineAndAnimate!");
+        }
+    }
+
+    public static void CardUpgradePostfix(IEnumerable<CardModel> cards)
+    {
+        try
+        {
+            foreach (var card in cards)
+            {
+                var name = card.Title;
+                if (!string.IsNullOrEmpty(name))
+                    EventDispatcher.Enqueue(new CardUpgradeEvent(name));
+            }
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Card upgrade hook error: {e.Message}");
         }
     }
 

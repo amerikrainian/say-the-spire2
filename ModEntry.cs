@@ -83,6 +83,8 @@ public static class ModEntry
         Settings.EventRegistry.Register(typeof(HpEvent));
         Settings.EventRegistry.Register(typeof(PowerEvent));
         Settings.EventRegistry.Register(typeof(TurnEvent));
+        Settings.EventRegistry.Register(typeof(CardUpgradeEvent));
+        Settings.EventRegistry.Register(typeof(CardObtainedEvent));
 
         // Map settings
         var mapCategory = new Settings.CategorySetting("map", "Map");

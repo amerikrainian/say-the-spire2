@@ -1,6 +1,8 @@
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Runs;
+using SayTheSpire2.Events;
 using SayTheSpire2.Input;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
@@ -15,6 +17,7 @@ public class RunScreen : Screen
     public override System.Collections.Generic.IEnumerable<string> AlwaysEnabledBuffers => _alwaysEnabled;
 
     private readonly RunState _runState;
+    private Player? _subscribedPlayer;
 
     public RunScreen(RunState runState)
     {
@@ -26,11 +29,28 @@ public class RunScreen : Screen
     public override void OnPush()
     {
         Current = this;
+        _subscribedPlayer = GetLocalPlayer();
+        if (_subscribedPlayer != null)
+        {
+            _subscribedPlayer.Deck.CardAdded += OnCardObtained;
+        }
     }
 
     public override void OnPop()
     {
+        if (_subscribedPlayer != null)
+        {
+            _subscribedPlayer.Deck.CardAdded -= OnCardObtained;
+            _subscribedPlayer = null;
+        }
         Current = null;
+    }
+
+    private void OnCardObtained(CardModel card)
+    {
+        var name = card.Title;
+        if (!string.IsNullOrEmpty(name))
+            EventDispatcher.Enqueue(new CardObtainedEvent(name));
     }
 
     public override bool OnActionJustPressed(InputAction action)
