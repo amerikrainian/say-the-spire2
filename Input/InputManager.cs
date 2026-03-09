@@ -104,7 +104,7 @@ public static class InputManager
             .AddBinding(Key.Enter)
             .AddBinding(ControllerInput.A));
         _actions.Add(new InputAction("ui_cancel", "Cancel", gameAction: "ui_cancel")
-            .AddBinding(Key.Escape)
+            .AddBinding(Key.Backspace)
             .AddBinding(ControllerInput.B));
         _actions.Add(new InputAction("ui_up", "Navigate Up", gameAction: "ui_up")
             .AddBinding(Key.Up)
