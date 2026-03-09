@@ -8,6 +8,8 @@
   "TYPES.RELIC": "relic",
   "TYPES.POTION": "potion",
   "TYPES.ORB": "orb",
+  "TYPES.MAP NODE": "map node",
+  "TYPES.SHOP ITEM": "shop item",
   "TYPES.KEYBIND": "key binding",
   "TYPES.ATTACK": "attack",
   "TYPES.SKILL": "skill",
