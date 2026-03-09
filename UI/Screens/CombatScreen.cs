@@ -29,26 +29,62 @@ public class CombatScreen : Screen
     private static readonly string[] _alwaysEnabled = { "events" };
     public override IEnumerable<string> AlwaysEnabledBuffers => _alwaysEnabled;
 
-    private readonly CombatState _initialState;
+    private CombatState? _currentState;
     private readonly Dictionary<Creature, CreatureHandlers> _subscribedCreatures = new();
     private CardPileHandlers? _cardPileHandlers;
 
-    public CombatScreen(CombatState state)
+    public CombatScreen()
     {
-        _initialState = state;
         ClaimAction("announce_block");
         ClaimAction("announce_energy");
         ClaimAction("announce_powers");
         ClaimAction("announce_intents");
     }
 
+    private CombatState? GetLiveState()
+    {
+        return CombatManager.Instance?.DebugOnlyGetState();
+    }
+
     public override void OnPush()
     {
         Current = this;
-        Log.Info($"[EventDebug] CombatScreen.OnPush: this={GetHashCode()}, Previous Current was null={Current == null}");
-        SubscribeToAllCreatures(_initialState);
+        Log.Info($"[EventDebug] CombatScreen.OnPush: this={GetHashCode()}");
         CombatManager.Instance.CreaturesChanged += OnCreaturesChanged;
         CombatManager.Instance.TurnStarted += OnTurnStarted;
+
+        var state = GetLiveState();
+        if (state != null)
+            SubscribeToState(state);
+
+        Log.Info("[AccessibilityMod] CombatScreen pushed.");
+    }
+
+    public override void OnPop()
+    {
+        Log.Info($"[EventDebug] CombatScreen.OnPop: this={GetHashCode()}");
+        CombatManager.Instance.CreaturesChanged -= OnCreaturesChanged;
+        CombatManager.Instance.TurnStarted -= OnTurnStarted;
+        UnsubscribeFromState();
+        if (Current == this) Current = null;
+        Log.Info("[AccessibilityMod] CombatScreen popped.");
+    }
+
+    public override void OnUpdate()
+    {
+        var liveState = GetLiveState();
+        if (liveState != null && liveState != _currentState)
+        {
+            Log.Info($"[EventDebug] CombatScreen: CombatState changed, resubscribing");
+            UnsubscribeFromState();
+            SubscribeToState(liveState);
+        }
+    }
+
+    private void SubscribeToState(CombatState state)
+    {
+        _currentState = state;
+        SubscribeToAllCreatures(state);
 
         var player = GetLocalPlayer();
         if (player?.PlayerCombatState != null)
@@ -57,20 +93,14 @@ public class CombatScreen : Screen
             _cardPileHandlers.Subscribe();
             Log.Info("[EventDebug] CardPileHandlers subscribed.");
         }
-
-        Log.Info("[AccessibilityMod] CombatScreen pushed.");
     }
 
-    public override void OnPop()
+    private void UnsubscribeFromState()
     {
-        Log.Info($"[EventDebug] CombatScreen.OnPop: this={GetHashCode()}, Current matches={Current == this}");
-        CombatManager.Instance.CreaturesChanged -= OnCreaturesChanged;
-        CombatManager.Instance.TurnStarted -= OnTurnStarted;
         _cardPileHandlers?.Unsubscribe();
         _cardPileHandlers = null;
         UnsubscribeAll();
-        if (Current == this) Current = null;
-        Log.Info("[AccessibilityMod] CombatScreen popped.");
+        _currentState = null;
     }
 
     // -- Shortcut announcements --
@@ -138,10 +168,13 @@ public class CombatScreen : Screen
 
     private void AnnounceIntents()
     {
-        var allies = _initialState.Allies;
+        var state = GetLiveState();
+        if (state == null) return;
+
+        var allies = state.Allies;
 
         var sb = new StringBuilder();
-        foreach (var enemy in _initialState.Enemies)
+        foreach (var enemy in state.Enemies)
         {
             if (!enemy.IsAlive || !enemy.IsMonster) continue;
 
@@ -173,7 +206,10 @@ public class CombatScreen : Screen
 
     private Player? GetLocalPlayer()
     {
-        return LocalContext.GetMe(_initialState);
+        if (!RunManager.Instance.IsInProgress) return null;
+        var runState = RunManager.Instance.DebugOnlyGetState();
+        if (runState == null) return null;
+        return LocalContext.GetMe(runState);
     }
 
     // -- Navigation fixes --

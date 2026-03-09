@@ -9,4 +9,4 @@
 * The default keyboard binding for back is now backspace instead of escape to avoid input conflicts. You will have to adjust this keybinding yourself if you have already played the game though as your settings file doesn't reset to defaults on mod update.
 * Fixed an issue where the focus would glitch during the player's end of turn sequence resulting in readouts of random controls.
 * Reordered card label to read as "{name}, {cost}, {type}"; also added setting for verbose costs (when unchecked costs simply read as numbers with no label.)
-* Added generic mod settings attribute system for registering configurable settings on any class (events, UI elements, etc.)
+* Fixed an issue where various event announcements and hotkeys (such as player hp) were reading from stale data. This may also fix duplicate event announcements in combat.

@@ -55,6 +55,15 @@ public static class ScreenManager
         }
     }
 
+    /// <summary>
+    /// Called each frame to let screens check for state changes.
+    /// </summary>
+    public static void UpdateAll()
+    {
+        for (int i = 0; i < _screenStack.Count; i++)
+            _screenStack[i].OnUpdate();
+    }
+
     public static void RegisterGameScreen<TGameContext>(Func<GameScreen> factory)
         where TGameContext : class
     {

@@ -41,6 +41,7 @@ public abstract class Screen
     public virtual void OnPop() { }
     public virtual void OnFocus() { }
     public virtual void OnUnfocus() { }
+    public virtual void OnUpdate() { }
 
     // Element registry — screens can optionally map controls to UI elements
     public virtual UIElement? GetElement(Control control) => null;

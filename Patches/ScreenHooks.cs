@@ -282,7 +282,7 @@ public static class ScreenHooks
     public static void RunLaunchPostfix(RunState __result)
     {
         if (RunScreen.Current == null)
-            ScreenManager.PushScreen(new RunScreen(__result));
+            ScreenManager.PushScreen(new RunScreen());
     }
 
     public static void RunEndedPostfix()

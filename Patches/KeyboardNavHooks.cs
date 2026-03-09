@@ -104,6 +104,7 @@ public static class KeyboardNavHooks
     {
         InputManager.PollCustomActions(__instance);
         UI.Screens.ScreenManager.CheckStartupAnnouncement(__instance);
+        UI.Screens.ScreenManager.UpdateAll();
     }
 
     /// <summary>

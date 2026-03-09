@@ -16,12 +16,10 @@ public class RunScreen : Screen
     private static readonly string[] _alwaysEnabled = { "player" };
     public override System.Collections.Generic.IEnumerable<string> AlwaysEnabledBuffers => _alwaysEnabled;
 
-    private readonly RunState _runState;
     private Player? _subscribedPlayer;
 
-    public RunScreen(RunState runState)
+    public RunScreen()
     {
-        _runState = runState;
         ClaimAction("announce_gold");
         ClaimAction("announce_hp");
     }
@@ -29,21 +27,39 @@ public class RunScreen : Screen
     public override void OnPush()
     {
         Current = this;
-        _subscribedPlayer = GetLocalPlayer();
-        if (_subscribedPlayer != null)
-        {
-            _subscribedPlayer.Deck.CardAdded += OnCardObtained;
-        }
+        SubscribeToPlayer();
     }
 
     public override void OnPop()
+    {
+        UnsubscribeFromPlayer();
+        Current = null;
+    }
+
+    public override void OnUpdate()
+    {
+        var currentPlayer = GetLocalPlayer();
+        if (currentPlayer != null && currentPlayer != _subscribedPlayer)
+        {
+            UnsubscribeFromPlayer();
+            SubscribeToPlayer();
+        }
+    }
+
+    private void SubscribeToPlayer()
+    {
+        _subscribedPlayer = GetLocalPlayer();
+        if (_subscribedPlayer != null)
+            _subscribedPlayer.Deck.CardAdded += OnCardObtained;
+    }
+
+    private void UnsubscribeFromPlayer()
     {
         if (_subscribedPlayer != null)
         {
             _subscribedPlayer.Deck.CardAdded -= OnCardObtained;
             _subscribedPlayer = null;
         }
-        Current = null;
     }
 
     private void OnCardObtained(CardModel card)
@@ -84,6 +100,9 @@ public class RunScreen : Screen
 
     private Player? GetLocalPlayer()
     {
-        return LocalContext.GetMe(_runState);
+        if (!RunManager.Instance.IsInProgress) return null;
+        var runState = RunManager.Instance.DebugOnlyGetState();
+        if (runState == null) return null;
+        return LocalContext.GetMe(runState);
     }
 }
