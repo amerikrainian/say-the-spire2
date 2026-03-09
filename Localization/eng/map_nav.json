@@ -18,5 +18,6 @@
   "NAV.BRANCH": "path {position} of {total}: {type} {coordinates}",
   "NAV.NO_FORWARD": "No path forward",
   "NAV.NO_BACKWARD": "No path backward",
-  "NAV.NO_MORE_BRANCHES": "No more branches"
+  "NAV.NO_MORE_BRANCHES": "No more branches",
+  "QUEST_MARKED": "Quest"
 }

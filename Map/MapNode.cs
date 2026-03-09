@@ -53,7 +53,13 @@ public class MapNode
             MapPointType.Ancient => "NODE_TYPES.ANCIENT",
             _ => "NODE_TYPES.UNKNOWN",
         };
-        return LocalizationManager.GetOrDefault("map_nav", typeKey, PointType.ToString());
+        var name = LocalizationManager.GetOrDefault("map_nav", typeKey, PointType.ToString());
+        if (Point.Quests.Count > 0)
+        {
+            var questLabel = LocalizationManager.Get("map_nav", "QUEST_MARKED") ?? "Quest";
+            name = questLabel + " " + name;
+        }
+        return name;
     }
 
     public string? GetStateString()

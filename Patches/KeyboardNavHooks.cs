@@ -103,6 +103,7 @@ public static class KeyboardNavHooks
     public static void ProcessPostfix(NControllerManager __instance)
     {
         InputManager.PollCustomActions(__instance);
+        UI.Screens.ScreenManager.CheckStartupAnnouncement(__instance);
     }
 
     /// <summary>

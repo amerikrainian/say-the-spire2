@@ -13,6 +13,8 @@ public static class ScreenManager
     private static readonly List<Screen> _screenStack = new();
     private static readonly Dictionary<Type, Func<GameScreen>> _gameScreenFactories = new();
     private static IScreenContext? _lastScreenContext;
+    private static bool _announceQueued;
+    private static bool _announced;
 
     public static Screen? CurrentScreen =>
         _screenStack.Count > 0 ? _screenStack[^1] : null;
@@ -21,6 +23,36 @@ public static class ScreenManager
     {
         PushScreen(new DefaultScreen());
         Log.Info("[AccessibilityMod] ScreenManager initialized.");
+    }
+
+    /// <summary>
+    /// Called each frame from the _Process postfix. Checks for the logo screen
+    /// and queues the mod version announcement with a short delay.
+    /// </summary>
+    public static void CheckStartupAnnouncement(Node sceneNode)
+    {
+        if (_announced) return;
+
+        var currentContext = ActiveScreenContext.Instance.GetCurrentScreen();
+        if (currentContext == null) return;
+
+        if (!_announceQueued && currentContext.GetType().Name == "NLogoAnimation")
+        {
+            _announceQueued = true;
+            sceneNode.GetTree().CreateTimer(0.2).Timeout += () =>
+            {
+                _announced = true;
+                Speech.SpeechManager.Output(
+                    Localization.Message.Raw($"Say the Spire {ModEntry.Version}"));
+            };
+        }
+        else if (!_announceQueued && currentContext.GetType().Name == "NMainMenu")
+        {
+            // Logo was skipped — announce immediately
+            _announced = true;
+            Speech.SpeechManager.Output(
+                Localization.Message.Raw($"Say the Spire {ModEntry.Version}"));
+        }
     }
 
     public static void RegisterGameScreen<TGameContext>(Func<GameScreen> factory)

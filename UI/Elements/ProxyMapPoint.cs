@@ -32,7 +32,13 @@ public class ProxyMapPoint : ProxyElement
             MapPointType.Ancient => "NODE_TYPES.ANCIENT",
             _ => "NODE_TYPES.UNKNOWN",
         };
-        return LocalizationManager.GetOrDefault("map_nav", typeKey, mp.Point.PointType.ToString());
+        var name = LocalizationManager.GetOrDefault("map_nav", typeKey, mp.Point.PointType.ToString());
+        if (mp.Point.Quests.Count > 0)
+        {
+            var questLabel = LocalizationManager.Get("map_nav", "QUEST_MARKED") ?? "Quest";
+            name = questLabel + " " + name;
+        }
+        return name;
     }
 
     public override string? GetTypeKey() => "map node";
