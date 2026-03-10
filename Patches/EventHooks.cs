@@ -11,6 +11,7 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Events;
+using MegaCrit.Sts2.Core.Nodes.Screens.TreasureRoomRelic;
 using MegaCrit.Sts2.Core.Rooms;
 using SayTheSpire2.Events;
 using SayTheSpire2.Localization;
@@ -123,6 +124,19 @@ public static class EventHooks
         else
         {
             Log.Error("[AccessibilityMod] Could not find PlayerCmd.LoseGold!");
+        }
+
+        // Empty treasure chest
+        var initRelics = AccessTools.Method(typeof(NTreasureRoomRelicCollection), "InitializeRelics");
+        if (initRelics != null)
+        {
+            harmony.Patch(initRelics,
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(InitializeRelicsPostfix)));
+            Log.Info("[AccessibilityMod] NTreasureRoomRelicCollection.InitializeRelics hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find NTreasureRoomRelicCollection.InitializeRelics!");
         }
 
         // Room entered
@@ -294,6 +308,24 @@ public static class EventHooks
         catch (System.Exception e)
         {
             Log.Error($"[AccessibilityMod] Gold lost hook error: {e.Message}");
+        }
+    }
+
+    public static void InitializeRelicsPostfix(NTreasureRoomRelicCollection __instance)
+    {
+        try
+        {
+            var field = AccessTools.Field(typeof(NTreasureRoomRelicCollection), "_isEmptyChest");
+            if (field != null && (bool)field.GetValue(__instance))
+            {
+                var text = new MegaCrit.Sts2.Core.Localization.LocString("gameplay_ui", "TREASURE_EMPTY").GetFormattedText();
+                if (!string.IsNullOrEmpty(text))
+                    SpeechManager.Output(Message.Raw(text));
+            }
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Empty chest hook error: {e.Message}");
         }
     }
 
