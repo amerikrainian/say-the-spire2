@@ -13,6 +13,7 @@ public static class ScreenManager
     private static readonly List<Screen> _screenStack = new();
     private static readonly Dictionary<Type, Func<GameScreen>> _gameScreenFactories = new();
     private static IScreenContext? _lastScreenContext;
+    private static GameScreen? _lastFactoryScreen;
     private static bool _announceQueued;
     private static bool _announced;
 
@@ -216,10 +217,11 @@ public static class ScreenManager
 
         if (matchedFactory != null)
         {
-            // Remove existing GameScreen before pushing the new one
+            // Remove the previous factory-pushed screen
             RemoveActiveGameScreen();
 
             var screen = matchedFactory();
+            _lastFactoryScreen = screen;
             PushScreen(screen);
             if (screen.ScreenName != null)
                 Speech.SpeechManager.Output(Localization.Message.Raw(screen.ScreenName));
@@ -230,14 +232,11 @@ public static class ScreenManager
 
     private static void RemoveActiveGameScreen()
     {
-        for (int i = _screenStack.Count - 1; i >= 0; i--)
+        if (_lastFactoryScreen != null && _screenStack.Contains(_lastFactoryScreen))
         {
-            if (_screenStack[i] is GameScreen gs)
-            {
-                RemoveScreen(gs);
-                return;
-            }
+            RemoveScreen(_lastFactoryScreen);
         }
+        _lastFactoryScreen = null;
     }
 
     private static bool Dispatch(InputAction action, Func<Screen, InputAction, bool> handler)

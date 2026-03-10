@@ -243,6 +243,11 @@ public static class ScreenHooks
         {
             ScreenManager.PushScreen(new CardGridSelectionGameScreen(gridScreen));
         }
+        else if (screen is NChooseACardSelectionScreen chooseScreen
+            && ChooseACardGameScreen.Current == null)
+        {
+            ScreenManager.PushScreen(new ChooseACardGameScreen(chooseScreen));
+        }
     }
 
     public static void OverlayRemovePostfix(IOverlayScreen screen)
@@ -251,6 +256,11 @@ public static class ScreenHooks
             && CardGridSelectionGameScreen.Current != null)
         {
             ScreenManager.RemoveScreen(CardGridSelectionGameScreen.Current);
+        }
+        else if (screen is NChooseACardSelectionScreen
+            && ChooseACardGameScreen.Current != null)
+        {
+            ScreenManager.RemoveScreen(ChooseACardGameScreen.Current);
         }
     }
 

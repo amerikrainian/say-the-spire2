@@ -88,10 +88,16 @@ public static class UIManager
 
         if (!GodotObject.IsInstanceValid(control)) return;
 
-        // Suppress focus announcements during end-of-turn transitions
-        // (cards being removed/discarded cause erratic focus jumps)
+        // Suppress focus announcements during end-of-turn discard transitions
+        // (cards being removed/discarded cause erratic focus jumps), but allow
+        // focus when a selection overlay is active (e.g., Well Laid Plans retain,
+        // Knowledge Demon card choice) or during the enemy turn.
         var cm = CombatManager.Instance;
-        if (cm != null && (cm.EndingPlayerTurnPhaseOne || cm.EndingPlayerTurnPhaseTwo)) return;
+        if (cm != null && (cm.EndingPlayerTurnPhaseOne || cm.EndingPlayerTurnPhaseTwo)
+            && !cm.IsEnemyTurnStarted
+            && HandSelectGameScreen.Current == null
+            && ChooseACardGameScreen.Current == null)
+            return;
 
         _lastAnnouncedElement?.Unfocus();
 
