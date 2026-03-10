@@ -16,6 +16,8 @@ public class TreeMapViewer : MapViewer
     private int _rowIndex;
 
     private static bool AutoAdvance => ModSettings.GetValue<bool>("map.auto_advance");
+    private static bool AutoAdvanceBackwards => ModSettings.GetValue<bool>("map.auto_advance_backward");
+    private static bool VerboseBackward => ModSettings.GetValue<bool>("map.verbose_backward");
 
     public TreeMapViewer(MapHandler handler) : base(handler)
     {
@@ -61,10 +63,10 @@ public class TreeMapViewer : MapViewer
             Current = edge.From;
             RefreshSiblings();
 
-            if (AutoAdvance)
+            if (AutoAdvanceBackwards)
                 return AutoAdvanceBackward();
 
-            return AnnounceCurrentNode();
+            return AnnounceBackwardNode();
         }
 
         // No path stack — try to go to a parent
@@ -79,10 +81,10 @@ public class TreeMapViewer : MapViewer
         Current = parent.From;
         RefreshSiblings();
 
-        if (AutoAdvance)
+        if (AutoAdvanceBackwards)
             return AutoAdvanceBackward();
 
-        return AnnounceCurrentNode();
+        return AnnounceBackwardNode();
     }
 
     public override string? NextBranch()
@@ -150,6 +152,14 @@ public class TreeMapViewer : MapViewer
         return AnnounceNode(Current!);
     }
 
+    private string AnnounceBackwardNode()
+    {
+        var announcement = AnnounceCurrentNode();
+        if (_rowNodes.Count > 1)
+            announcement = GetChoiceText() + ", " + announcement;
+        return announcement;
+    }
+
     private string AutoAdvanceForward()
     {
         var sb = new StringBuilder();
@@ -192,28 +202,60 @@ public class TreeMapViewer : MapViewer
         var sb = new StringBuilder();
         var visited = new List<MapNode> { Current! };
 
-        while (Current!.BackwardEdges.Count == 1 && _pathStack.Count > 0)
+        while (true)
         {
-            var edge = _pathStack.Pop();
-            if (edge.From != Current.BackwardEdges[0].From)
-            {
-                _pathStack.Push(edge);
-                break;
-            }
-            Current = edge.From;
-            visited.Add(Current);
+            RefreshSiblings();
 
-            if (Current.ForwardEdges.Count > 1)
+            // Stop if we've reached a choice node (parent had multiple children)
+            if (_rowNodes.Count > 1)
                 break;
+
+            // Try path stack first
+            if (_pathStack.Count > 0)
+            {
+                var edge = _pathStack.Pop();
+                if (edge.From != Current!.BackwardEdges.FirstOrDefault()?.From)
+                {
+                    _pathStack.Push(edge);
+                    break;
+                }
+                Current = edge.From;
+                visited.Add(Current);
+            }
+            else
+            {
+                // No stack — navigate via backward edges
+                var parents = Current!.BackwardEdges;
+                if (parents.Count == 0)
+                    break;
+
+                var parent = parents.FirstOrDefault(e => e.From.State == MapPointState.Traveled)
+                             ?? parents[0];
+                Current = parent.From;
+                visited.Add(Current);
+            }
         }
 
         RefreshSiblings();
 
-        foreach (var node in visited)
+        // All intermediate nodes get short names (if verbose)
+        if (VerboseBackward)
         {
-            if (sb.Length > 0) sb.Append(", ");
-            sb.Append(node.GetDisplayName());
+            for (int i = 0; i < visited.Count - 1; i++)
+            {
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append(visited[i].GetDisplayName());
+            }
         }
+
+        // Final node gets full announcement; prefix with "choice" if it's a choice node
+        if (sb.Length > 0) sb.Append(", ");
+        if (_rowNodes.Count > 1)
+        {
+            sb.Append(GetChoiceText());
+            sb.Append(", ");
+        }
+        sb.Append(AnnounceNode(visited[^1]));
 
         return sb.ToString();
     }

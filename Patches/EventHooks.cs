@@ -100,17 +100,28 @@ public static class EventHooks
         }
 
         // Gold changes
-        var goldSetter = AccessTools.PropertySetter(typeof(Player), "Gold");
-        if (goldSetter != null)
+        var gainGold = AccessTools.Method(typeof(PlayerCmd), "GainGold");
+        if (gainGold != null)
         {
-            harmony.Patch(goldSetter,
-                prefix: new HarmonyMethod(typeof(EventHooks), nameof(GoldSetterPrefix)),
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(GoldSetterPostfix)));
-            Log.Info("[AccessibilityMod] Player.Gold setter hook patched.");
+            harmony.Patch(gainGold,
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(GainGoldPostfix)));
+            Log.Info("[AccessibilityMod] PlayerCmd.GainGold hook patched.");
         }
         else
         {
-            Log.Error("[AccessibilityMod] Could not find Player.Gold setter!");
+            Log.Error("[AccessibilityMod] Could not find PlayerCmd.GainGold!");
+        }
+
+        var loseGold = AccessTools.Method(typeof(PlayerCmd), "LoseGold");
+        if (loseGold != null)
+        {
+            harmony.Patch(loseGold,
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(LoseGoldPostfix)));
+            Log.Info("[AccessibilityMod] PlayerCmd.LoseGold hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find PlayerCmd.LoseGold!");
         }
 
         var setDialogueLine = AccessTools.Method(typeof(NAncientEventLayout), "SetDialogueLineAndAnimate");
@@ -238,23 +249,37 @@ public static class EventHooks
         }
     }
 
-    public static void GoldSetterPrefix(Player __instance, out int __state)
-    {
-        __state = __instance.Gold;
-    }
-
-    public static void GoldSetterPostfix(Player __instance, int __state)
+    public static void GainGoldPostfix(decimal amount, Player player)
     {
         try
         {
-            int oldGold = __state;
-            int newGold = __instance.Gold;
-            if (oldGold != newGold)
-                EventDispatcher.Enqueue(new GoldEvent(oldGold, newGold));
+            int gained = (int)amount;
+            if (gained > 0)
+            {
+                int newGold = player.Gold;
+                EventDispatcher.Enqueue(new GoldEvent(newGold - gained, newGold));
+            }
         }
         catch (System.Exception e)
         {
-            Log.Error($"[AccessibilityMod] Gold change hook error: {e.Message}");
+            Log.Error($"[AccessibilityMod] Gold gained hook error: {e.Message}");
+        }
+    }
+
+    public static void LoseGoldPostfix(decimal amount, Player player)
+    {
+        try
+        {
+            int lost = (int)amount;
+            if (lost > 0)
+            {
+                int newGold = player.Gold;
+                EventDispatcher.Enqueue(new GoldEvent(newGold + lost, newGold));
+            }
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Gold lost hook error: {e.Message}");
         }
     }
 

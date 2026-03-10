@@ -56,7 +56,6 @@ public class CardPileGameScreen : GameScreen
     {
         var gridContainer = new Elements.GridContainer
         {
-            ContainerLabel = _containerLabel,
             AnnounceName = true,
             AnnouncePosition = true,
         };
@@ -85,6 +84,7 @@ public class CardPileGameScreen : GameScreen
             }
         }
 
+        gridContainer.ContainerLabel = $"{_containerLabel} ({gridContainer.Children.Count})";
         RootElement = gridContainer;
         Log.Info($"[AccessibilityMod] CardPileGameScreen built: {gridContainer.Children.Count} cards in grid");
     }

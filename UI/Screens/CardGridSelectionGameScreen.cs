@@ -47,7 +47,6 @@ public class CardGridSelectionGameScreen : GameScreen
     {
         var gridContainer = new Elements.GridContainer
         {
-            ContainerLabel = _containerLabel,
             AnnounceName = true,
             AnnouncePosition = true,
         };
@@ -73,6 +72,7 @@ public class CardGridSelectionGameScreen : GameScreen
             }
         }
 
+        gridContainer.ContainerLabel = $"{_containerLabel} ({gridContainer.Children.Count})";
         RootElement = gridContainer;
         Log.Info($"[AccessibilityMod] CardGridSelectionGameScreen built: {gridContainer.Children.Count} cards in grid");
     }

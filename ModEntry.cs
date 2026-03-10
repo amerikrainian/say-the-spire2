@@ -119,6 +119,8 @@ public static class ModEntry
         var mapCategory = new Settings.CategorySetting("map", "Map");
         Settings.ModSettings.Root.Add(mapCategory);
         mapCategory.Add(new Settings.BoolSetting("auto_advance", "Automatically Follow Paths until Choice Node", false));
+        mapCategory.Add(new Settings.BoolSetting("auto_advance_backward", "Automatically Follow Paths Backward until Choice Node", false));
+        mapCategory.Add(new Settings.BoolSetting("verbose_backward", "Read Intermediate Nodes on Backward Paths", true));
 
         // Collect speech handler settings
         var speechCategory = new Settings.CategorySetting("speech", "Speech");
