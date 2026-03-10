@@ -20,8 +20,13 @@ public static class CombatEventManager
     private static void OnCombatSetUp(CombatState state)
     {
         Log.Info($"[EventDebug] CombatEventManager.OnCombatSetUp: existing screen={_activeCombatScreen != null}, creatures={state.Creatures.Count}");
+        if (RunScreen.Current == null)
+        {
+            Log.Error("[AccessibilityMod] CombatSetUp but no RunScreen!");
+            return;
+        }
         _activeCombatScreen = new CombatScreen();
-        ScreenManager.PushScreen(_activeCombatScreen);
+        RunScreen.Current.PushChild(_activeCombatScreen);
     }
 
     private static void OnCombatEnded(CombatRoom _)
@@ -38,7 +43,7 @@ public static class CombatEventManager
     {
         if (_activeCombatScreen != null)
         {
-            ScreenManager.RemoveScreen(_activeCombatScreen);
+            ScreenManager.RemoveFromTree(_activeCombatScreen);
             _activeCombatScreen = null;
         }
     }

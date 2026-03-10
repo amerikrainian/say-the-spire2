@@ -225,14 +225,18 @@ public static class ScreenHooks
         }
         catch { }
 
-        ScreenManager.PushScreen(new HandSelectGameScreen(__instance, label));
+        var handScreen = new HandSelectGameScreen(__instance, label);
+        if (CombatScreen.Current != null)
+            CombatScreen.Current.PushChild(handScreen);
+        else
+            ScreenManager.PushScreen(handScreen);
         SpeechManager.Output(Message.Raw(label));
     }
 
     public static void HandSelectClosedPostfix()
     {
         if (HandSelectGameScreen.Current != null)
-            ScreenManager.RemoveScreen(HandSelectGameScreen.Current);
+            ScreenManager.RemoveFromTree(HandSelectGameScreen.Current);
     }
 
     // Overlay delegates (card grid selection screens)
@@ -241,12 +245,18 @@ public static class ScreenHooks
         if (screen is NCardGridSelectionScreen gridScreen
             && CardGridSelectionGameScreen.Current == null)
         {
-            ScreenManager.PushScreen(new CardGridSelectionGameScreen(gridScreen));
+            if (CombatScreen.Current != null)
+                CombatScreen.Current.PushChild(new CardGridSelectionGameScreen(gridScreen));
+            else
+                ScreenManager.PushScreen(new CardGridSelectionGameScreen(gridScreen));
         }
         else if (screen is NChooseACardSelectionScreen chooseScreen
             && ChooseACardGameScreen.Current == null)
         {
-            ScreenManager.PushScreen(new ChooseACardGameScreen(chooseScreen));
+            if (CombatScreen.Current != null)
+                CombatScreen.Current.PushChild(new ChooseACardGameScreen(chooseScreen));
+            else
+                ScreenManager.PushScreen(new ChooseACardGameScreen(chooseScreen));
         }
     }
 
@@ -255,12 +265,12 @@ public static class ScreenHooks
         if (screen is NCardGridSelectionScreen
             && CardGridSelectionGameScreen.Current != null)
         {
-            ScreenManager.RemoveScreen(CardGridSelectionGameScreen.Current);
+            ScreenManager.RemoveFromTree(CardGridSelectionGameScreen.Current);
         }
         else if (screen is NChooseACardSelectionScreen
             && ChooseACardGameScreen.Current != null)
         {
-            ScreenManager.RemoveScreen(ChooseACardGameScreen.Current);
+            ScreenManager.RemoveFromTree(ChooseACardGameScreen.Current);
         }
     }
 
@@ -300,8 +310,6 @@ public static class ScreenHooks
     public static void RunEndedPostfix()
     {
         CombatEventManager.CleanUp();
-        if (CombatScreen.Current != null)
-            ScreenManager.RemoveScreen(CombatScreen.Current);
         if (RunScreen.Current != null)
             ScreenManager.RemoveScreen(RunScreen.Current);
     }
@@ -314,8 +322,6 @@ public static class ScreenHooks
     public static void RunCleanUpPrefix()
     {
         CombatEventManager.CleanUp();
-        if (CombatScreen.Current != null)
-            ScreenManager.RemoveScreen(CombatScreen.Current);
         if (RunScreen.Current != null)
             ScreenManager.RemoveScreen(RunScreen.Current);
     }

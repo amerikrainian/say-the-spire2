@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using MegaCrit.Sts2.Core.Logging;
 using SayTheSpire2.Input;
 using SayTheSpire2.UI.Elements;
 
@@ -30,6 +31,39 @@ public abstract class Screen
     public FocusContext? FocusContext => RootElement != null
         ? (_focusContext ??= new FocusContext())
         : null;
+
+    // Child screen tree
+    public Screen? Parent { get; private set; }
+    public Screen? ActiveChild { get; private set; }
+
+    public void PushChild(Screen child)
+    {
+        if (ActiveChild != null)
+            RemoveChild(ActiveChild);
+        child.Parent = this;
+        ActiveChild = child;
+        child.OnPush();
+        Log.Info($"[AccessibilityMod] Screen child pushed: {child.GetType().Name} onto {GetType().Name}");
+    }
+
+    public void RemoveChild(Screen child)
+    {
+        if (child.ActiveChild != null)
+            child.RemoveChild(child.ActiveChild);
+        child.OnPop();
+        child.Parent = null;
+        if (ActiveChild == child)
+            ActiveChild = null;
+        Log.Info($"[AccessibilityMod] Screen child removed: {child.GetType().Name} from {GetType().Name}");
+    }
+
+    public Screen DeepestActiveScreen()
+    {
+        var s = this;
+        while (s.ActiveChild != null)
+            s = s.ActiveChild;
+        return s;
+    }
 
     // Input handling — only called for claimed actions
     public virtual bool OnActionJustPressed(InputAction action) => false;

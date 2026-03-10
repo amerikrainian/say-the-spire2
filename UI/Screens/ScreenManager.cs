@@ -18,7 +18,7 @@ public static class ScreenManager
     private static bool _announced;
 
     public static Screen? CurrentScreen =>
-        _screenStack.Count > 0 ? _screenStack[^1] : null;
+        _screenStack.Count > 0 ? _screenStack[^1].DeepestActiveScreen() : null;
 
     public static void Initialize()
     {
@@ -62,7 +62,14 @@ public static class ScreenManager
     public static void UpdateAll()
     {
         for (int i = 0; i < _screenStack.Count; i++)
-            _screenStack[i].OnUpdate();
+            UpdateRecursive(_screenStack[i]);
+    }
+
+    private static void UpdateRecursive(Screen screen)
+    {
+        screen.OnUpdate();
+        if (screen.ActiveChild != null)
+            UpdateRecursive(screen.ActiveChild);
     }
 
     public static void RegisterGameScreen<TGameContext>(Func<GameScreen> factory)
@@ -83,7 +90,7 @@ public static class ScreenManager
 
     /// <summary>
     /// Remove a specific screen from anywhere in the stack.
-    /// Safe to call even if other screens have been pushed on top.
+    /// Children are recursively popped first.
     /// </summary>
     public static void RemoveScreen(Screen screen)
     {
@@ -105,6 +112,10 @@ public static class ScreenManager
         if (wasTop)
             screen.OnUnfocus();
 
+        // Pop children recursively before removing from stack
+        if (screen.ActiveChild != null)
+            screen.RemoveChild(screen.ActiveChild);
+
         _screenStack.RemoveAt(i);
         screen.OnPop();
 
@@ -112,6 +123,17 @@ public static class ScreenManager
             _screenStack[^1].OnFocus();
 
         Log.Info($"[AccessibilityMod] Screen removed: {screen.GetType().Name} from index {i} (stack depth: {_screenStack.Count})");
+    }
+
+    /// <summary>
+    /// Remove a screen from either the tree (if it has a parent) or the flat stack.
+    /// </summary>
+    public static void RemoveFromTree(Screen screen)
+    {
+        if (screen.Parent != null)
+            screen.Parent.RemoveChild(screen);
+        else
+            RemoveScreen(screen);
     }
 
     /// <summary>
@@ -130,6 +152,9 @@ public static class ScreenManager
 
         if (wasTop)
             old.OnUnfocus();
+
+        if (old.ActiveChild != null)
+            old.RemoveChild(old.ActiveChild);
         old.OnPop();
 
         _screenStack[i] = replacement;
@@ -156,31 +181,47 @@ public static class ScreenManager
     }
 
     /// <summary>
-    /// Collect all always-enabled buffer keys from the entire screen stack.
+    /// Collect all always-enabled buffer keys from the entire screen tree.
     /// </summary>
     public static HashSet<string> GetAlwaysEnabledBuffers()
     {
         var result = new HashSet<string>();
         foreach (var screen in _screenStack)
-        {
-            foreach (var key in screen.AlwaysEnabledBuffers)
-                result.Add(key);
-        }
+            CollectBuffers(screen, result);
         return result;
     }
 
+    private static void CollectBuffers(Screen screen, HashSet<string> result)
+    {
+        foreach (var key in screen.AlwaysEnabledBuffers)
+            result.Add(key);
+        if (screen.ActiveChild != null)
+            CollectBuffers(screen.ActiveChild, result);
+    }
+
     /// <summary>
-    /// Resolve a UI element for a control by walking the screen stack top-down.
+    /// Resolve a UI element for a control by walking the screen tree deepest-first.
     /// </summary>
     public static UIElement? ResolveElement(Godot.Control control)
     {
         for (int i = _screenStack.Count - 1; i >= 0; i--)
         {
-            var element = _screenStack[i].GetElement(control);
-            if (element != null)
-                return element;
+            var result = ResolveElementInTree(_screenStack[i], control);
+            if (result != null)
+                return result;
         }
         return null;
+    }
+
+    private static UIElement? ResolveElementInTree(Screen screen, Godot.Control control)
+    {
+        if (screen.ActiveChild != null)
+        {
+            var result = ResolveElementInTree(screen.ActiveChild, control);
+            if (result != null)
+                return result;
+        }
+        return screen.GetElement(control);
     }
 
     /// <summary>
@@ -198,7 +239,7 @@ public static class ScreenManager
 
         if (currentContext == null)
         {
-            // Context cleared — remove any active GameScreen
+            // Context cleared — remove the factory-pushed screen
             RemoveActiveGameScreen();
             return;
         }
@@ -243,15 +284,29 @@ public static class ScreenManager
     {
         for (int i = _screenStack.Count - 1; i >= 0; i--)
         {
-            var screen = _screenStack[i];
-            if (!screen.HasClaimed(action.Key))
-                continue;
-
-            handler(screen, action);
-
-            if (!screen.ShouldPropagate(action.Key))
+            var result = DispatchInTree(_screenStack[i], action, handler);
+            if (result.claimed && !result.propagate)
                 return true;
         }
         return false;
+    }
+
+    private static (bool claimed, bool propagate) DispatchInTree(
+        Screen screen, InputAction action, Func<Screen, InputAction, bool> handler)
+    {
+        // Deepest child first
+        if (screen.ActiveChild != null)
+        {
+            var childResult = DispatchInTree(screen.ActiveChild, action, handler);
+            if (childResult.claimed && !childResult.propagate)
+                return childResult;
+        }
+
+        if (screen.HasClaimed(action.Key))
+        {
+            handler(screen, action);
+            return (true, screen.ShouldPropagate(action.Key));
+        }
+        return (false, false);
     }
 }
