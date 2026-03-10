@@ -17,6 +17,7 @@
   "TYPES.POWER": "power",
   "TYPES.STATUS": "status",
   "TYPES.CURSE": "curse",
+  "TYPES.QUEST": "quest",
   "KEYBIND.LISTENING": "Press a key to rebind {action}",
   "KEYBIND.BOUND": "{action} bound to {key}",
   "KEYBIND.SWAPPED": "{action} swapped to {key}",

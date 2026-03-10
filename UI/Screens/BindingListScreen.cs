@@ -76,6 +76,7 @@ public class BindingListScreen : Screen
         ClaimAction("ui_accept");
         ClaimAction("ui_select");
         ClaimAction("ui_cancel");
+        ClaimAction("mega_pause_and_back");
 
         BuildItems();
     }
@@ -115,7 +116,6 @@ public class BindingListScreen : Screen
         if (action.Key == "ui_cancel")
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw("Closed"));
             return true;
         }
 

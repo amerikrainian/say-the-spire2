@@ -81,6 +81,7 @@ public class ChoiceSelectionScreen : Screen
         ClaimAction("ui_accept");
         ClaimAction("ui_select");
         ClaimAction("ui_cancel");
+        ClaimAction("mega_pause_and_back");
 
         BuildOptions();
     }
@@ -119,7 +120,6 @@ public class ChoiceSelectionScreen : Screen
         if (action.Key == "ui_cancel")
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw("Closed"));
             return true;
         }
 

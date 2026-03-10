@@ -90,6 +90,7 @@ public class ModSettingsScreen : Screen
         ClaimAction("ui_accept");
         ClaimAction("ui_select");
         ClaimAction("ui_cancel");
+        ClaimAction("mega_pause_and_back");
         ClaimAction("mod_settings");
 
         BuildControls();
@@ -129,7 +130,8 @@ public class ModSettingsScreen : Screen
         if (action.Key == "ui_cancel" || action.Key == "mod_settings")
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw("Closed"));
+            if (_category.IsRoot)
+                SpeechManager.Output(Message.Raw("Closed"));
             return true;
         }
 
