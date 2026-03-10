@@ -94,6 +94,10 @@ public static class ModEntry
         advancedCategory.Add(verboseLogging);
         Events.EventDispatcher.VerboseLogging = verboseLogging.Value;
         verboseLogging.Changed += v => Events.EventDispatcher.VerboseLogging = v;
+        var profiling = new Settings.BoolSetting("profiling", "Performance Profiling", false);
+        advancedCategory.Add(profiling);
+        Events.EventDispatcher.Profiling = profiling.Value;
+        profiling.Changed += v => Events.EventDispatcher.Profiling = v;
 
         // Map settings
         var mapCategory = new Settings.CategorySetting("map", "Map");

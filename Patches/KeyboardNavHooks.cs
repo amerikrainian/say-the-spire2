@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Godot;
 using HarmonyLib;
@@ -29,6 +30,8 @@ public static class KeyboardNavHooks
                 nameof(UnhandledInputPrefix), isPrefix: true, "NInputManager._UnhandledInput");
             PatchSafe(harmony, typeof(NControllerManager), "_Process",
                 nameof(ProcessPostfix), isPrefix: false, "NControllerManager._Process");
+            PatchSafe(harmony, typeof(NControllerManager), "CheckForControllerInput",
+                nameof(CheckForControllerInputPrefix), isPrefix: true, "NControllerManager.CheckForControllerInput");
             Log.Info("[AccessibilityMod] Input hooks patched.");
         }
         catch (Exception e)
@@ -100,18 +103,43 @@ public static class KeyboardNavHooks
     /// <summary>
     /// Poll all controller buttons and axes from hardware.
     /// </summary>
+    private static readonly Stopwatch _sw = new();
+
     public static void ProcessPostfix(NControllerManager __instance)
     {
+        bool profile = Events.EventDispatcher.Profiling;
+
+        if (profile) _sw.Restart();
         InputManager.PollCustomActions(__instance);
+        if (profile) { _sw.Stop(); Log.Info($"[Profile] PollCustomActions: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
+
+        if (profile) _sw.Restart();
         UI.Screens.ScreenManager.CheckStartupAnnouncement(__instance);
+        if (profile) { _sw.Stop(); Log.Info($"[Profile] CheckStartupAnnouncement: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
+
+        if (profile) _sw.Restart();
         UI.Screens.ScreenManager.UpdateAll();
+        if (profile) { _sw.Stop(); Log.Info($"[Profile] ScreenManager.UpdateAll: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
+
+        if (profile) _sw.Restart();
         Events.EventDispatcher.Flush();
+        if (profile) { _sw.Stop(); Log.Info($"[Profile] EventDispatcher.Flush: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
     }
 
     /// <summary>
     /// Suppress the game's own key-to-action remapping when the mod is intercepting input.
     /// </summary>
     public static bool UnhandledKeyInputPrefix()
+    {
+        return !InputManager.InterceptInput;
+    }
+
+    /// <summary>
+    /// No-op the game's CheckForControllerInput. It creates tweens, calls
+    /// FocusOnDefaultControl, and emits ControllerDetected on every controller
+    /// event — we handle mode switching ourselves via EnsureFocusMode.
+    /// </summary>
+    public static bool CheckForControllerInputPrefix()
     {
         return !InputManager.InterceptInput;
     }

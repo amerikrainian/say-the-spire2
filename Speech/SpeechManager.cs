@@ -43,10 +43,15 @@ public static class SpeechManager
         Speak(message.Resolve(), interrupt);
     }
 
+    private static readonly System.Diagnostics.Stopwatch _sw = new();
+
     public static void Output(string text, bool interrupt = false)
     {
         if (!_initialized || _activeHandler == null) return;
+        bool profile = Events.EventDispatcher.Profiling;
+        if (profile) _sw.Restart();
         _activeHandler.Output(text, interrupt);
+        if (profile) { _sw.Stop(); MegaCrit.Sts2.Core.Logging.Log.Info($"[Profile] SpeechManager.Output: {_sw.Elapsed.TotalMilliseconds:F3}ms text=\"{text}\""); }
     }
 
     public static void Output(Message message, bool interrupt = false)

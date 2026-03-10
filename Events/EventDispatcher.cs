@@ -13,6 +13,7 @@ namespace SayTheSpire2.Events;
 public static class EventDispatcher
 {
     public static bool VerboseLogging { get; set; } = false;
+    public static bool Profiling { get; set; } = false;
 
     private static readonly List<(GameEvent evt, ulong timestamp)> _pending = new();
 

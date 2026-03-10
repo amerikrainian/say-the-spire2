@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using Godot;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Logging;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.Events;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
@@ -64,8 +66,13 @@ public static class UIManager
     }
 
 
+    private static readonly Stopwatch _sw = new();
+
     private static void ProcessPending()
     {
+        bool profile = EventDispatcher.Profiling;
+        if (profile) _sw.Restart();
+
         _processingScheduled = false;
 
         if (_pendingControl == null) return;
@@ -105,6 +112,8 @@ public static class UIManager
             buffers.SetCurrentBuffer(currentBufferKey);
 
         element.Focus();
+
+        if (profile) { _sw.Stop(); Log.Info($"[Profile] UIManager.ProcessPending: {_sw.Elapsed.TotalMilliseconds:F3}ms control={control.GetType().Name}"); }
     }
 
     private static string BuildFocusAnnouncement(UIElement element)
