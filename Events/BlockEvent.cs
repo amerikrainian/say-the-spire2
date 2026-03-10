@@ -17,15 +17,40 @@ public class BlockEvent : GameEvent
         _newBlock = newBlock;
     }
 
+    public static void RegisterSettings(CategorySetting category)
+    {
+        category.Add(new BoolSetting("announce_gained", "Announce Block Gained", true));
+        category.Add(new BoolSetting("announce_lost", "Announce Block Lost", true));
+        category.Add(new BoolSetting("announce_all_lost", "Announce All Block Lost", true));
+        category.Add(new BoolSetting("verbose_totals", "Include Block Totals", true));
+    }
+
     public override string? GetMessage()
     {
         int delta = _newBlock - _oldBlock;
+        bool verbose = ModSettings.GetValue<bool>("events.block.verbose_totals");
         if (delta > 0)
-            return $"{_creatureName} gained {delta} Block ({_newBlock} total)";
+            return verbose
+                ? $"{_creatureName} gained {delta} Block ({_newBlock} total)"
+                : $"{_creatureName} gained {delta} Block";
         if (delta < 0 && _newBlock > 0)
-            return $"{_creatureName} lost {-delta} Block ({_newBlock} remaining)";
+            return verbose
+                ? $"{_creatureName} lost {-delta} Block ({_newBlock} remaining)"
+                : $"{_creatureName} lost {-delta} Block";
         if (delta < 0 && _newBlock == 0)
             return $"{_creatureName} lost all Block";
         return null;
+    }
+
+    public override bool ShouldAnnounce()
+    {
+        int delta = _newBlock - _oldBlock;
+        if (delta > 0)
+            return ModSettings.GetValue<bool>("events.block.announce_gained");
+        if (delta < 0 && _newBlock > 0)
+            return ModSettings.GetValue<bool>("events.block.announce_lost");
+        if (delta < 0 && _newBlock == 0)
+            return ModSettings.GetValue<bool>("events.block.announce_all_lost");
+        return true;
     }
 }
