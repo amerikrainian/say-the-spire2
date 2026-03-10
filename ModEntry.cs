@@ -102,6 +102,7 @@ public static class ModEntry
         Settings.EventRegistry.Register(typeof(RelicObtainedEvent));
         Settings.EventRegistry.Register(typeof(PotionObtainedEvent));
         Settings.EventRegistry.Register(typeof(OrbEvent));
+        Settings.EventRegistry.Register(typeof(RoomEnteredEvent));
 
         // Advanced settings
         var advancedCategory = new Settings.CategorySetting("advanced", "Advanced");

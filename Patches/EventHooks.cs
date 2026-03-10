@@ -11,6 +11,7 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Powers;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Events;
+using MegaCrit.Sts2.Core.Rooms;
 using SayTheSpire2.Events;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
@@ -122,6 +123,19 @@ public static class EventHooks
         else
         {
             Log.Error("[AccessibilityMod] Could not find PlayerCmd.LoseGold!");
+        }
+
+        // Room entered
+        var afterRoomEntered = AccessTools.Method(typeof(Hook), "AfterRoomEntered");
+        if (afterRoomEntered != null)
+        {
+            harmony.Patch(afterRoomEntered,
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(RoomEnteredPostfix)));
+            Log.Info("[AccessibilityMod] Hook.AfterRoomEntered hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find Hook.AfterRoomEntered!");
         }
 
         var setDialogueLine = AccessTools.Method(typeof(NAncientEventLayout), "SetDialogueLineAndAnimate");
@@ -280,6 +294,18 @@ public static class EventHooks
         catch (System.Exception e)
         {
             Log.Error($"[AccessibilityMod] Gold lost hook error: {e.Message}");
+        }
+    }
+
+    public static void RoomEnteredPostfix(AbstractRoom room)
+    {
+        try
+        {
+            EventDispatcher.Enqueue(new RoomEnteredEvent(room.RoomType));
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Room entered hook error: {e.Message}");
         }
     }
 
