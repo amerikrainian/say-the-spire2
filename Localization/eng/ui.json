@@ -10,6 +10,7 @@
   "TYPES.ORB": "orb",
   "TYPES.MAP NODE": "map node",
   "TYPES.SHOP ITEM": "shop item",
+  "TYPES.CREATURE": "creature",
   "TYPES.KEYBIND": "key binding",
   "TYPES.ATTACK": "attack",
   "TYPES.SKILL": "skill",

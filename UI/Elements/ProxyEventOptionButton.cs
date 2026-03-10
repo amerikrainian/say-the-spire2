@@ -35,16 +35,16 @@ public class ProxyEventOptionButton : ProxyElement
         var option = Button?.Option;
         if (option == null) return null;
 
-        var parts = new System.Collections.Generic.List<string>();
+        return option.IsLocked ? "Locked" : null;
+    }
+
+    public override string? GetTooltip()
+    {
+        var option = Button?.Option;
+        if (option == null) return null;
 
         var desc = option.Description?.GetFormattedText();
-        if (!string.IsNullOrEmpty(desc))
-            parts.Add(StripBbcode(desc));
-
-        if (option.IsLocked)
-            parts.Add("Locked");
-
-        return parts.Count > 0 ? string.Join(", ", parts) : null;
+        return !string.IsNullOrEmpty(desc) ? StripBbcode(desc) : null;
     }
 
     public override string? HandleBuffers(BufferManager buffers)

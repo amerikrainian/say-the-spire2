@@ -43,10 +43,6 @@ public class ProxyRelicHolder : ProxyElement
 
         var parts = new System.Collections.Generic.List<string>();
 
-        var desc = model.DynamicDescription.GetFormattedText();
-        if (!string.IsNullOrEmpty(desc))
-            parts.Add(StripBbcode(desc));
-
         if (model.ShowCounter && model.DisplayAmount != 0)
             parts.Add($"Counter: {model.DisplayAmount}");
 
@@ -54,6 +50,15 @@ public class ProxyRelicHolder : ProxyElement
             parts.Add("Disabled");
 
         return parts.Count > 0 ? string.Join(", ", parts) : null;
+    }
+
+    public override string? GetTooltip()
+    {
+        var model = GetModel();
+        if (model == null) return null;
+
+        var desc = model.DynamicDescription.GetFormattedText();
+        return !string.IsNullOrEmpty(desc) ? StripBbcode(desc) : null;
     }
 
     public override string? HandleBuffers(BufferManager buffers)

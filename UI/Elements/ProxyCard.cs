@@ -50,7 +50,9 @@ public class ProxyCard : ProxyElement
         return title;
     }
 
-    public override string? GetTypeKey()
+    public override string? GetTypeKey() => "card";
+
+    public override string? GetSubtypeKey()
     {
         var model = GetCardModel();
         if (model == null) return null;
@@ -84,16 +86,18 @@ public class ProxyCard : ProxyElement
         return parts.Count > 0 ? string.Join(", ", parts) : null;
     }
 
-    public override string? GetStatusString()
+    public override string? GetTooltip()
     {
         var model = GetCardModel();
         if (model == null) return null;
 
-        if (model.Enchantment != null)
+        try
         {
-            try { return $"Enchanted: {model.Enchantment.Title.GetFormattedText()}"; }
-            catch { }
+            var desc = model.GetDescriptionForPile(PileType.None);
+            if (!string.IsNullOrEmpty(desc))
+                return StripBbcode(desc);
         }
+        catch { }
 
         return null;
     }

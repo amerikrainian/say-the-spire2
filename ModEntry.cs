@@ -72,6 +72,20 @@ public static class ModEntry
         // Register UI element settings
         Settings.ModSettingsRegistry.Register(typeof(UI.Elements.ProxyCard));
 
+        // Register focus string toggles per element type
+        Settings.FocusStringSettings.Register("card", "Card", hasSubtype: true);
+        Settings.FocusStringSettings.Register("button", "Button");
+        Settings.FocusStringSettings.Register("relic", "Relic");
+        Settings.FocusStringSettings.Register("potion", "Potion");
+        Settings.FocusStringSettings.Register("orb", "Orb");
+        Settings.FocusStringSettings.Register("creature", "Creature");
+        Settings.FocusStringSettings.Register("checkbox", "Checkbox");
+        Settings.FocusStringSettings.Register("slider", "Slider");
+        Settings.FocusStringSettings.Register("dropdown", "Dropdown");
+        Settings.FocusStringSettings.Register("keybind", "Key Binding");
+        Settings.FocusStringSettings.Register("shop item", "Shop Item");
+        Settings.FocusStringSettings.Register("map node", "Map Node");
+
         // Register all event types (categories created automatically)
         Settings.EventRegistry.Register(typeof(BlockEvent));
         Settings.EventRegistry.Register(typeof(CardPileEvent));

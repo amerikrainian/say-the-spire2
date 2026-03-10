@@ -24,7 +24,7 @@ public class ProxyPotionHolder : ProxyElement
 
     public override string? GetTypeKey() => "potion";
 
-    public override string? GetStatusString()
+    public override string? GetTooltip()
     {
         var holder = Holder;
         if (holder == null || !holder.HasPotion) return null;

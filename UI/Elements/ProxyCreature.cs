@@ -37,6 +37,8 @@ public class ProxyCreature : ProxyElement
         return entity.Name;
     }
 
+    public override string? GetTypeKey() => "creature";
+
     public override string? GetStatusString()
     {
         var entity = GetEntity();

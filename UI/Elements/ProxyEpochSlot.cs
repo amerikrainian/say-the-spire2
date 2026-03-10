@@ -22,13 +22,19 @@ public class ProxyEpochSlot : ProxyElement
         var slot = Control as NEpochSlot;
         if (slot?.model == null) return null;
 
-        var state = slot.State switch
+        return slot.State switch
         {
             EpochSlotState.NotObtained => "locked",
             EpochSlotState.Obtained => "ready to reveal",
             EpochSlotState.Complete => "revealed",
             _ => null
         };
+    }
+
+    public override string? GetTooltip()
+    {
+        var slot = Control as NEpochSlot;
+        if (slot?.model == null) return null;
 
         try
         {
@@ -36,10 +42,10 @@ public class ProxyEpochSlot : ProxyElement
             unlockInfo.Add("IsRevealed", slot.State == EpochSlotState.Complete);
             var unlockText = StripBbcode(unlockInfo.GetFormattedText());
             if (!string.IsNullOrEmpty(unlockText))
-                return state != null ? $"{state}, {unlockText}" : unlockText;
+                return unlockText;
         }
         catch { }
 
-        return state;
+        return null;
     }
 }

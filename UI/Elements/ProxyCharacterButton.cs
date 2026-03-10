@@ -38,12 +38,26 @@ public class ProxyCharacterButton : ProxyElement
         if (character == null) return null;
 
         if (button.IsLocked)
+            return "Locked";
+
+        return $"{character.StartingHp} HP, {character.StartingGold} gold";
+    }
+
+    public override string? GetTooltip()
+    {
+        var button = Button;
+        if (button == null || button.IsRandom) return null;
+
+        var character = button.Character;
+        if (character == null) return null;
+
+        if (button.IsLocked)
         {
             var unlockText = character.GetUnlockText().GetFormattedText();
             return !string.IsNullOrEmpty(unlockText) ? unlockText : null;
         }
 
-        return $"{character.StartingHp} HP, {character.StartingGold} gold";
+        return null;
     }
 
     public override string? HandleBuffers(BufferManager buffers)

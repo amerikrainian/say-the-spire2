@@ -59,7 +59,7 @@ public class ProxyTopBar : ProxyElement
         }
     }
 
-    public override string? GetStatusString()
+    public override string? GetTooltip()
     {
         try
         {
