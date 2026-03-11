@@ -1,6 +1,9 @@
 using System.Linq;
 using Godot;
+using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
+using SayTheSpire2.Localization;
+using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -10,6 +13,7 @@ public class CharacterSelectGameScreen : GameScreen
     public static CharacterSelectGameScreen? Current { get; private set; }
 
     private readonly NCharacterSelectScreen _screen;
+    private int _lastAscension = -1;
 
     public override string? ScreenName => "Character Select";
 
@@ -28,6 +32,27 @@ public class CharacterSelectGameScreen : GameScreen
     {
         base.OnPop();
         if (Current == this) Current = null;
+    }
+
+    public override void OnUpdate()
+    {
+        var panel = _screen.GetNodeOrNull<NAscensionPanel>("%AscensionPanel");
+        if (panel == null) return;
+
+        var current = panel.Ascension;
+        if (_lastAscension == -1)
+        {
+            _lastAscension = current;
+            return;
+        }
+
+        if (current != _lastAscension)
+        {
+            _lastAscension = current;
+            var title = AscensionHelper.GetTitle(current).GetFormattedText();
+            var description = AscensionHelper.GetDescription(current).GetFormattedText();
+            SpeechManager.Output(Message.Raw($"Ascension {current}: {title}. {description}"));
+        }
     }
 
     protected override void BuildRegistry()
