@@ -36,6 +36,7 @@ public class CharacterSelectGameScreen : GameScreen
 
     public override void OnUpdate()
     {
+        if (!GodotObject.IsInstanceValid(_screen)) return;
         var panel = _screen.GetNodeOrNull<NAscensionPanel>("%AscensionPanel");
         if (panel == null) return;
 

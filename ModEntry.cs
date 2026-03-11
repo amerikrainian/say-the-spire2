@@ -20,7 +20,7 @@ namespace SayTheSpire2;
 [ModInitializer(nameof(Initialize))]
 public static class ModEntry
 {
-    public const string Version = "0.1.2";
+    public const string Version = "0.1.3";
     private static Harmony? _harmony;
 
     public static void Initialize()
