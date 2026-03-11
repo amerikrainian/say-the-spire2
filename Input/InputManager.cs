@@ -144,7 +144,7 @@ public static class InputManager
             .AddBinding(Key.Escape)
             .AddBinding(ControllerInput.Start));
         _actions.Add(new InputAction("mega_top_panel", "Top Panel", gameAction: "mega_top_panel")
-            .AddBinding(Key.Tab)
+            .AddBinding(Key.T)
             .AddBinding(ControllerInput.X));
         _actions.Add(new InputAction("mega_select_card_1", "Select Card 1", gameAction: "mega_select_card_1").AddBinding(Key.Key1));
         _actions.Add(new InputAction("mega_select_card_2", "Select Card 2", gameAction: "mega_select_card_2").AddBinding(Key.Key2));

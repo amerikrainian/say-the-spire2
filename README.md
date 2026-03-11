@@ -83,13 +83,15 @@ The mod supports both keyboard and controller. Here are the default bindings:
 | View Exhaust / Tab Right | X | RB |
 | View Map | M | Back |
 | Pause | Escape | Start |
-| Top Panel | Tab | X |
+| Top Panel | T | X |
 | Announce Gold | Ctrl+G | RT+A |
 | Announce HP | Ctrl+H | LT+A |
 | Announce Block | Ctrl+B | LT+B |
 | Announce Energy | Ctrl+Y | LT+X |
 | Announce Powers | Ctrl+P | LT+Y |
 | Announce Intents | Ctrl+I | RT+Y |
+| Announce Summarized Intents | Alt+I | RT+X |
+| Announce Boss | Ctrl+N | RT+B |
 | Mod Settings | Ctrl+M | LT+Start |
 | Select Card 1-10 | 1-0 | — |
 

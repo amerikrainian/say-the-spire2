@@ -15,6 +15,17 @@
 * Fixed star cost readouts not showing on Regent character cards; energy and star costs are now combined on one line. Regent stars are also included in the player buffer and energy hotkey readouts.
 * Fixed various bugs with screen state that could cause stale data or unexpected behavior after saving, quitting, or switching screens. This should hopefully finally get rid of the duplicated event announcements in combat.
 * Fixed focus issues during card selection screens. This should fix certain selections not reading, such as choosing a card for Well Laid Plans.
+* Added announce boss keybind (Ctrl+N / RT+B) to read the current act boss. Supports double boss in higher ascensions.
+* Added announce summarized intents keybind (Alt+I / RT+X) to read total incoming damage from all enemies.
+* Added ascension level announcements on the character select screen, reading the level, title, and description when changed.
+* Added accessibility for the card pack bundle selection screen (Scrollboxes event). Pack contents are read out, and preview cards can be navigated with left/right.
+* Added unlock requirements and tooltip text to the random character button.
+* Fixed intent names using internal enum names instead of the game's localized names.
+* Fixed foul potion "throw at merchant" not completing when using keyboard/controller.
+* Fixed creature focus not updating when bosses die and resummon in a new form.
+* Fixed block lost event not reading when all block was lost with "Announce All Block Lost" disabled but "Announce Block Lost" enabled.
+* Fixed empty treasure chest not announcing when opened.
+* Changed the default Top Panel keyboard binding from Tab to T.
 
 ## V0.1.1
 * Added jaws config files to improve the overall experience using jaws (silencing of annoying sentinel initialized announcement, propper handling for arrow keys/escape, etc.) These can be installed via the installer or as part of the manual process.
