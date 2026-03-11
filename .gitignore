@@ -7,13 +7,9 @@ obj/
 tolk build/
 plan.md
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
-dist/
-.venv/
+# Rust
+installer/target/
+installer/Cargo.lock
 
 # Build artifacts
 *.zip
