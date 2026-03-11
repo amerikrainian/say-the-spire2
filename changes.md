@@ -1,3 +1,6 @@
+## V0.1.3
+This is an emergency release to fix a bug where any events would not be announced during a run if you started a run from the character select screen. The character select screen was not properly being removed from memory, which was causing an uncaught exception that silently aborted the event queue processing (so it never got to the events to announce them.)
+
 ## V0.1.2
 * Added orb support for the Defect: orbs now read their name, passive/evoke values, and empty slot tooltips. This also fixes a bug where all Defect orbs were reading out as "The Defect"... Oops.
 * Added event announcements for orb channeled and orb evoked, with per-type toggles.
