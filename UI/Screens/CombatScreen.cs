@@ -422,13 +422,24 @@ public class CombatScreen : Screen
             }
 
             // Relics: ↑ = (leave alone, game links to potions), ↓ = orbs or creatures
+            // Left/right wraps around
             NodePath? relicDown = hasOrbs ? firstOrbPath : firstCreaturePath;
-            if (relicNodes != null && relicDown != null)
+            if (relicNodes != null && relicNodes.Count > 0)
             {
+                var firstValid = relicNodes.FirstOrDefault(r => r != null && GodotObject.IsInstanceValid(r));
+                var lastValid = relicNodes.LastOrDefault(r => r != null && GodotObject.IsInstanceValid(r));
+                NodePath? firstPath = firstValid?.GetPath();
+                NodePath? lastPath = lastValid?.GetPath();
+
                 foreach (var relic in relicNodes)
                 {
-                    if (relic != null && GodotObject.IsInstanceValid(relic))
+                    if (relic == null || !GodotObject.IsInstanceValid(relic)) continue;
+                    if (relicDown != null)
                         relic.FocusNeighborBottom = relicDown;
+                    if (relic == firstValid && lastPath != null)
+                        relic.FocusNeighborLeft = lastPath;
+                    if (relic == lastValid && firstPath != null)
+                        relic.FocusNeighborRight = firstPath;
                 }
             }
 
