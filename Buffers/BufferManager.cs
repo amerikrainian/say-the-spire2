@@ -104,6 +104,19 @@ public class BufferManager
         return false;
     }
 
+    public void RegisterDefaults()
+    {
+        Add(new Buffer("ui"));
+        Add(new CharacterBuffer());
+        Add(new RelicBuffer());
+        Add(new PotionBuffer());
+        Add(new CardBuffer());
+        Add(new UpgradeBuffer());
+        Add(new CreatureBuffer());
+        Add(new PlayerBuffer());
+        Add(new Buffer("events"));
+    }
+
     public bool MoveToPrevious()
     {
         if (_buffers.Count == 0) return false;

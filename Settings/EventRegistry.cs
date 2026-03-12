@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SayTheSpire2.Events;
 
 namespace SayTheSpire2.Settings;
 
@@ -35,5 +36,25 @@ public static class EventRegistry
     public static bool ShouldBuffer(string eventKey)
     {
         return ModSettings.GetValue<bool>($"events.{eventKey}.buffer");
+    }
+
+    public static void RegisterDefaults()
+    {
+        Register(typeof(BlockEvent));
+        Register(typeof(CardPileEvent));
+        Register(typeof(CardStolenEvent));
+        Register(typeof(GoldEvent));
+        Register(typeof(DeathEvent));
+        Register(typeof(DialogueEvent));
+        Register(typeof(EnemyMoveEvent));
+        Register(typeof(HpEvent));
+        Register(typeof(PowerEvent));
+        Register(typeof(TurnEvent));
+        Register(typeof(CardUpgradeEvent));
+        Register(typeof(CardObtainedEvent));
+        Register(typeof(RelicObtainedEvent));
+        Register(typeof(PotionObtainedEvent));
+        Register(typeof(OrbEvent));
+        Register(typeof(RoomEnteredEvent));
     }
 }

@@ -20,6 +20,28 @@ public static class SpeechManager
         new ClipboardHandler(),
     };
 
+    public static void RegisterSettings(CategorySetting speechCategory)
+    {
+        // Handler selection dropdown (auto = try each in order)
+        var handlerChoices = new List<Choice>
+        {
+            new Choice("auto", "Auto"),
+        };
+        foreach (var handler in Handlers)
+            handlerChoices.Add(new Choice(handler.Key, handler.Label));
+        var handlerSetting = new ChoiceSetting("handler", "Speech Handler", "auto", handlerChoices);
+        speechCategory.Add(handlerSetting);
+        SetHandlerSetting(handlerSetting);
+
+        // Per-handler settings
+        foreach (var handler in Handlers)
+        {
+            var handlerSettings = handler.GetSettings();
+            if (handlerSettings != null)
+                speechCategory.Add(handlerSettings);
+        }
+    }
+
     public static void SetHandlerSetting(ChoiceSetting setting)
     {
         _handlerSetting = setting;

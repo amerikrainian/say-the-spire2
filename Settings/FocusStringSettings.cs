@@ -34,6 +34,22 @@ public static class FocusStringSettings
         category.Add(new BoolSetting("announce_tooltip", "Announce Tooltip", true));
     }
 
+    public static void RegisterDefaults()
+    {
+        Register("card", "Card", hasSubtype: true);
+        Register("button", "Button");
+        Register("relic", "Relic");
+        Register("potion", "Potion");
+        Register("orb", "Orb");
+        Register("creature", "Creature");
+        Register("checkbox", "Checkbox");
+        Register("slider", "Slider");
+        Register("dropdown", "Dropdown");
+        Register("keybind", "Key Binding");
+        Register("shop item", "Shop Item");
+        Register("map node", "Map Node");
+    }
+
     public static bool ShouldAnnounceType(string typeKey)
     {
         if (!_registeredKeys.Contains(typeKey)) return true;

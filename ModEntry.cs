@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Reflection;
 using System.Runtime.Loader;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
@@ -72,37 +71,9 @@ public static class ModEntry
         // Register UI element settings
         Settings.ModSettingsRegistry.Register(typeof(UI.Elements.ProxyCard));
 
-        // Register focus string toggles per element type
-        Settings.FocusStringSettings.Register("card", "Card", hasSubtype: true);
-        Settings.FocusStringSettings.Register("button", "Button");
-        Settings.FocusStringSettings.Register("relic", "Relic");
-        Settings.FocusStringSettings.Register("potion", "Potion");
-        Settings.FocusStringSettings.Register("orb", "Orb");
-        Settings.FocusStringSettings.Register("creature", "Creature");
-        Settings.FocusStringSettings.Register("checkbox", "Checkbox");
-        Settings.FocusStringSettings.Register("slider", "Slider");
-        Settings.FocusStringSettings.Register("dropdown", "Dropdown");
-        Settings.FocusStringSettings.Register("keybind", "Key Binding");
-        Settings.FocusStringSettings.Register("shop item", "Shop Item");
-        Settings.FocusStringSettings.Register("map node", "Map Node");
-
-        // Register all event types (categories created automatically)
-        Settings.EventRegistry.Register(typeof(BlockEvent));
-        Settings.EventRegistry.Register(typeof(CardPileEvent));
-        Settings.EventRegistry.Register(typeof(CardStolenEvent));
-        Settings.EventRegistry.Register(typeof(GoldEvent));
-        Settings.EventRegistry.Register(typeof(DeathEvent));
-        Settings.EventRegistry.Register(typeof(DialogueEvent));
-        Settings.EventRegistry.Register(typeof(EnemyMoveEvent));
-        Settings.EventRegistry.Register(typeof(HpEvent));
-        Settings.EventRegistry.Register(typeof(PowerEvent));
-        Settings.EventRegistry.Register(typeof(TurnEvent));
-        Settings.EventRegistry.Register(typeof(CardUpgradeEvent));
-        Settings.EventRegistry.Register(typeof(CardObtainedEvent));
-        Settings.EventRegistry.Register(typeof(RelicObtainedEvent));
-        Settings.EventRegistry.Register(typeof(PotionObtainedEvent));
-        Settings.EventRegistry.Register(typeof(OrbEvent));
-        Settings.EventRegistry.Register(typeof(RoomEnteredEvent));
+        // Each subsystem registers its own defaults
+        Settings.FocusStringSettings.RegisterDefaults();
+        Settings.EventRegistry.RegisterDefaults();
 
         // Advanced settings
         var advancedCategory = new Settings.CategorySetting("advanced", "Advanced");
@@ -123,28 +94,10 @@ public static class ModEntry
         mapCategory.Add(new Settings.BoolSetting("auto_advance_backward", "Automatically Follow Paths Backward until Choice Node", false));
         mapCategory.Add(new Settings.BoolSetting("verbose_backward", "Read Intermediate Nodes on Backward Paths", true));
 
-        // Collect speech handler settings
+        // Speech handler settings
         var speechCategory = new Settings.CategorySetting("speech", "Speech");
         Settings.ModSettings.Root.Add(speechCategory);
-
-        // Handler selection dropdown at the top (auto = try each in order)
-        var handlerChoices = new System.Collections.Generic.List<Settings.Choice>
-        {
-            new Settings.Choice("auto", "Auto"),
-        };
-        foreach (var handler in Speech.SpeechManager.Handlers)
-            handlerChoices.Add(new Settings.Choice(handler.Key, handler.Label));
-        var handlerSetting = new Settings.ChoiceSetting("handler", "Speech Handler", "auto", handlerChoices);
-        speechCategory.Add(handlerSetting);
-        Speech.SpeechManager.SetHandlerSetting(handlerSetting);
-
-        // Per-handler settings
-        foreach (var handler in Speech.SpeechManager.Handlers)
-        {
-            var handlerSettings = handler.GetSettings();
-            if (handlerSettings != null)
-                speechCategory.Add(handlerSettings);
-        }
+        Speech.SpeechManager.RegisterSettings(speechCategory);
 
         // Load saved values (overrides defaults) and write file if first run
         Settings.ModSettings.Initialize(settingsDir);
@@ -178,15 +131,7 @@ public static class ModEntry
 
     private static void InitializeBuffers()
     {
-        BufferManager.Instance.Add(new Buffers.Buffer("ui"));
-        BufferManager.Instance.Add(new Buffers.CharacterBuffer());
-        BufferManager.Instance.Add(new Buffers.RelicBuffer());
-        BufferManager.Instance.Add(new Buffers.PotionBuffer());
-        BufferManager.Instance.Add(new Buffers.CardBuffer());
-        BufferManager.Instance.Add(new Buffers.UpgradeBuffer());
-        BufferManager.Instance.Add(new Buffers.CreatureBuffer());
-        BufferManager.Instance.Add(new Buffers.PlayerBuffer());
-        BufferManager.Instance.Add(new Buffers.Buffer("events"));
+        BufferManager.Instance.RegisterDefaults();
     }
 
     private static void RegisterScreens()
