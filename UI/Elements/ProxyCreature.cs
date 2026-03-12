@@ -8,11 +8,18 @@ using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.UI.Elements;
 
+[ModSettings("ui.creature", "UI/Creature")]
 public class ProxyCreature : ProxyElement
 {
+    public static void RegisterSettings(CategorySetting category)
+    {
+        category.Add(new BoolSetting("intent_first", "Announce Intent Before HP", false));
+    }
+
     public ProxyCreature(Control control) : base(control) { }
 
     private NCreature? FindCreature()
@@ -46,6 +53,14 @@ public class ProxyCreature : ProxyElement
         if (entity == null) return null;
 
         var parts = new List<string>();
+        var intentFirst = ModSettings.GetValue<bool>("ui.creature.intent_first");
+
+        string? intentSummary = null;
+        if (entity.IsMonster && entity.Monster != null)
+            intentSummary = GetIntentSummary(entity, includePrefix: !intentFirst);
+
+        if (intentFirst && !string.IsNullOrEmpty(intentSummary))
+            parts.Add(intentSummary);
 
         // HP
         parts.Add($"{entity.CurrentHp}/{entity.MaxHp} HP");
@@ -54,13 +69,8 @@ public class ProxyCreature : ProxyElement
         if (entity.Block > 0)
             parts.Add($"{entity.Block} block");
 
-        // Intent summary for monsters
-        if (entity.IsMonster && entity.Monster != null)
-        {
-            var intentSummary = GetIntentSummary(entity);
-            if (!string.IsNullOrEmpty(intentSummary))
-                parts.Add(intentSummary);
-        }
+        if (!intentFirst && !string.IsNullOrEmpty(intentSummary))
+            parts.Add(intentSummary);
 
         return string.Join(", ", parts);
     }
@@ -105,7 +115,7 @@ public class ProxyCreature : ProxyElement
         return intent.IntentType.ToString();
     }
 
-    private static string? GetIntentSummary(Creature entity)
+    private static string? GetIntentSummary(Creature entity, bool includePrefix = true)
     {
         try
         {
@@ -126,7 +136,9 @@ public class ProxyCreature : ProxyElement
                     summaries.Add(name);
             }
 
-            return summaries.Count > 0 ? "Intent " + string.Join(", ", summaries) : null;
+            if (summaries.Count == 0) return null;
+            var joined = string.Join(", ", summaries);
+            return includePrefix ? "Intent " + joined : joined;
         }
         catch
         {

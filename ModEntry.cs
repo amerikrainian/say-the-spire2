@@ -70,6 +70,7 @@ public static class ModEntry
 
         // Register UI element settings
         Settings.ModSettingsRegistry.Register(typeof(UI.Elements.ProxyCard));
+        Settings.ModSettingsRegistry.Register(typeof(UI.Elements.ProxyCreature));
 
         // Each subsystem registers its own defaults
         Settings.FocusStringSettings.RegisterDefaults();
