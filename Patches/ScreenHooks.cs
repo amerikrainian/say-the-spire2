@@ -9,6 +9,7 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
+using MegaCrit.Sts2.Core.Nodes.Events.Custom.CrystalSphere;
 using MegaCrit.Sts2.Core.Nodes.RestSite;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Screens;
@@ -278,6 +279,11 @@ public static class ScreenHooks
             else
                 ScreenManager.PushScreen(new ChooseACardGameScreen(chooseScreen));
         }
+        else if (screen is NCrystalSphereScreen crystalScreen
+            && CrystalSphereGameScreen.Current == null)
+        {
+            ScreenManager.PushScreen(new CrystalSphereGameScreen(crystalScreen));
+        }
     }
 
     public static void OverlayRemovePostfix(IOverlayScreen screen)
@@ -291,6 +297,11 @@ public static class ScreenHooks
             && ChooseACardGameScreen.Current != null)
         {
             ScreenManager.RemoveFromTree(ChooseACardGameScreen.Current);
+        }
+        else if (screen is NCrystalSphereScreen
+            && CrystalSphereGameScreen.Current != null)
+        {
+            ScreenManager.RemoveScreen(CrystalSphereGameScreen.Current);
         }
     }
 
