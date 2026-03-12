@@ -1,3 +1,8 @@
+## V0.1.4
+* Added accessibility for the Crystal Sphere minigame. The 11x11 grid is navigable with position announcements, generic item labels matching what sighted players see, and coordinate ranges for multi-tile items. Instructions are read on screen open, tool changes announce with size info (e.g. "Big Divination, 3 by 3"), and divination count changes are announced.
+* Added "Announce Intent Before HP" setting under UI/Creature. When enabled, creature focus reads intent before HP (e.g. "Slime, attack 7, 50/50 HP" instead of "Slime, 50/50 HP, Intent attack 7").
+* Refactored initialization code so each subsystem registers its own default settings, reducing complexity in ModEntry.
+
 ## V0.1.3
 This is an emergency release to fix a bug where any events would not be announced during a run if you started a run from the character select screen. The character select screen was not properly being removed from memory, which was causing an uncaught exception that silently aborted the event queue processing (so it never got to the events to announce them.)
 
