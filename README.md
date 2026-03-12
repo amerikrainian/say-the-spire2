@@ -109,3 +109,8 @@ When you focus a map node, the mod's map viewer activates. The map is presented 
 * Each node is announced with its type (Monster, Elite, Shop, Treasure, Rest Site, etc.), coordinates, and travel state (travelable, traveled, or unreachable).
 * Nodes marked by quest cards or relics are announced with a "Quest" prefix.
 * **Auto-advance** (configurable in mod settings) automatically skips through linear paths, announcing each room along the way and stopping at the next branch point.
+
+## Credits
+I would like to thank everyone who has tested the mod so far, the feedback has been invaluable and the mod is much better as a result. I woud also like to thank those who have directly contributed to the mod:
+
+* Rashad Naqeeb for contributing the Jaws configuration files

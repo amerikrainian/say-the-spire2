@@ -6,6 +6,7 @@ obj/
 .claude/
 tolk build/
 plan.md
+docs/
 
 # Rust
 installer/target/
@@ -13,3 +14,4 @@ installer/Cargo.lock
 
 # Build artifacts
 *.zip
+*.exe

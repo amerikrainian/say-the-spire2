@@ -1,5 +1,5 @@
 ## V0.1.4
-* The Python installer has been replaced with one coded in Rust. This should prevent Windows Defender eroniously flagging the installer as a virus and improve stability of the app overall.
+* The Python installer has been replaced with one coded in Rust. This should prevent Windows Defender erroniously flagging the installer as a virus and improve stability of the app overall.
 * Fixed numerous focus issues when navigating between rows on the combat screen. Creatures and Defect orbs should now consistently be navigable.
 * Added position announcements to combat screen rows (e.g. "card 3 of 5").
 * Added left/right wrap-around navigation for the relics row.
