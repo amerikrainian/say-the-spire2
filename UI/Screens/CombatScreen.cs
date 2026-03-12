@@ -264,10 +264,13 @@ public class CombatScreen : Screen
     }
 
     /// <summary>
-    /// Rebuilds the full focus chain every frame:
-    ///   hand cards → first creature → (player: orbs → relics, others: relics)
-    /// Also ensures all creature hitboxes have FocusMode=All.
-    /// During targeting, locks creatures' upward nav to themselves.
+    /// Rebuilds the full focus chain every frame. Every item in every row
+    /// gets explicit up/down links to the adjacent rows.
+    ///
+    /// Rows (bottom to top):
+    ///   hand cards ↔ creatures ↔ orbs (if Defect has orbs) ↔ relics
+    ///
+    /// During targeting, we leave FocusMode alone and lock creatures' nav.
     /// </summary>
     private void UpdateFocusNavigation()
     {
@@ -276,61 +279,117 @@ public class CombatScreen : Screen
             var combatRoom = NCombatRoom.Instance;
             if (combatRoom == null) return;
 
-            var firstRelic = NRun.Instance?.GlobalUi?.RelicInventory?.RelicNodes?.FirstOrDefault();
-            NodePath? relicPath = (firstRelic != null && GodotObject.IsInstanceValid(firstRelic))
-                ? firstRelic.GetPath()
-                : null;
+            if (_isTargeting)
+            {
+                foreach (var creature in combatRoom.CreatureNodes)
+                {
+                    if (creature?.Hitbox == null) continue;
+                    var hitbox = creature.Hitbox;
+                    hitbox.FocusNeighborTop = hitbox.GetPath();
+                    hitbox.FocusNeighborBottom = hitbox.GetPath();
+                }
+                return;
+            }
 
-            // Find first valid creature for hand→creature link
+            // -- Collect all rows --
+
+            // Relics row
+            var relicNodes = NRun.Instance?.GlobalUi?.RelicInventory?.RelicNodes;
+            NodePath? firstRelicPath = null;
+            if (relicNodes != null && relicNodes.Count > 0)
+            {
+                var first = relicNodes[0];
+                if (GodotObject.IsInstanceValid(first))
+                    firstRelicPath = first.GetPath();
+            }
+
+            // Orbs row — collect all orb Controls from the orb container
+            var orbNodes = new System.Collections.Generic.List<Control>();
+            NCreature? playerCreature = null;
+            foreach (var c in combatRoom.CreatureNodes)
+            {
+                if (c != null && c.Entity.IsPlayer && c.OrbManager != null)
+                {
+                    playerCreature = c;
+                    var defaultOwner = c.OrbManager.DefaultFocusOwner;
+                    // Only treat as orb row if DefaultFocusOwner isn't the hitbox
+                    if (defaultOwner != null && defaultOwner != c.Hitbox)
+                    {
+                        foreach (var child in c.OrbManager.GetChildren())
+                        {
+                            foreach (var orb in child.GetChildren())
+                            {
+                                if (orb is Control orbCtrl)
+                                    orbNodes.Add(orbCtrl);
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+            bool hasOrbs = orbNodes.Count > 0;
+            NodePath? firstOrbPath = hasOrbs ? orbNodes[0].GetPath() : null;
+
+            // Creatures row
             var firstCreature = combatRoom.CreatureNodes
                 .FirstOrDefault(c => c != null && c.Hitbox != null);
             NodePath? firstCreaturePath = firstCreature?.Hitbox?.GetPath();
 
-            foreach (var creature in combatRoom.CreatureNodes)
+            // Hand row
+            var hand = combatRoom.Ui?.Hand;
+            NodePath? firstHandPath = null;
+            if (hand != null)
             {
-                if (creature == null) continue;
-                var hitbox = creature.Hitbox;
-                if (hitbox == null) continue;
+                var firstHolder = hand.ActiveHolders.FirstOrDefault();
+                if (firstHolder != null)
+                    firstHandPath = firstHolder.GetPath();
+            }
 
-                if (_isTargeting)
-                {
-                    // During targeting, don't touch FocusMode — the game's
-                    // RestrictControllerNavigation already set it correctly
-                    // for targetable vs non-targetable creatures.
-                    // Just lock upward nav to self so you can't leave creature row.
-                    hitbox.FocusNeighborTop = hitbox.GetPath();
-                }
-                else
-                {
-                    // Outside targeting: ensure all creatures are focusable
-                    hitbox.FocusMode = Control.FocusModeEnum.All;
+            // -- Wire up each row: every item links to the row above and below --
 
-                    if (creature.Entity.IsPlayer && creature.OrbManager != null)
-                    {
-                        // Player: hitbox → orbs (game handles this), orbs → relics
-                        var orbFocus = creature.OrbManager.DefaultFocusOwner;
-                        if (orbFocus != null && relicPath != null)
-                            orbFocus.FocusNeighborTop = relicPath;
-                    }
-                    else if (relicPath != null)
-                    {
-                        // Non-player creatures: hitbox → relics
-                        hitbox.FocusNeighborTop = relicPath;
-                    }
+            // Relics: ↑ = (leave alone, game links to potions), ↓ = orbs or creatures
+            NodePath? relicDown = hasOrbs ? firstOrbPath : firstCreaturePath;
+            if (relicNodes != null && relicDown != null)
+            {
+                foreach (var relic in relicNodes)
+                {
+                    if (relic != null && GodotObject.IsInstanceValid(relic))
+                        relic.FocusNeighborBottom = relicDown;
                 }
             }
 
-            // Hand cards → first creature
-            if (!_isTargeting && firstCreaturePath != null)
+            // Orbs: ↑ = relics, ↓ = creatures
+            if (hasOrbs)
             {
-                var hand = combatRoom.Ui?.Hand;
-                if (hand != null)
+                foreach (var orb in orbNodes)
                 {
-                    foreach (var holder in hand.ActiveHolders)
-                    {
-                        if (holder != null)
-                            holder.FocusNeighborTop = firstCreaturePath;
-                    }
+                    if (firstRelicPath != null)
+                        orb.FocusNeighborTop = firstRelicPath;
+                    if (firstCreaturePath != null)
+                        orb.FocusNeighborBottom = firstCreaturePath;
+                }
+            }
+
+            // Creatures: ↑ = orbs or relics, ↓ = hand
+            NodePath? creatureUp = hasOrbs ? firstOrbPath : firstRelicPath;
+            foreach (var creature in combatRoom.CreatureNodes)
+            {
+                if (creature?.Hitbox == null) continue;
+                var hitbox = creature.Hitbox;
+                hitbox.FocusMode = Control.FocusModeEnum.All;
+                if (creatureUp != null)
+                    hitbox.FocusNeighborTop = creatureUp;
+                if (firstHandPath != null)
+                    hitbox.FocusNeighborBottom = firstHandPath;
+            }
+
+            // Hand: ↑ = creatures
+            if (hand != null && firstCreaturePath != null)
+            {
+                foreach (var holder in hand.ActiveHolders)
+                {
+                    if (holder != null)
+                        holder.FocusNeighborTop = firstCreaturePath;
                 }
             }
         }
