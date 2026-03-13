@@ -351,7 +351,8 @@ public class CombatScreen : Screen
             var orbNodes = new List<Control>();
             foreach (var c in combatRoom.CreatureNodes)
             {
-                if (c != null && c.Entity.IsPlayer && c.OrbManager != null)
+                if (c != null && c.Entity.IsPlayer && c.OrbManager != null
+                    && MegaCrit.Sts2.Core.Context.LocalContext.IsMe(c.Entity))
                 {
                     var defaultOwner = c.OrbManager.DefaultFocusOwner;
                     if (defaultOwner != null && defaultOwner != c.Hitbox)
