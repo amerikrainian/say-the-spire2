@@ -114,6 +114,7 @@ public class BufferManager
         Add(new UpgradeBuffer());
         Add(new CreatureBuffer());
         Add(new PlayerBuffer());
+        Add(new LobbyBuffer());
         Add(new Buffer("events"));
     }
 

@@ -42,7 +42,13 @@ public class ProxyCharacterButton : ProxyElement
 
         if (button.IsRandom) return null;
 
-        return $"{character.StartingHp} HP, {character.StartingGold} gold";
+        var status = $"{character.StartingHp} HP, {character.StartingGold} gold";
+
+        var remoteCount = button.RemoteSelectedPlayers.Count;
+        if (remoteCount > 0)
+            status += $", Selected by {remoteCount} other {(remoteCount == 1 ? "player" : "players")}";
+
+        return status;
     }
 
     public override string? GetTooltip()

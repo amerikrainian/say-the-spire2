@@ -4,9 +4,11 @@ using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.CardSelection;
 using MegaCrit.Sts2.Core.Entities.Cards;
+using MegaCrit.Sts2.Core.Entities.Multiplayer;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Multiplayer;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
@@ -119,6 +121,20 @@ public static class ScreenHooks
             nameof(CharacterSelectOpenedPostfix), "CharacterSelect OnSubmenuOpened");
         PatchIfFound(harmony, typeof(NCharacterSelectScreen), "OnSubmenuClosed",
             nameof(CharacterSelectClosedPostfix), "CharacterSelect OnSubmenuClosed");
+
+        // Multiplayer lobby hooks (IStartRunLobbyListener on NCharacterSelectScreen)
+        PatchIfFound(harmony, typeof(NCharacterSelectScreen), "PlayerConnected",
+            nameof(LobbyPlayerConnectedPostfix), "Lobby PlayerConnected");
+        PatchIfFound(harmony, typeof(NCharacterSelectScreen), "PlayerChanged",
+            nameof(LobbyPlayerChangedPostfix), "Lobby PlayerChanged");
+        PatchIfFound(harmony, typeof(NCharacterSelectScreen), "RemotePlayerDisconnected",
+            nameof(LobbyPlayerDisconnectedPostfix), "Lobby RemotePlayerDisconnected");
+        PatchIfFound(harmony, typeof(NCharacterSelectScreen), "LocalPlayerDisconnected",
+            nameof(LobbyLocalDisconnectedPostfix), "Lobby LocalPlayerDisconnected");
+        PatchIfFound(harmony, typeof(NCharacterSelectScreen), "OnEmbarkPressed",
+            nameof(LobbyEmbarkPostfix), "Lobby OnEmbarkPressed");
+        PatchIfFound(harmony, typeof(NCharacterSelectScreen), "OnUnreadyPressed",
+            nameof(LobbyUnreadyPostfix), "Lobby OnUnreadyPressed");
 
         // Map screen hooks
         PatchIfFound(harmony, typeof(NMapScreen), "Open",
@@ -348,6 +364,37 @@ public static class ScreenHooks
     {
         if (CharacterSelectGameScreen.Current != null)
             ScreenManager.RemoveScreen(CharacterSelectGameScreen.Current);
+    }
+
+    // Multiplayer lobby delegates
+    public static void LobbyPlayerConnectedPostfix(NCharacterSelectScreen __instance, LobbyPlayer player)
+    {
+        CharacterSelectGameScreen.Current?.OnLobbyPlayerConnected(__instance, player);
+    }
+
+    public static void LobbyPlayerChangedPostfix(NCharacterSelectScreen __instance, LobbyPlayer player)
+    {
+        CharacterSelectGameScreen.Current?.OnLobbyPlayerChanged(__instance, player);
+    }
+
+    public static void LobbyPlayerDisconnectedPostfix(NCharacterSelectScreen __instance, LobbyPlayer player)
+    {
+        CharacterSelectGameScreen.Current?.OnLobbyPlayerDisconnected(__instance, player);
+    }
+
+    public static void LobbyLocalDisconnectedPostfix(NCharacterSelectScreen __instance, NetErrorInfo info)
+    {
+        CharacterSelectGameScreen.Current?.OnLobbyLocalDisconnected(__instance, info);
+    }
+
+    public static void LobbyEmbarkPostfix(NCharacterSelectScreen __instance)
+    {
+        CharacterSelectGameScreen.Current?.OnLobbyStateChanged();
+    }
+
+    public static void LobbyUnreadyPostfix(NCharacterSelectScreen __instance)
+    {
+        CharacterSelectGameScreen.Current?.OnLobbyStateChanged();
     }
 
     // Rest site delegates

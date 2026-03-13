@@ -36,5 +36,10 @@ public abstract class GameScreen : Screen
         _registry.Clear();
     }
 
+    protected IEnumerable<KeyValuePair<Control, UIElement>> GetRegisteredControls()
+    {
+        return _registry;
+    }
+
     protected abstract void BuildRegistry();
 }
