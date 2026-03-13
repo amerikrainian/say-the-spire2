@@ -185,6 +185,7 @@ public class CreatePck : Task
   <!-- Debug: deploy to local game directory for testing -->
   <Target Name="DeployMod" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
     <CreatePck Files="@(PckFile)" OutputPath="$(ModsDir)\$(ModName).pck" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\$(ModName).json" DestinationFolder="$(ModsDir)" />
     <Copy SourceFiles="$(OutputPath)$(ModName).dll" DestinationFolder="$(ModsDir)" />
     <Copy SourceFiles="$(OutputPath)System.Speech.dll" DestinationFolder="$(ModsDir)" Condition="Exists('$(OutputPath)System.Speech.dll')" />
     <Copy SourceFiles="$(TolkBuildDir)\TolkDotNet.dll" DestinationFolder="$(ModsDir)" Condition="Exists('$(TolkBuildDir)\TolkDotNet.dll')" />
@@ -254,6 +255,7 @@ public class CreateReleaseZip : Task
   <Target Name="CreateRelease" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
     <CreatePck Files="@(PckFile)" OutputPath="$(OutputPath)$(ModName).pck" />
     <ItemGroup>
+      <ReleaseFile Include="$(MSBuildProjectDirectory)\$(ModName).json" ArcName="mods/$(ModName).json" />
       <ReleaseFile Include="$(OutputPath)$(ModName).dll" ArcName="mods/$(ModName).dll" />
       <ReleaseFile Include="$(OutputPath)$(ModName).pck" ArcName="mods/$(ModName).pck" />
       <ReleaseFile Include="$(OutputPath)System.Speech.dll" ArcName="mods/System.Speech.dll" />

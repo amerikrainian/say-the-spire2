@@ -6,6 +6,7 @@ pub const GITHUB_API_URL: &str =
 pub const GAME_DIR_NAME: &str = "Slay the Spire 2";
 
 pub const MOD_FILES: &[&str] = &[
+    "mods/SayTheSpire2.json",
     "mods/SayTheSpire2.dll",
     "mods/SayTheSpire2.pck",
     "mods/System.Speech.dll",
@@ -71,11 +72,12 @@ mod tests {
 
     #[test]
     fn mod_files_contains_expected_entries() {
+        assert!(MOD_FILES.contains(&"mods/SayTheSpire2.json"));
         assert!(MOD_FILES.contains(&"mods/SayTheSpire2.dll"));
         assert!(MOD_FILES.contains(&"mods/SayTheSpire2.pck"));
         assert!(MOD_FILES.contains(&"mods/System.Speech.dll"));
         assert!(MOD_FILES.contains(&"mods/TolkDotNet.dll"));
-        assert_eq!(MOD_FILES.len(), 4);
+        assert_eq!(MOD_FILES.len(), 5);
     }
 
     #[test]
