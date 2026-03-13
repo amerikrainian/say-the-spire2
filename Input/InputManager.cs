@@ -16,6 +16,7 @@ public static class InputManager
     public static IReadOnlyList<InputAction> Actions => _actions;
     private static readonly HashSet<InputAction> _activeActions = new();
     private static readonly HashSet<ControllerInput> _heldControllerInputs = new();
+    private static readonly Dictionary<string, List<InputBinding>> _defaultBindings = new();
 
     private static readonly HashSet<Key> _modifierKeys = new()
     {
@@ -67,7 +68,24 @@ public static class InputManager
         RegisterCustomInputMapActions();
         RegisterGameActions();
         RegisterModActions();
+        // Snapshot default bindings so we can reset later
+        foreach (var action in _actions)
+            _defaultBindings[action.Key] = new List<InputBinding>(action.Bindings);
         Log.Info($"[AccessibilityMod] InputManager initialized with {_actions.Count} actions.");
+    }
+
+    public static void ResetToDefaults()
+    {
+        foreach (var action in _actions)
+        {
+            if (!_defaultBindings.TryGetValue(action.Key, out var defaults))
+                continue;
+            action.ClearBindings();
+            foreach (var binding in defaults)
+                action.AddBinding(binding);
+        }
+        Settings.ModSettings.MarkDirty();
+        Log.Info("[AccessibilityMod] Mod keybindings reset to defaults.");
     }
 
     /// <summary>
@@ -136,7 +154,7 @@ public static class InputManager
             .AddBinding(ControllerInput.LeftShoulder));
         _actions.Add(new InputAction("mega_view_exhaust_pile_and_tab_right", "View Exhaust / Tab Right", gameAction: "mega_view_exhaust_pile_and_tab_right")
             .AddBinding(Key.F)
-            .AddBinding(ControllerInput.RightShoulder, modifier: ControllerInput.RightTrigger));
+            .AddBinding(ControllerInput.RightShoulder));
         _actions.Add(new InputAction("mega_view_map", "View Map", gameAction: "mega_view_map")
             .AddBinding(Key.M)
             .AddBinding(ControllerInput.Back));

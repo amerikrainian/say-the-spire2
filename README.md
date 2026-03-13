@@ -80,7 +80,7 @@ The mod supports both keyboard and controller. Here are the default bindings:
 | View Draw Pile | A | LT+LB |
 | View Discard Pile | S | RT+RB |
 | View Deck / Tab Left | D | LB |
-| View Exhaust / Tab Right | F | RT+RB |
+| View Exhaust / Tab Right | F | RB |
 | View Map | M | Back |
 | Pause | Escape | Start |
 | Top Panel | T | X |

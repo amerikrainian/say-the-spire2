@@ -1,5 +1,4 @@
 using MegaCrit.Sts2.Core.Logging;
-using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Input;
 using SayTheSpire2.Settings;
@@ -35,8 +34,9 @@ public class DefaultScreen : Screen
                 BufferControls.PreviousBuffer();
                 return true;
             case "reset_bindings":
-                Log.Info("[AccessibilityMod] Global hotkey: Ctrl+Shift+R - resetting bindings");
-                NInputManager.Instance?.ResetToDefaults();
+                Log.Info("[AccessibilityMod] Global hotkey: Ctrl+Shift+R - resetting mod bindings");
+                InputManager.ResetToDefaults();
+                Speech.SpeechManager.Output("Mod keybindings reset to defaults.");
                 return true;
             case "mod_settings":
                 OpenModSettings();
