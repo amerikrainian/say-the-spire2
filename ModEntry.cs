@@ -87,19 +87,19 @@ public static class ModEntry
         try
         {
             if (_accessibilityPath == null || !File.Exists(_accessibilityPath))
-                return false;
+                return true;
 
             var json = File.ReadAllText(_accessibilityPath);
             var doc = System.Text.Json.JsonSerializer.Deserialize<
                 System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>>(json);
-            if (doc != null && doc.TryGetValue("enabled", out var val) && val.ValueKind == System.Text.Json.JsonValueKind.True)
-                return true;
+            if (doc != null && doc.TryGetValue("enabled", out var val) && val.ValueKind == System.Text.Json.JsonValueKind.False)
+                return false;
         }
         catch (Exception e)
         {
             Log.Error($"[AccessibilityMod] Failed to read accessibility.json: {e.Message}");
         }
-        return false;
+        return true;
     }
 
     public static void SetAccessibilityEnabled(bool enabled)
