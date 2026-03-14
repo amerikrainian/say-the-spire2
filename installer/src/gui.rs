@@ -498,50 +498,28 @@ pub fn run() {
 fn show_options_dialog(parent: &impl WxWidget) -> Option<install::InstallationConfig> {
     let config = install::read_installation_config();
 
-    let dialog = Dialog::builder(parent, "Installation Options")
-        .with_size(350, 200)
-        .build();
+    let screen_reader = MessageDialog::builder(
+        parent,
+        "Enable screen reader support?\n\nThis enables text-to-speech announcements and keyboard navigation for blind players.\n\nNote: If you are sighted and playing with blind players, select No.",
+        "Screen Reader Support",
+    )
+    .with_style(MessageDialogStyle::YesNo | MessageDialogStyle::IconQuestion)
+    .build()
+    .show_modal() == ID_YES;
 
-    let sizer = BoxSizer::builder(Orientation::Vertical).build();
+    let disable_uia = MessageDialog::builder(
+        parent,
+        "Disable Godot's built-in UIA accessibility?\n\nRecommended: Yes. Godot's built-in accessibility conflicts with the mod's screen reader. Only say No if you use other accessibility tools that rely on UIA.\n\nNote: If you are sighted, select No.",
+        "Disable Godot UIA",
+    )
+    .with_style(MessageDialogStyle::YesNo | MessageDialogStyle::IconQuestion)
+    .build()
+    .show_modal() == ID_YES;
 
-    let screen_reader_cb = CheckBox::builder(&dialog)
-        .with_label("Screen reader support")
-        .with_value(config.screen_reader)
-        .build();
-
-    let disable_uia_cb = CheckBox::builder(&dialog)
-        .with_label("Disable Godot UIA")
-        .with_value(config.disable_godot_uia)
-        .build();
-
-    let btn_sizer = BoxSizer::builder(Orientation::Horizontal).build();
-    let ok_btn = Button::builder(&dialog)
-        .with_label("OK")
-        .with_id(ID_OK)
-        .build();
-    let cancel_btn = Button::builder(&dialog)
-        .with_label("Cancel")
-        .with_id(ID_CANCEL)
-        .build();
-    btn_sizer.add_stretch_spacer(1);
-    btn_sizer.add(&ok_btn, 0, SizerFlag::All, 4);
-    btn_sizer.add(&cancel_btn, 0, SizerFlag::All, 4);
-
-    sizer.add(&screen_reader_cb, 0, SizerFlag::Expand | SizerFlag::All, 8);
-    sizer.add(&disable_uia_cb, 0, SizerFlag::Expand | SizerFlag::All, 8);
-    sizer.add_stretch_spacer(1);
-    sizer.add_sizer(&btn_sizer, 0, SizerFlag::Expand | SizerFlag::All, 4);
-
-    dialog.set_sizer(sizer, true);
-
-    if dialog.show_modal() == ID_OK {
-        Some(install::InstallationConfig {
-            screen_reader: screen_reader_cb.is_checked(),
-            disable_godot_uia: disable_uia_cb.is_checked(),
-        })
-    } else {
-        None
-    }
+    Some(install::InstallationConfig {
+        screen_reader,
+        disable_godot_uia: disable_uia,
+    })
 }
 
 fn apply_game_path(
