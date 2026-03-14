@@ -74,21 +74,21 @@ public class RunScreen : Screen
     {
         var name = card.Title;
         if (!string.IsNullOrEmpty(name))
-            EventDispatcher.Enqueue(new CardObtainedEvent(name));
+            EventDispatcher.Enqueue(new CardObtainedEvent(name, _subscribedPlayer?.Creature));
     }
 
     private void OnRelicObtained(RelicModel relic)
     {
         var name = relic.Title.GetFormattedText();
         if (!string.IsNullOrEmpty(name))
-            EventDispatcher.Enqueue(new RelicObtainedEvent(name));
+            EventDispatcher.Enqueue(new RelicObtainedEvent(name, _subscribedPlayer?.Creature));
     }
 
     private void OnPotionObtained(PotionModel potion)
     {
         var name = potion.Title.GetFormattedText();
         if (!string.IsNullOrEmpty(name))
-            EventDispatcher.Enqueue(new PotionObtainedEvent(name));
+            EventDispatcher.Enqueue(new PotionObtainedEvent(name, _subscribedPlayer?.Creature));
     }
 
     public override bool OnActionJustPressed(InputAction action)

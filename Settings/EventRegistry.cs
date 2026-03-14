@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using MegaCrit.Sts2.Core.Context;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using SayTheSpire2.Events;
 
 namespace SayTheSpire2.Settings;
@@ -26,6 +28,19 @@ public static class EventRegistry
             cat.Add(new BoolSetting("announce", "Announce", attr.DefaultAnnounce));
         if (cat.GetByKey("buffer") == null)
             cat.Add(new BoolSetting("buffer", "Add to buffer", attr.DefaultBuffer));
+
+        // Source filter subcategory (for events that apply to a creature)
+        if (attr.HasSourceFilter && cat.GetByKey("sources") == null)
+        {
+            var sources = new CategorySetting("sources", "Sources");
+            if (attr.AllowCurrentPlayer)
+                sources.Add(new BoolSetting("current_player", "Current Player", true));
+            if (attr.AllowOtherPlayers)
+                sources.Add(new BoolSetting("other_players", "Other Players", true));
+            if (attr.AllowEnemies)
+                sources.Add(new BoolSetting("enemies", "Enemies", true));
+            cat.Add(sources);
+        }
     }
 
     public static bool ShouldAnnounce(string eventKey)
@@ -36,6 +51,31 @@ public static class EventRegistry
     public static bool ShouldBuffer(string eventKey)
     {
         return ModSettings.GetValue<bool>($"events.{eventKey}.buffer");
+    }
+
+    /// <summary>
+    /// Check if the event should be processed based on its source creature
+    /// and the user's source filter settings. Returns true if:
+    /// - The event has no source (no creature to filter on)
+    /// - The event type doesn't have source filtering enabled
+    /// - The source creature's category (current player / other player / enemy) is enabled
+    /// </summary>
+    public static bool PassesSourceFilter(string eventKey, Creature? source)
+    {
+        if (source == null) return true;
+        if (!_descriptors.TryGetValue(eventKey, out var attr) || !attr.HasSourceFilter) return true;
+
+        var basePath = $"events.{eventKey}.sources";
+
+        if (source.IsPlayer)
+        {
+            bool isMe = LocalContext.IsMe(source);
+            if (isMe)
+                return attr.AllowCurrentPlayer && ModSettings.GetValue<bool>($"{basePath}.current_player");
+            return attr.AllowOtherPlayers && ModSettings.GetValue<bool>($"{basePath}.other_players");
+        }
+
+        return attr.AllowEnemies && ModSettings.GetValue<bool>($"{basePath}.enemies");
     }
 
     public static void RegisterDefaults()

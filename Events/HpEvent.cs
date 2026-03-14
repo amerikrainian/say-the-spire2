@@ -3,7 +3,7 @@ using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.Events;
 
-[EventSettings("hp", "HP Changes")]
+[EventSettings("hp", "HP Changes", hasSourceFilter: true)]
 public class HpEvent : GameEvent
 {
     private readonly string _creatureName;
@@ -12,6 +12,7 @@ public class HpEvent : GameEvent
 
     public HpEvent(Creature creature, int oldHp, int newHp)
     {
+        Source = creature;
         _creatureName = creature.Name;
         _oldHp = oldHp;
         _newHp = newHp;

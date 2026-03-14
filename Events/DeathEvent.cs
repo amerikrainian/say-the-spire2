@@ -3,13 +3,14 @@ using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.Events;
 
-[EventSettings("death", "Death")]
+[EventSettings("death", "Death", hasSourceFilter: true)]
 public class DeathEvent : GameEvent
 {
     private readonly string _creatureName;
 
     public DeathEvent(Creature creature)
     {
+        Source = creature;
         _creatureName = creature.Name;
     }
 

@@ -1,15 +1,17 @@
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.Events;
 
-[EventSettings("gold", "Gold")]
+[EventSettings("gold", "Gold", hasSourceFilter: true, allowOtherPlayers: false, allowEnemies: false)]
 public class GoldEvent : GameEvent
 {
     private readonly int _oldGold;
     private readonly int _newGold;
 
-    public GoldEvent(int oldGold, int newGold)
+    public GoldEvent(int oldGold, int newGold, Creature? source = null)
     {
+        Source = source;
         _oldGold = oldGold;
         _newGold = newGold;
     }

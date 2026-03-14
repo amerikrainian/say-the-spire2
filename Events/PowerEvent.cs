@@ -6,7 +6,7 @@ namespace SayTheSpire2.Events;
 
 public enum PowerEventType { Applied, Increased, Decreased, Removed }
 
-[EventSettings("power", "Powers")]
+[EventSettings("power", "Powers", hasSourceFilter: true)]
 public class PowerEvent : GameEvent
 {
     private readonly string _creatureName;
@@ -16,6 +16,7 @@ public class PowerEvent : GameEvent
 
     public PowerEvent(Creature creature, PowerModel power, PowerEventType eventType, int amount = 0)
     {
+        Source = creature;
         _creatureName = creature.Name;
         _powerName = power.Title.GetFormattedText();
         _amount = amount;

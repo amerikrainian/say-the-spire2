@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Context;
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Events;
 using MegaCrit.Sts2.Core.Localization;
@@ -60,7 +61,7 @@ public static class VotingHooks
             var playerName = GetPlayerName(player);
             var point = ResolveMapPoint(__instance, newLocation.Value.coord);
             var nodeName = GetMapPointName(point);
-            EventDispatcher.Enqueue(new MapVoteEvent($"{playerName} voted for {nodeName}"));
+            EventDispatcher.Enqueue(new MapVoteEvent($"{playerName} voted for {nodeName}", player.Creature));
         }
         catch (Exception e)
         {
@@ -75,7 +76,10 @@ public static class VotingHooks
             if (!IsMultiplayer()) return;
 
             var nodeName = GetMapPointName(point);
-            EventDispatcher.Enqueue(new MapVoteEvent($"Voted for {nodeName}"));
+            // Local player's creature as source
+            Creature? localCreature = null;
+            try { localCreature = LocalContext.GetMe(RunManager.Instance.DebugOnlyGetState())?.Creature; } catch { }
+            EventDispatcher.Enqueue(new MapVoteEvent($"Voted for {nodeName}", localCreature));
         }
         catch (Exception e)
         {
@@ -123,7 +127,7 @@ public static class VotingHooks
 
             var playerName = GetPlayerName(player);
             var title = optionTitle ?? $"option {voteIndex.Value + 1}";
-            EventDispatcher.Enqueue(new EventVoteEvent($"{playerName} voted for {title}"));
+            EventDispatcher.Enqueue(new EventVoteEvent($"{playerName} voted for {title}", player.Creature));
         }
         catch (Exception e)
         {

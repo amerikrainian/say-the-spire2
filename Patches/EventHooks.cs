@@ -3,6 +3,7 @@ using System.Reflection;
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Commands;
+using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Hooks;
@@ -285,7 +286,7 @@ public static class EventHooks
             if (gained > 0)
             {
                 int newGold = player.Gold;
-                EventDispatcher.Enqueue(new GoldEvent(newGold - gained, newGold));
+                EventDispatcher.Enqueue(new GoldEvent(newGold - gained, newGold, player.Creature));
             }
         }
         catch (System.Exception e)
@@ -302,7 +303,7 @@ public static class EventHooks
             if (lost > 0)
             {
                 int newGold = player.Gold;
-                EventDispatcher.Enqueue(new GoldEvent(newGold + lost, newGold));
+                EventDispatcher.Enqueue(new GoldEvent(newGold + lost, newGold, player.Creature));
             }
         }
         catch (System.Exception e)

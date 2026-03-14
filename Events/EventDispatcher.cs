@@ -55,6 +55,10 @@ public static class EventDispatcher
             var attr = (EventSettingsAttribute?)Attribute.GetCustomAttribute(
                 evt.GetType(), typeof(EventSettingsAttribute));
 
+            // Check source filter first — if the creature source is filtered out, skip entirely
+            if (attr != null && !EventRegistry.PassesSourceFilter(attr.Key, evt.Source))
+                continue;
+
             bool announce = attr != null ? EventRegistry.ShouldAnnounce(attr.Key) && evt.ShouldAnnounce() : evt.ShouldAnnounce();
             bool buffer = attr != null ? EventRegistry.ShouldBuffer(attr.Key) && evt.ShouldAddToBuffer() : evt.ShouldAddToBuffer();
 

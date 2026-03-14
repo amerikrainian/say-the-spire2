@@ -1,3 +1,4 @@
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.Events;
@@ -12,14 +13,15 @@ public enum CardPileEventType
     DeckShuffled,
 }
 
-[EventSettings("card_pile", "Card Pile")]
+[EventSettings("card_pile", "Card Pile", hasSourceFilter: true, allowOtherPlayers: false, allowEnemies: false)]
 public class CardPileEvent : GameEvent
 {
     private readonly CardPileEventType _type;
     private readonly string? _cardName;
 
-    public CardPileEvent(CardPileEventType type, string? cardName = null)
+    public CardPileEvent(CardPileEventType type, string? cardName = null, Creature? source = null)
     {
+        Source = source;
         _type = type;
         _cardName = cardName;
     }

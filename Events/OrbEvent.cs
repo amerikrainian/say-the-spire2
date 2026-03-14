@@ -1,3 +1,4 @@
+using MegaCrit.Sts2.Core.Entities.Creatures;
 using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.Events;
@@ -8,14 +9,15 @@ public enum OrbEventType
     Evoked,
 }
 
-[EventSettings("orb", "Orbs")]
+[EventSettings("orb", "Orbs", hasSourceFilter: true, allowOtherPlayers: false, allowEnemies: false)]
 public class OrbEvent : GameEvent
 {
     private readonly OrbEventType _type;
     private readonly string _orbName;
 
-    public OrbEvent(OrbEventType type, string orbName)
+    public OrbEvent(OrbEventType type, string orbName, Creature? source = null)
     {
+        Source = source;
         _type = type;
         _orbName = orbName;
     }

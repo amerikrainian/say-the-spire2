@@ -3,7 +3,7 @@ using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.Events;
 
-[EventSettings("block", "Block")]
+[EventSettings("block", "Block", hasSourceFilter: true)]
 public class BlockEvent : GameEvent
 {
     private readonly string _creatureName;
@@ -12,6 +12,7 @@ public class BlockEvent : GameEvent
 
     public BlockEvent(Creature creature, int oldBlock, int newBlock)
     {
+        Source = creature;
         _creatureName = creature.Name;
         _oldBlock = oldBlock;
         _newBlock = newBlock;
