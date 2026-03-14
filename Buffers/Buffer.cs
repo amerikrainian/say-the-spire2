@@ -21,6 +21,11 @@ public class Buffer
     }
     public int Position { get; private set; }
 
+    /// <summary>
+    /// When true, switching to this buffer automatically moves to the latest (last) item.
+    /// </summary>
+    public bool FollowLatest { get; set; }
+
     public Buffer(string key)
     {
         Key = key;

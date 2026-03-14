@@ -59,6 +59,8 @@ public class BufferManager
             if (_buffers[i].Key == key)
             {
                 _buffers[i].Update();
+                if (_buffers[i].FollowLatest && _buffers[i].Count > 0)
+                    _buffers[i].MoveToPosition(_buffers[i].Count - 1);
                 _position = i;
                 return;
             }
@@ -97,6 +99,8 @@ public class BufferManager
             {
                 _position = i;
                 _buffers[i].Update();
+                if (_buffers[i].FollowLatest && _buffers[i].Count > 0)
+                    _buffers[i].MoveToPosition(_buffers[i].Count - 1);
                 return true;
             }
         } while (i != start);
@@ -115,7 +119,7 @@ public class BufferManager
         Add(new CreatureBuffer());
         Add(new PlayerBuffer());
         Add(new LobbyBuffer());
-        Add(new Buffer("events"));
+        Add(new Buffer("events") { FollowLatest = true });
     }
 
     public bool MoveToPrevious()
@@ -132,6 +136,8 @@ public class BufferManager
             {
                 _position = i;
                 _buffers[i].Update();
+                if (_buffers[i].FollowLatest && _buffers[i].Count > 0)
+                    _buffers[i].MoveToPosition(_buffers[i].Count - 1);
                 return true;
             }
         } while (i != start);
