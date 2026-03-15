@@ -610,7 +610,7 @@ fn update_state(
             install_btn.set_label("Install");
             install_btn.enable(true);
             status.set_label(&format!("Ready to install version {}.", latest));
-        } else if installed_version.as_deref() == Some(latest) {
+        } else if is_up_to_date(installed_version.as_deref(), latest) {
             install_btn.set_label("Install");
             install_btn.enable(false);
             status.set_label(&format!("SayTheSpire2 is up to date (version {}).", latest));
@@ -655,6 +655,20 @@ fn enable_mods_with_retry(parent: &impl WxWidget, log: &TextCtrl) {
                 }
             }
         }
+    }
+}
+
+fn parse_version(s: &str) -> Option<semver::Version> {
+    let trimmed = s.strip_prefix('v').unwrap_or(s);
+    semver::Version::parse(trimmed).ok()
+}
+
+/// Returns true if the installed version is >= the latest version.
+fn is_up_to_date(installed: Option<&str>, latest: &str) -> bool {
+    let Some(installed) = installed else { return false };
+    match (parse_version(installed), parse_version(latest)) {
+        (Some(inst), Some(lat)) => inst >= lat,
+        _ => installed == latest, // fallback to string comparison
     }
 }
 
