@@ -64,7 +64,8 @@ public class PlayerBuffer : Buffer
     {
         var title = power.Title.GetFormattedText();
         var amount = power.Amount;
-        var line = amount != 0 ? $"{title} {amount}" : title;
+        var hasStacks = power.StackType == MegaCrit.Sts2.Core.Entities.Powers.PowerStackType.Counter;
+        var line = hasStacks && amount > 0 ? $"{title} {amount}" : title;
         try
         {
             bool first = true;
@@ -89,6 +90,17 @@ public class PlayerBuffer : Buffer
                             : desc;
                         buffer.Add(extraLine);
                     }
+                }
+                else if (tip is CardHoverTip cardTip)
+                {
+                    if (first)
+                    {
+                        buffer.Add(line);
+                        first = false;
+                    }
+                    var cardName = cardTip.Card?.Title;
+                    if (!string.IsNullOrEmpty(cardName))
+                        buffer.Add($"Stolen card: {cardName}");
                 }
             }
             if (first)

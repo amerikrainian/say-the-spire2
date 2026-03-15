@@ -22,7 +22,6 @@ public class BlockEvent : GameEvent
     {
         category.Add(new BoolSetting("announce_gained", "Announce Block Gained", true));
         category.Add(new BoolSetting("announce_lost", "Announce Block Lost", true));
-        category.Add(new BoolSetting("announce_all_lost", "Announce All Block Lost", true));
         category.Add(new BoolSetting("verbose_totals", "Include Block Totals", true));
     }
 
@@ -34,7 +33,7 @@ public class BlockEvent : GameEvent
             return verbose
                 ? $"{_creatureName} gained {delta} Block ({_newBlock} total)"
                 : $"{_creatureName} gained {delta} Block";
-        if (delta < 0 && _newBlock == 0 && ModSettings.GetValue<bool>("events.block.announce_all_lost"))
+        if (delta < 0 && _newBlock == 0)
             return $"{_creatureName} lost all Block";
         if (delta < 0)
             return verbose
@@ -48,9 +47,6 @@ public class BlockEvent : GameEvent
         int delta = _newBlock - _oldBlock;
         if (delta > 0)
             return ModSettings.GetValue<bool>("events.block.announce_gained");
-        if (delta < 0 && _newBlock == 0)
-            return ModSettings.GetValue<bool>("events.block.announce_all_lost")
-                || ModSettings.GetValue<bool>("events.block.announce_lost");
         if (delta < 0)
             return ModSettings.GetValue<bool>("events.block.announce_lost");
         return true;

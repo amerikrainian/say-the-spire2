@@ -659,8 +659,10 @@ public class CombatScreen : Screen
 
         public void OnPowerDecreased(PowerModel power, bool silent)
         {
-            Log.Info($"[EventDebug] CreatureHandler.PowerDecreased: {_creature.Name} {power.Title.GetFormattedText()} silent={silent} handler={GetHashCode()}");
-            if (!silent) EventDispatcher.Enqueue(new PowerEvent(_creature, power, PowerEventType.Decreased));
+            Log.Info($"[EventDebug] CreatureHandler.PowerDecreased: {_creature.Name} {power.Title.GetFormattedText()} amount={power.Amount} silent={silent} handler={GetHashCode()}");
+            // Skip if amount hit 0 — the PowerRemoved event will fire next and handle it
+            if (!silent && power.Amount > 0)
+                EventDispatcher.Enqueue(new PowerEvent(_creature, power, PowerEventType.Decreased));
         }
 
         public void OnPowerRemoved(PowerModel power)
