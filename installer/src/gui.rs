@@ -266,13 +266,7 @@ pub fn run() {
                         } else if let Err(e) = install::ensure_installation_config() {
                             log_append(&log_c, &format!("Warning: {}", e));
                         }
-                        match settings::enable_mods_in_settings() {
-                            Ok(msg) => log_append(&log_c, &msg),
-                            Err(e) => {
-                                log_append(&log_c, &e);
-                                log_append(&log_c, "You may need to enable mods manually.");
-                            }
-                        }
+                        enable_mods_with_retry(&frame_c, &log_c);
                         log_append(
                             &log_c,
                             &format!("Successfully installed version {}.", version),
@@ -348,10 +342,7 @@ pub fn run() {
                         } else if let Err(e) = install::ensure_installation_config() {
                             log_append(&log_c, &format!("Warning: {}", e));
                         }
-                        match settings::enable_mods_in_settings() {
-                            Ok(msg) => log_append(&log_c, &msg),
-                            Err(e) => log_append(&log_c, &e),
-                        }
+                        enable_mods_with_retry(&frame_c, &log_c);
                         log_append(
                             &log_c,
                             &format!(
@@ -631,6 +622,38 @@ fn update_state(
                 installed_version.as_deref().unwrap_or("unknown"),
                 latest
             ));
+        }
+    }
+}
+
+fn enable_mods_with_retry(parent: &impl WxWidget, log: &TextCtrl) {
+    loop {
+        match settings::enable_mods_in_settings() {
+            Ok(msg) => {
+                log_append(log, &msg);
+                return;
+            }
+            Err(e) => {
+                let retry = MessageDialog::builder(
+                    parent,
+                    &format!(
+                        "Could not enable mods: {}\n\n\
+                        Please launch Slay the Spire 2 once to generate your settings file, \
+                        then close it and select Yes to retry.\n\n\
+                        Select No to skip this step.",
+                        e
+                    ),
+                    "Settings File Not Found",
+                )
+                .with_style(MessageDialogStyle::YesNo | MessageDialogStyle::IconWarning)
+                .build()
+                .show_modal();
+
+                if retry != ID_YES {
+                    log_append(log, "Skipped enabling mods. You may need to enable mods manually in the game settings.");
+                    return;
+                }
+            }
         }
     }
 }

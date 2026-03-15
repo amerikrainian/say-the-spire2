@@ -1,41 +1,25 @@
 ## V0.1.5
-
-### Multiplayer
+* The installer has received significant updates. You can now choose which version of the mod to install (including test releases.) You can also choose to disable screenreader support in the installer itself; this is for sighted players so they can play with you in multiplayer (everyone must have the same mods installed.)
+* Fixed controller bindings: View Exhaust / Tab Right now defaults to just RB (was RT+RB, conflicting with View Discard Pile). Note that if you were using an earlier version of the mod, you must update this binding yourself or reset bindings to defaults.
+* The card buffer now condenses name, type, and rarity onto the first line (e.g. "Strike, Attack, Basic"). Feedback would be appreciated for this one.
 * Added multiplayer lobby accessibility: character select buttons, player list buffer (shows connected players with character and ready status), join/leave/character change announcements, and ready state announcements.
 * Added multiplayer voting announcements for map path voting and shared event voting. Announces who voted for what and the final result.
 * Added act ready-up announcements ("Waiting for other players", "All players ready") and network timeout warnings.
-* Added event source filtering system: events with creature sources now have per-source-type toggles (Current Player, Other Players, Enemies) under a Sources subcategory in settings. Events from sources the game doesn't provide visual feedback for are silently dropped in multiplayer.
-* Shared events now announced with "Shared event." prefix.
-* Fixed Defect orbs not found in multiplayer (was checking the wrong player's orb manager).
-
-### Installer
-* Replaced accessibility.json with installation.json. The installer now shows an options dialog on first install with "Screen reader support" and "Disable Godot UIA" prompts. A Modify button allows changing these later.
-* Install button now shows a version picker listing all releases including pre-releases.
-* Installer window resized to 650x500 for more space.
-
-### Combat & Events
-* Removed end-of-turn focus suppression that was blocking card popups and other UI.
+* Added event source filtering: events with creature sources now have per-source-type toggles (Current Player, Other Players, Enemies) under a Sources subcategory in settings. If you don't want to hear other players losing block for example, you can turn that off. Events from sources the game doesn't provide visual feedback for are silently dropped in multiplayer (matches game behavior; you don't see when another player draws a card for example.)
+* Multiplayer shared events now announced with "Shared event." prefix (some events are per user, others require a vote.)
+* Fixed Defect orbs not being focusable in multiplayer (was sometimes checking the wrong player's orbs).
+* Fixed various incorrect readouts in multiplayer (such as you losing gold when it was, in fact, another player losing gold.)
+* Removed end-of-turn focus suppression that was blocking card popups and other UI. You may still hear the occasional erronious control read out at end of turn as a result, but it is better than the alternative for now.
 * Fixed power events: decreasing a power to 0 no longer double-announces (only "lost PowerName" is announced, not both decreased and removed).
-* Non-stacking powers no longer show misleading -1 stack count in announcements and buffers.
+* Non-stacking powers (permanent duration, such as Shrink) no longer show misleading -1 stack count in announcements and buffers.
 * Stolen cards (Swipe power) now show in the creature buffer as "Stolen card: CardName".
 * Removed the redundant "Announce All Block Lost" setting; "lost all Block" is now always announced when block hits 0.
-
-### UI & Navigation
-* Added FollowLatest buffer property: switching to the events buffer now jumps to the most recent item.
-* Fixed hand card selection screen (e.g. Well Laid Plans retain) to include the selected cards row. You can now arrow down to see selected cards and back up to the hand.
-* Fixed grid position announcements to use (x, y) cartesian order instead of (row, col).
+* switching to the events buffer now jumps to the most recent item.
+* Fixed hand card selection screen (e.g. Well Laid Plans retain) to include the selected cards row. You can now arrow down to see selected cards and back up to the hand. Note that these directions are swapped in game too compared to Slay the Spire 1; this isn't a mod bug.
+* Fixed grid position announcements to use (x, y) order instead of (y, x). This should also fix inconsistencies with the Crystal Sphere divination event.
 * Refactored the focus system to a centralized update loop, fixing issues where container context wasn't announced when backing out of settings subcategories or when controls moved between containers.
-
-### Bindings & Settings
-* Fixed controller bindings: View Exhaust / Tab Right now defaults to bare RB (was RT+RB, conflicting with View Discard Pile).
 * Fixed Ctrl+Shift+R (Reset Bindings) to reset the mod's own keybindings instead of the game's.
-* Added accessibility toggle hotkey (Ctrl+Shift+A) that works even when the mod is inert. Bootstraps speech to announce the toggle.
-* Accessibility now defaults to on (was briefly defaulting to off for multiplayer, no longer needed since affects_gameplay: false handles it).
-
-### Other
-* Card buffer now condenses name, type, and rarity onto the first line (e.g. "Strike, Attack, Basic"). Feedback appreciated.
 * Fixed card and relic buffers not listing rarity on the first item.
-* Added new-format mod manifest (SayTheSpire2.json) with affects_gameplay: false for multiplayer compatibility.
 
 ## V0.1.4
 * The Python installer has been replaced with one coded in Rust. This should prevent Windows Defender erroniously flagging the installer as a virus and improve stability of the app overall.
