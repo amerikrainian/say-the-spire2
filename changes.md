@@ -1,11 +1,41 @@
 ## V0.1.5
-* Added very early experimental support for multiplayer screens. Controller support mostly already worked, but most events should now read (including event/map votes.)
-* Added accessibility toggle. When this is off, the mod is effectively inert, allowing for multiplayer support (requires a game restart.) This was added for multiplayer, but a mod config value will be added that makes this redundant; I left this in as it still may be useful for debugging.
-* Fixed an issue where the Discard pile and Exhaust/Tab Right controls were both assigned to rt+rb by default for their controller bindings. After updating you will need to either manually adjust these or press the reset to defaults hotkey (ctrl shift r) to fix it. If this is a fresh install with a new settings file, they will be correct by default.
+
+### Multiplayer
+* Added multiplayer lobby accessibility: character select buttons, player list buffer (shows connected players with character and ready status), join/leave/character change announcements, and ready state announcements.
+* Added multiplayer voting announcements for map path voting and shared event voting. Announces who voted for what and the final result.
+* Added act ready-up announcements ("Waiting for other players", "All players ready") and network timeout warnings.
+* Added event source filtering system: events with creature sources now have per-source-type toggles (Current Player, Other Players, Enemies) under a Sources subcategory in settings. Events from sources the game doesn't provide visual feedback for are silently dropped in multiplayer.
+* Shared events now announced with "Shared event." prefix.
+* Fixed Defect orbs not found in multiplayer (was checking the wrong player's orb manager).
+
+### Installer
+* Replaced accessibility.json with installation.json. The installer now shows an options dialog on first install with "Screen reader support" and "Disable Godot UIA" prompts. A Modify button allows changing these later.
+* Install button now shows a version picker listing all releases including pre-releases.
+* Installer window resized to 650x500 for more space.
+
+### Combat & Events
+* Removed end-of-turn focus suppression that was blocking card popups and other UI.
+* Fixed power events: decreasing a power to 0 no longer double-announces (only "lost PowerName" is announced, not both decreased and removed).
+* Non-stacking powers no longer show misleading -1 stack count in announcements and buffers.
+* Stolen cards (Swipe power) now show in the creature buffer as "Stolen card: CardName".
+* Removed the redundant "Announce All Block Lost" setting; "lost all Block" is now always announced when block hits 0.
+
+### UI & Navigation
+* Added FollowLatest buffer property: switching to the events buffer now jumps to the most recent item.
+* Fixed hand card selection screen (e.g. Well Laid Plans retain) to include the selected cards row. You can now arrow down to see selected cards and back up to the hand.
+* Fixed grid position announcements to use (x, y) cartesian order instead of (row, col).
+* Refactored the focus system to a centralized update loop, fixing issues where container context wasn't announced when backing out of settings subcategories or when controls moved between containers.
+
+### Bindings & Settings
+* Fixed controller bindings: View Exhaust / Tab Right now defaults to bare RB (was RT+RB, conflicting with View Discard Pile).
 * Fixed Ctrl+Shift+R (Reset Bindings) to reset the mod's own keybindings instead of the game's.
-* Fixed an issue where card and relic buffers no longerl isted rarity as part of their first item.
-* The card buffer now condenses card name, type, and rarity onto the first line. This is a bit of an experimental change but I found I was able to get to the information I needed much faster. Feedback on this would be appreciated.
-* Fixed an issue where you could sometimes not move the controller focus to your orbs if playing The Defect in a multiplayer game.
+* Added accessibility toggle hotkey (Ctrl+Shift+A) that works even when the mod is inert. Bootstraps speech to announce the toggle.
+* Accessibility now defaults to on (was briefly defaulting to off for multiplayer, no longer needed since affects_gameplay: false handles it).
+
+### Other
+* Card buffer now condenses name, type, and rarity onto the first line (e.g. "Strike, Attack, Basic"). Feedback appreciated.
+* Fixed card and relic buffers not listing rarity on the first item.
+* Added new-format mod manifest (SayTheSpire2.json) with affects_gameplay: false for multiplayer compatibility.
 
 ## V0.1.4
 * The Python installer has been replaced with one coded in Rust. This should prevent Windows Defender erroniously flagging the installer as a virus and improve stability of the app overall.
