@@ -196,7 +196,9 @@ public static class VotingHooks
             MapPointType.Ancient => "NODE_TYPES.ANCIENT",
             _ => "NODE_TYPES.UNKNOWN",
         };
-        return LocalizationManager.GetOrDefault("map_nav", typeKey, point.Point.PointType.ToString());
+        var name = LocalizationManager.GetOrDefault("map_nav", typeKey, point.Point.PointType.ToString());
+        var coord = point.Point.coord;
+        return $"{name} ({coord.col + 1}, {coord.row + 1})";
     }
 
     private static void PatchIfFound(Harmony harmony, Type type, string methodName,

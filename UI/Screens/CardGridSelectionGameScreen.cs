@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Reflection;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardSelection;
@@ -22,6 +24,11 @@ public class CardGridSelectionGameScreen : GameScreen
     private static readonly PropertyInfo? ColumnsProperty =
         typeof(NCardGrid).GetProperty("Columns", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
 
+    private static readonly FieldInfo? SelectedCardsField =
+        typeof(NSimpleCardSelectScreen).GetField("_selectedCards", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    private HashSet<CardModel>? _selectedCards;
+
     public override string? ScreenName => _containerLabel;
 
     public CardGridSelectionGameScreen(NCardGridSelectionScreen screen)
@@ -29,6 +36,9 @@ public class CardGridSelectionGameScreen : GameScreen
         _screen = screen;
         _grid = screen.GetNode<NCardGrid>("%CardGrid");
         _containerLabel = GetLabel(screen);
+
+        if (screen is NSimpleCardSelectScreen)
+            _selectedCards = SelectedCardsField?.GetValue(screen) as HashSet<CardModel>;
     }
 
     public override void OnPush()
@@ -65,6 +75,21 @@ public class CardGridSelectionGameScreen : GameScreen
                     if (rowList[col] is NGridCardHolder holder)
                     {
                         var proxy = new ProxyCard(holder);
+                        if (_selectedCards != null)
+                        {
+                            var cardHolder = holder;
+                            var selectedSet = _selectedCards;
+                            proxy.CollectPreExtras += extras =>
+                            {
+                                var model = cardHolder.CardModel;
+                                if (model != null && selectedSet.Contains(model))
+                                    extras.Add("Selected");
+                            };
+                            proxy.CollectPostExtras += extras =>
+                            {
+                                extras.Add($"{selectedSet.Count} selected");
+                            };
+                        }
                         gridContainer.Add(proxy, col, row);
                         Register(holder, proxy);
                     }
