@@ -87,7 +87,7 @@ public class HandSelectGameScreen : GameScreen
                 if (!_connectedSelectedHolders.Contains(holder))
                 {
                     _connectedSelectedHolders.Add(holder);
-                    holder.FocusEntered += () => UI.UIManager.QueueFocus(holder, proxy);
+                    holder.FocusEntered += () => UI.UIManager.SetFocusedControl(holder, proxy);
                 }
             }
         }

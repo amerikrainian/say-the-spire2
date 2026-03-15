@@ -176,7 +176,7 @@ public class CrystalSphereGameScreen : Screen
             // on these cells since ConnectSignals isn't guaranteed for scene instances
             cell.Connect(Control.SignalName.FocusEntered, Callable.From(() =>
             {
-                UIManager.QueueFocus(cell, proxy);
+                UIManager.SetFocusedControl(cell, proxy);
             }));
         }
 

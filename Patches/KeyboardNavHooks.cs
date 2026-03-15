@@ -122,6 +122,10 @@ public static class KeyboardNavHooks
         if (profile) { _sw.Stop(); Log.Info($"[Profile] ScreenManager.UpdateAll: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
 
         if (profile) _sw.Restart();
+        UI.UIManager.Update();
+        if (profile) { _sw.Stop(); Log.Info($"[Profile] UIManager.Update: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
+
+        if (profile) _sw.Restart();
         Events.EventDispatcher.Flush();
         if (profile) { _sw.Stop(); Log.Info($"[Profile] EventDispatcher.Flush: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
     }

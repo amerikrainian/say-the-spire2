@@ -77,7 +77,7 @@ public class NavigableContainer : ListContainer
             Children[_focusIndex].Unfocus();
 
         _focusIndex = index;
-        UIManager.QueueFocus(Children[index]);
+        UIManager.SetFocusedElement(Children[index]);
     }
 
     private bool ActivateFocused()

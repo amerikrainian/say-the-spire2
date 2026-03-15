@@ -1,8 +1,6 @@
-using System.Diagnostics;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using SayTheSpire2.Buffers;
-using SayTheSpire2.Events;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
@@ -12,41 +10,85 @@ namespace SayTheSpire2.UI;
 
 public static class UIManager
 {
-    private static Control? _pendingControl;
-    private static UIElement? _pendingElement;
-    private static Control? _lastAnnouncedControl;
+    private static UIElement? _currentElement;
+    private static Control? _currentControl;
     private static UIElement? _lastAnnouncedElement;
-    private static bool _processingScheduled;
+    private static string? _lastAnnouncedText;
+    private static bool _dirty;
+    private static readonly FocusContext _focusContext = new();
 
     /// <summary>
-    /// Queue a focus change. Only the last one queued per frame will be announced.
+    /// Set the focused element from a game Control (e.g., from focus hooks).
+    /// The element will be resolved from the screen registry if not pre-resolved.
+    /// Announcing happens in the Update loop, not here.
     /// </summary>
-    public static void QueueFocus(Control control, UIElement? preResolved = null)
+    public static void SetFocusedControl(Control control, UIElement? preResolved = null)
     {
-        _pendingControl = control;
-        _pendingElement = preResolved;
-
-        if (!_processingScheduled)
-        {
-            _processingScheduled = true;
-            Callable.From(ProcessPending).CallDeferred();
-        }
+        _currentControl = control;
+        _currentElement = preResolved;
+        _dirty = true;
     }
 
     /// <summary>
-    /// Announce focus for a UIElement that owns its own control (no game Control needed).
+    /// Set the focused element directly (e.g., from NavigableContainer).
+    /// Announcing happens in the Update loop, not here.
     /// </summary>
-    public static void QueueFocus(UIElement element)
+    public static void SetFocusedElement(UIElement element)
     {
-        _lastAnnouncedElement?.Unfocus();
-        _lastAnnouncedElement = element;
-        _lastAnnouncedControl = null;
+        _currentElement = element;
+        _currentControl = null;
+        _dirty = true;
+    }
 
+    /// <summary>
+    /// Called once per frame from ProcessPostfix. Resolves the current element,
+    /// diffs the container path, and announces changes.
+    /// </summary>
+    public static void Update()
+    {
+        if (!_dirty) return;
+        _dirty = false;
+
+        // Resolve element if we have a control but no pre-resolved element
+        if (_currentControl != null && _currentElement == null)
+        {
+            if (!GodotObject.IsInstanceValid(_currentControl))
+            {
+                _currentControl = null;
+                return;
+            }
+            _currentElement = ResolveElement(_currentControl);
+        }
+
+        if (_currentElement == null) return;
+
+        // Re-resolve from control each frame to catch container changes
+        var element = _currentElement;
+        if (_currentControl != null && GodotObject.IsInstanceValid(_currentControl))
+        {
+            var resolved = ResolveElement(_currentControl);
+            if (resolved != null)
+                element = resolved;
+        }
+
+        // Build announcement via path diffing
         var text = BuildFocusAnnouncement(element);
-        Log.Info($"[AccessibilityMod] Focus (element): {element.GetType().Name} -> \"{text}\"");
-        if (!string.IsNullOrEmpty(text))
-            SpeechManager.Output(Message.Raw(text));
 
+        // Only announce if something changed
+        if (string.IsNullOrEmpty(text) || text == _lastAnnouncedText)
+            return;
+
+        _lastAnnouncedText = text;
+
+        // Unfocus previous, focus new
+        if (_lastAnnouncedElement != null && _lastAnnouncedElement != element)
+            _lastAnnouncedElement.Unfocus();
+        _lastAnnouncedElement = element;
+
+        Log.Info($"[AccessibilityMod] Focus: {element.GetType().Name} -> \"{text}\"");
+        SpeechManager.Output(Message.Raw(text));
+
+        // Update buffers
         var buffers = BufferManager.Instance;
         buffers.ResetToAlwaysEnabled(ScreenManager.GetAlwaysEnabledBuffers());
         var currentBufferKey = element.HandleBuffers(buffers);
@@ -56,73 +98,14 @@ public static class UIManager
         element.Focus();
     }
 
-    /// <summary>
-    /// Clear the last announced tracking so the same control can be re-announced.
-    /// </summary>
-    public static void ClearLastAnnounced()
-    {
-        _lastAnnouncedControl = null;
-    }
-
-
-    private static readonly Stopwatch _sw = new();
-
-    private static void ProcessPending()
-    {
-        bool profile = EventDispatcher.Profiling;
-        if (profile) _sw.Restart();
-
-        _processingScheduled = false;
-
-        if (_pendingControl == null) return;
-
-        var control = _pendingControl;
-        var element = _pendingElement;
-        _pendingControl = null;
-        _pendingElement = null;
-
-        // Skip if same control as last announced
-        if (control == _lastAnnouncedControl) return;
-        _lastAnnouncedControl = control;
-
-        if (!GodotObject.IsInstanceValid(control)) return;
-
-        _lastAnnouncedElement?.Unfocus();
-
-        element ??= ResolveElement(control);
-        _lastAnnouncedElement = element;
-
-        var text = BuildFocusAnnouncement(element);
-        Log.Info($"[AccessibilityMod] Focus: {control.GetType().Name} ({control.Name}) -> \"{text}\"");
-        if (!string.IsNullOrEmpty(text))
-        {
-            SpeechManager.Output(Message.Raw(text));
-        }
-
-        var buffers = BufferManager.Instance;
-        buffers.ResetToAlwaysEnabled(ScreenManager.GetAlwaysEnabledBuffers());
-        var currentBufferKey = element.HandleBuffers(buffers);
-        if (currentBufferKey != null)
-            buffers.SetCurrentBuffer(currentBufferKey);
-
-        element.Focus();
-
-        if (profile) { _sw.Stop(); Log.Info($"[Profile] UIManager.ProcessPending: {_sw.Elapsed.TotalMilliseconds:F3}ms control={control.GetType().Name}"); }
-    }
-
-    private static string BuildFocusAnnouncement(UIElement element)
+    private static string? BuildFocusAnnouncement(UIElement element)
     {
         // If the element is in a container hierarchy, use path diffing
         if (element.Parent != null)
         {
-            var screen = ScreenManager.CurrentScreen;
-            var focusContext = screen?.FocusContext;
-            if (focusContext != null)
-            {
-                var announcement = focusContext.BuildAnnouncement(element);
-                if (!string.IsNullOrEmpty(announcement))
-                    return announcement;
-            }
+            var announcement = _focusContext.BuildAnnouncement(element);
+            if (!string.IsNullOrEmpty(announcement))
+                return announcement;
         }
 
         // Fall back to the element's own focus string

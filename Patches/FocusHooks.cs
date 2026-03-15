@@ -141,13 +141,13 @@ public static class FocusHooks
         bool nowFocused = (bool)IsFocusedProp.GetValue(__instance)!;
         if (nowFocused && !__state)
         {
-            UIManager.QueueFocus(__instance);
+            UIManager.SetFocusedControl(__instance);
         }
     }
 
     public static void SettingsControlFocusPostfix(Control __instance)
     {
-        UIManager.QueueFocus(__instance);
+        UIManager.SetFocusedControl(__instance);
     }
 
     public static void PaginatorIndexChangePostfix(NPaginator __instance)
@@ -166,7 +166,7 @@ public static class FocusHooks
         // If a screen has this control registered (e.g., CardPileGameScreen),
         // let ResolveElement find it so it gets container context for position.
         var screenElement = ScreenManager.ResolveElement(__instance);
-        UIManager.QueueFocus(__instance, screenElement ?? new ProxyCard(__instance));
+        UIManager.SetFocusedControl(__instance, screenElement ?? new ProxyCard(__instance));
     }
 
     public static void SpeechBubblePostfix(string text)
@@ -216,13 +216,13 @@ public static class FocusHooks
 
     public static void MerchantSlotFocusPostfix(NMerchantSlot __instance)
     {
-        UIManager.QueueFocus(__instance, new ProxyMerchantSlot(__instance));
+        UIManager.SetFocusedControl(__instance, new ProxyMerchantSlot(__instance));
     }
 
     public static void CreatureFocusPostfix(NCreature __instance)
     {
         var screenElement = ScreenManager.ResolveElement(__instance);
-        UIManager.QueueFocus(__instance, screenElement ?? new ProxyCreature(__instance));
+        UIManager.SetFocusedControl(__instance, screenElement ?? new ProxyCreature(__instance));
     }
 
     private static void PatchOnFocus<T>(Harmony harmony, string postfixMethodName, string label)

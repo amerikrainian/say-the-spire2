@@ -77,7 +77,6 @@ public class SettingsGameScreen : GameScreen
         }
 
         RootElement = root;
-        FocusContext?.Reset();
     }
 
     private void RegisterControlsRecursive(
@@ -143,7 +142,7 @@ public class SettingsGameScreen : GameScreen
     {
         control.FocusEntered += () =>
         {
-            UIManager.QueueFocus(control, GetElement(control));
+            UIManager.SetFocusedControl(control, GetElement(control));
         };
     }
 

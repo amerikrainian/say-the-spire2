@@ -227,7 +227,6 @@ public class TimelineGameScreen : GameScreen
         }
 
         RootElement = root;
-        FocusContext?.Reset();
         Log.Info($"[AccessibilityMod] Timeline container tree: {columns.Count} eras");
     }
 
