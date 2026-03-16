@@ -1,3 +1,8 @@
+## V0.1.6
+* Emergency fix for a bug introduced in V0.1.5 which caused the shop items to be processed by our mod as generic buttons, making the shop basically unusable.
+* fixed an issue where star costs for Regent cards were not including any modifiers (such as Void Form.)
+* Fixed an issue where card rewards has their cards reversed.
+
 ## V0.1.5
 * The installer has received significant updates and it is highly recommended that you download the new version of it. You can now choose which version of the mod to install (including test releases.) You can also choose to disable screenreader support in the installer itself; this is for sighted players so they can play with you in multiplayer (everyone must have the same mods installed.)
 * Fixed a bug in the installer where it would consider earlier mod versions as updates.
