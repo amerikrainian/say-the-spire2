@@ -41,14 +41,20 @@ public class CardRewardGameScreen : GameScreen
         var cardRow = _screen.GetNodeOrNull<Control>("UI/CardRow");
         if (cardRow != null)
         {
+            // Collect holders then reverse — the game focuses the middle/right card
+            // first, and visual order is right-to-left in the reward screen
+            var holders = new System.Collections.Generic.List<NGridCardHolder>();
             foreach (var child in cardRow.GetChildren())
             {
                 if (child is NGridCardHolder holder)
-                {
-                    var proxy = new ProxyCard(holder);
-                    list.Add(proxy);
-                    Register(holder, proxy);
-                }
+                    holders.Add(holder);
+            }
+            holders.Reverse();
+            foreach (var holder in holders)
+            {
+                var proxy = new ProxyCard(holder);
+                list.Add(proxy);
+                Register(holder, proxy);
             }
         }
 
