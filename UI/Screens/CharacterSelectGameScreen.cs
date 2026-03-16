@@ -9,6 +9,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Platform;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.Multiplayer;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
 
@@ -162,9 +163,7 @@ public class CharacterSelectGameScreen : GameScreen
     {
         try
         {
-            var lobby = _screen.Lobby;
-            if (lobby != null)
-                return PlatformUtil.GetPlayerName(lobby.NetService.Platform, playerId);
+            return MultiplayerHelper.GetPlayerName(playerId, _screen.Lobby?.NetService.Platform);
         }
         catch { }
         return $"Player {playerId}";

@@ -1,7 +1,7 @@
 using System;
 using MegaCrit.Sts2.Core.Entities.Multiplayer;
 using MegaCrit.Sts2.Core.Multiplayer.Game.Lobby;
-using MegaCrit.Sts2.Core.Platform;
+using SayTheSpire2.Multiplayer;
 
 namespace SayTheSpire2.Buffers;
 
@@ -43,12 +43,6 @@ public class LobbyBuffer : Buffer
 
     private string GetPlayerName(ulong playerId)
     {
-        try
-        {
-            if (_lobby != null)
-                return PlatformUtil.GetPlayerName(_lobby.NetService.Platform, playerId);
-        }
-        catch { }
-        return $"Player {playerId}";
+        return MultiplayerHelper.GetPlayerName(playerId, _lobby?.NetService.Platform);
     }
 }

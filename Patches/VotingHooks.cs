@@ -16,6 +16,7 @@ using MegaCrit.Sts2.Core.Platform;
 using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Events;
 using SayTheSpire2.Localization;
+using SayTheSpire2.Multiplayer;
 
 namespace SayTheSpire2.Patches;
 
@@ -53,12 +54,12 @@ public static class VotingHooks
     {
         try
         {
-            if (!IsMultiplayer()) return;
-            if (IsLocalPlayer(player)) return;
+            if (!MultiplayerHelper.IsMultiplayer()) return;
+            if (MultiplayerHelper.IsLocalPlayer(player)) return;
 
             if (newLocation == null) return;
 
-            var playerName = GetPlayerName(player);
+            var playerName = MultiplayerHelper.GetPlayerName(player);
             var point = ResolveMapPoint(__instance, newLocation.Value.coord);
             var nodeName = GetMapPointName(point);
             EventDispatcher.Enqueue(new MapVoteEvent($"{playerName} voted for {nodeName}", player.Creature));
@@ -73,7 +74,7 @@ public static class VotingHooks
     {
         try
         {
-            if (!IsMultiplayer()) return;
+            if (!MultiplayerHelper.IsMultiplayer()) return;
 
             var nodeName = GetMapPointName(point);
             // Local player's creature as source
@@ -107,8 +108,8 @@ public static class VotingHooks
     {
         try
         {
-            if (!IsMultiplayer()) return;
-            if (IsLocalPlayer(player)) return;
+            if (!MultiplayerHelper.IsMultiplayer()) return;
+            if (MultiplayerHelper.IsLocalPlayer(player)) return;
 
             var voteIndex = RunManager.Instance.EventSynchronizer.GetPlayerVote(player);
             if (voteIndex == null) return;
@@ -125,7 +126,7 @@ public static class VotingHooks
                 i++;
             }
 
-            var playerName = GetPlayerName(player);
+            var playerName = MultiplayerHelper.GetPlayerName(player);
             var title = optionTitle ?? $"option {voteIndex.Value + 1}";
             EventDispatcher.Enqueue(new EventVoteEvent($"{playerName} voted for {title}", player.Creature));
         }
@@ -150,27 +151,6 @@ public static class VotingHooks
     }
 
     // --- Helpers ---
-
-    private static bool IsMultiplayer()
-    {
-        try { return RunManager.Instance.NetService.Type.IsMultiplayer(); }
-        catch { return false; }
-    }
-
-    private static bool IsLocalPlayer(Player player)
-    {
-        return LocalContext.NetId.HasValue && player.NetId == LocalContext.NetId.Value;
-    }
-
-    private static string GetPlayerName(Player player)
-    {
-        try
-        {
-            var platform = RunManager.Instance.NetService.Platform;
-            return PlatformUtil.GetPlayerName(platform, player.NetId);
-        }
-        catch { return $"Player {player.NetId}"; }
-    }
 
     private static NMapPoint? ResolveMapPoint(NMapScreen screen, MapCoord coord)
     {
