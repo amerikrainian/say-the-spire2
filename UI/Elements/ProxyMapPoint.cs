@@ -1,5 +1,4 @@
 using Godot;
-using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Map;
@@ -19,26 +18,7 @@ public class ProxyMapPoint : ProxyElement
     {
         var mp = MapPointNode;
         if (mp?.Point == null) return CleanNodeName(Control.Name);
-
-        var typeKey = mp.Point.PointType switch
-        {
-            MapPointType.Unknown => "NODE_TYPES.UNKNOWN",
-            MapPointType.Shop => "NODE_TYPES.SHOP",
-            MapPointType.Treasure => "NODE_TYPES.TREASURE",
-            MapPointType.RestSite => "NODE_TYPES.REST_SITE",
-            MapPointType.Monster => "NODE_TYPES.MONSTER",
-            MapPointType.Elite => "NODE_TYPES.ELITE",
-            MapPointType.Boss => "NODE_TYPES.BOSS",
-            MapPointType.Ancient => "NODE_TYPES.ANCIENT",
-            _ => "NODE_TYPES.UNKNOWN",
-        };
-        var name = LocalizationManager.GetOrDefault("map_nav", typeKey, mp.Point.PointType.ToString());
-        if (mp.Point.Quests.Count > 0)
-        {
-            var questLabel = LocalizationManager.Get("map_nav", "QUEST_MARKED") ?? "Quest";
-            name = questLabel + " " + name;
-        }
-        return name;
+        return MapNode.GetPointDisplayName(mp.Point);
     }
 
     public override string? GetTypeKey() => "map node";

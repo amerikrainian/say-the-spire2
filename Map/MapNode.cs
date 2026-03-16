@@ -39,9 +39,13 @@ public class MapNode
         State = state;
     }
 
-    public virtual string GetDisplayName()
+    /// <summary>
+    /// Get the localized display name for a map point type.
+    /// Shared by MapNode, ProxyMapPoint, and VotingHooks.
+    /// </summary>
+    public static string GetPointTypeName(MapPointType pointType)
     {
-        var typeKey = PointType switch
+        var typeKey = pointType switch
         {
             MapPointType.Unknown => "NODE_TYPES.UNKNOWN",
             MapPointType.Shop => "NODE_TYPES.SHOP",
@@ -53,13 +57,26 @@ public class MapNode
             MapPointType.Ancient => "NODE_TYPES.ANCIENT",
             _ => "NODE_TYPES.UNKNOWN",
         };
-        var name = LocalizationManager.GetOrDefault("map_nav", typeKey, PointType.ToString());
-        if (Point.Quests.Count > 0)
+        return LocalizationManager.GetOrDefault("map_nav", typeKey, pointType.ToString());
+    }
+
+    /// <summary>
+    /// Get the localized display name for a MapPoint, including quest prefix.
+    /// </summary>
+    public static string GetPointDisplayName(MapPoint point)
+    {
+        var name = GetPointTypeName(point.PointType);
+        if (point.Quests.Count > 0)
         {
             var questLabel = LocalizationManager.Get("map_nav", "QUEST_MARKED") ?? "Quest";
             name = questLabel + " " + name;
         }
         return name;
+    }
+
+    public virtual string GetDisplayName()
+    {
+        return GetPointDisplayName(Point);
     }
 
     public string? GetStateString()

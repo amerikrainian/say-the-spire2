@@ -6,7 +6,6 @@ using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Events;
-using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
@@ -15,7 +14,6 @@ using MegaCrit.Sts2.Core.Nodes.Screens.Map;
 using MegaCrit.Sts2.Core.Platform;
 using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Events;
-using SayTheSpire2.Localization;
 using SayTheSpire2.Multiplayer;
 
 namespace SayTheSpire2.Patches;
@@ -164,19 +162,7 @@ public static class VotingHooks
     private static string GetMapPointName(NMapPoint? point)
     {
         if (point?.Point == null) return "Unknown";
-        var typeKey = point.Point.PointType switch
-        {
-            MapPointType.Unknown => "NODE_TYPES.UNKNOWN",
-            MapPointType.Shop => "NODE_TYPES.SHOP",
-            MapPointType.Treasure => "NODE_TYPES.TREASURE",
-            MapPointType.RestSite => "NODE_TYPES.REST_SITE",
-            MapPointType.Monster => "NODE_TYPES.MONSTER",
-            MapPointType.Elite => "NODE_TYPES.ELITE",
-            MapPointType.Boss => "NODE_TYPES.BOSS",
-            MapPointType.Ancient => "NODE_TYPES.ANCIENT",
-            _ => "NODE_TYPES.UNKNOWN",
-        };
-        var name = LocalizationManager.GetOrDefault("map_nav", typeKey, point.Point.PointType.ToString());
+        var name = Map.MapNode.GetPointTypeName(point.Point.PointType);
         var coord = point.Point.coord;
         return $"{name} ({coord.col + 1}, {coord.row + 1})";
     }
