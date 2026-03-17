@@ -163,8 +163,8 @@ public static class VotingHooks
     {
         if (point?.Point == null) return "Unknown";
         var name = Map.MapNode.GetPointTypeName(point.Point.PointType);
-        var coord = point.Point.coord;
-        return $"{name} ({coord.col + 1}, {coord.row + 1})";
+        var coords = Map.MapNode.GetCoordinatesString(point.Point);
+        return $"{name} {coords}";
     }
 
     private static void PatchIfFound(Harmony harmony, Type type, string methodName,

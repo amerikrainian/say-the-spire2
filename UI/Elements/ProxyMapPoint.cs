@@ -1,6 +1,5 @@
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
-using SayTheSpire2.Localization;
 using SayTheSpire2.Map;
 using SayTheSpire2.UI.Screens;
 
@@ -27,7 +26,7 @@ public class ProxyMapPoint : ProxyElement
     {
         var mp = MapPointNode;
         if (mp?.Point == null) return null;
-        return Message.Localized("map_nav", "NAV.COORDINATES", new { col = mp.Point.coord.col, row = mp.Point.coord.row }).Resolve();
+        return MapNode.GetCoordinatesString(mp.Point);
     }
 
     protected override void OnFocus()

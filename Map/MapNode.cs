@@ -88,6 +88,15 @@ public class MapNode
 
     public string GetCoordinatesString()
     {
-        return Message.Localized("map_nav", "NAV.COORDINATES", new { col = Col, row = Row }).Resolve();
+        return GetCoordinatesString(Point);
+    }
+
+    /// <summary>
+    /// Get the localized coordinate string for a MapPoint (0-based).
+    /// Shared by MapNode, ProxyMapPoint, and VotingHooks.
+    /// </summary>
+    public static string GetCoordinatesString(MapPoint point)
+    {
+        return Message.Localized("map_nav", "NAV.COORDINATES", new { col = point.coord.col, row = point.coord.row }).Resolve();
     }
 }
