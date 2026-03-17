@@ -33,8 +33,8 @@ public class CombatScreen : Screen
     public override IEnumerable<string> AlwaysEnabledBuffers => _alwaysEnabled;
 
     private CombatState? _currentState;
-    private readonly Dictionary<Creature, CreatureHandlers> _subscribedCreatures = new();
-    private CardPileHandlers? _cardPileHandlers;
+    private readonly Dictionary<Creature, CombatCreatureHandlers> _subscribedCreatures = new();
+    private CombatCardPileHandlers? _cardPileHandlers;
 
     // Containers for position announcements (no labels, position only)
     private readonly ListContainer _rootContainer = new() { AnnounceName = false, AnnouncePosition = false };
@@ -121,9 +121,9 @@ public class CombatScreen : Screen
         var player = GetLocalPlayer();
         if (player?.PlayerCombatState != null)
         {
-            _cardPileHandlers = new CardPileHandlers(player.PlayerCombatState);
+            _cardPileHandlers = new CombatCardPileHandlers(player.PlayerCombatState);
             _cardPileHandlers.Subscribe();
-            Log.Info("[EventDebug] CardPileHandlers subscribed.");
+            Log.Info("[EventDebug] CombatCardPileHandlers subscribed.");
         }
     }
 
@@ -512,7 +512,7 @@ public class CombatScreen : Screen
 
     private void SubscribeToCreature(Creature creature)
     {
-        var handlers = new CreatureHandlers(creature);
+        var handlers = new CombatCreatureHandlers(creature);
         _subscribedCreatures[creature] = handlers;
 
         creature.BlockChanged += handlers.OnBlockChanged;
@@ -539,142 +539,4 @@ public class CombatScreen : Screen
         _subscribedCreatures.Clear();
     }
 
-    private class CardPileHandlers
-    {
-        private readonly PlayerCombatState _combatState;
-        private bool _isShuffling;
-        private Task? _shuffleTask;
-        private bool _endOfTurnDiscardAnnounced;
-
-        public CardPileHandlers(PlayerCombatState combatState)
-        {
-            _combatState = combatState;
-        }
-
-        public void Subscribe()
-        {
-            _combatState.Hand.CardAdded += OnHandCardAdded;
-            _combatState.DiscardPile.CardAdded += OnDiscardCardAdded;
-            _combatState.ExhaustPile.CardAdded += OnExhaustCardAdded;
-            _combatState.DrawPile.CardAdded += OnDrawCardAdded;
-        }
-
-        public void Unsubscribe()
-        {
-            _combatState.Hand.CardAdded -= OnHandCardAdded;
-            _combatState.DiscardPile.CardAdded -= OnDiscardCardAdded;
-            _combatState.ExhaustPile.CardAdded -= OnExhaustCardAdded;
-            _combatState.DrawPile.CardAdded -= OnDrawCardAdded;
-        }
-
-        public void OnTurnStarted()
-        {
-            _endOfTurnDiscardAnnounced = false;
-        }
-
-        public void OnShuffleStarting()
-        {
-            _isShuffling = true;
-        }
-
-        public void OnShuffleStarted(Task shuffleTask)
-        {
-            _shuffleTask = shuffleTask;
-            shuffleTask.ContinueWith(_ =>
-            {
-                _isShuffling = false;
-                _shuffleTask = null;
-                EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.DeckShuffled));
-            }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        private void OnHandCardAdded(CardModel card)
-        {
-            Log.Info($"[EventDebug] CardPile.HandAdded: {card.Title} handler={GetHashCode()}");
-            EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.Drew, card.Title));
-        }
-
-        private void OnDiscardCardAdded(CardModel card)
-        {
-            if (CombatManager.Instance.EndingPlayerTurnPhaseTwo
-                && !CombatManager.Instance.IsEnemyTurnStarted)
-            {
-                if (!_endOfTurnDiscardAnnounced)
-                {
-                    _endOfTurnDiscardAnnounced = true;
-                    Log.Info($"[EventDebug] CardPile.HandDiscarded handler={GetHashCode()}");
-                    EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.HandDiscarded));
-                }
-                return;
-            }
-
-            if (RunManager.Instance.ActionExecutor.CurrentlyRunningAction is PlayCardAction pca
-                && pca.NetCombatCard.ToCardModelOrNull() == card)
-                return;
-
-            Log.Info($"[EventDebug] CardPile.Discarded: {card.Title} handler={GetHashCode()}");
-            EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.Discarded, card.Title));
-        }
-
-        private void OnExhaustCardAdded(CardModel card)
-        {
-            Log.Info($"[EventDebug] CardPile.Exhausted: {card.Title} handler={GetHashCode()}");
-            EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.Exhausted, card.Title));
-        }
-
-        private void OnDrawCardAdded(CardModel card)
-        {
-            if (_isShuffling) return;
-            Log.Info($"[EventDebug] CardPile.AddedToDraw: {card.Title} handler={GetHashCode()}");
-            EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.AddedToDraw, card.Title));
-        }
-    }
-
-    private class CreatureHandlers
-    {
-        private readonly Creature _creature;
-
-        public CreatureHandlers(Creature creature)
-        {
-            _creature = creature;
-        }
-
-        public void OnBlockChanged(int oldBlock, int newBlock)
-        {
-            Log.Info($"[EventDebug] CreatureHandler.BlockChanged: {_creature.Name} {oldBlock}->{newBlock} handler={GetHashCode()}");
-            EventDispatcher.Enqueue(new BlockEvent(_creature, oldBlock, newBlock));
-        }
-
-        public void OnCurrentHpChanged(int oldHp, int newHp)
-        {
-            Log.Info($"[EventDebug] CreatureHandler.HpChanged: {_creature.Name} {oldHp}->{newHp} handler={GetHashCode()}");
-            EventDispatcher.Enqueue(new HpEvent(_creature, oldHp, newHp));
-        }
-
-        public void OnPowerIncreased(PowerModel power, int change, bool silent)
-        {
-            Log.Info($"[EventDebug] CreatureHandler.PowerIncreased: {_creature.Name} {power.Title.GetFormattedText()} +{change} silent={silent} handler={GetHashCode()}");
-            if (!silent) EventDispatcher.Enqueue(new PowerEvent(_creature, power, PowerEventType.Increased, change));
-        }
-
-        public void OnPowerDecreased(PowerModel power, bool silent)
-        {
-            Log.Info($"[EventDebug] CreatureHandler.PowerDecreased: {_creature.Name} {power.Title.GetFormattedText()} amount={power.Amount} silent={silent} handler={GetHashCode()}");
-            // Skip if amount hit 0 — the PowerRemoved event will fire next and handle it
-            if (!silent && power.Amount > 0)
-                EventDispatcher.Enqueue(new PowerEvent(_creature, power, PowerEventType.Decreased));
-        }
-
-        public void OnPowerRemoved(PowerModel power)
-        {
-            Log.Info($"[EventDebug] CreatureHandler.PowerRemoved: {_creature.Name} {power.Title.GetFormattedText()} handler={GetHashCode()}");
-            EventDispatcher.Enqueue(new PowerEvent(_creature, power, PowerEventType.Removed));
-        }
-
-        public void OnDied(Creature c)
-        {
-            Log.Info($"[EventDebug] CreatureHandler.Died: {c.Name} handler={GetHashCode()}");
-            EventDispatcher.Enqueue(new DeathEvent(c));
-        }
-    }
 }
