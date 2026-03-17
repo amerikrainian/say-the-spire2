@@ -84,7 +84,9 @@ public static class ProxyFactory
         if (control is NButton)
             return new ProxyButton(control);
 
-        // Fallback for any other focusable control
+        // Fallback for any other focusable control — log so we notice missing proxy types
+        MegaCrit.Sts2.Core.Logging.Log.Info(
+            $"[AccessibilityMod] ProxyFactory fallback: {control.GetType().Name} ({control.Name}) resolved as generic ProxyButton");
         return new ProxyButton(control);
     }
 

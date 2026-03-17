@@ -102,6 +102,44 @@ These rules were discovered through bugs. Check against them before making chang
 - `NSelectedHandCardHolder` does NOT override `OnFocus`. Use `FocusEntered` signal connection instead.
 - `NMerchantSlot` extends `Control`, not `NClickableControl`. Has its own `OnFocus` hook.
 
+### Critical Reflection Targets
+
+These private fields/properties are accessed via reflection. A game update renaming them will break the mod silently (the field resolves to null, and features degrade). Check these after game updates:
+
+**Input system:**
+- `NInputSettingsPanel._listeningEntry` — detects when game is rebinding keys
+- `NControllerManager.IsUsingController` (property) — tracks input mode
+- `NControllerManager._lastMousePosition` — saved mouse pos for mode switching
+- `NInputManager._keyboardInputMap`, `._controllerInputMap` — input rebinding
+
+**Focus system:**
+- `NClickableControl.IsFocused` (property) — focus state for RefreshFocus hook
+- `NMerchantDialogue._label` — merchant dialogue text
+
+**Map:**
+- `NMapScreen._mapPointDictionary` — coord-to-NMapPoint lookup for voting
+- `NMapScreen._map`, `._runState` — map data access
+
+**Events:**
+- `NEventLayout._title`, `._event` — event title and model
+- `NAncientEventLayout._dialogueContainer` — ancient event dialogue
+
+**Combat:**
+- `NCardGrid._cardRows`, `.Columns` — card grid layout
+- `NSimpleCardSelectScreen._selectedCards` — selected cards in grid selection
+
+**UI elements:**
+- `NSettingsSlider._slider` — slider value access
+- `NRewardButton._relic` — reward relic model
+- `NTopBarHp._player`, `NTopBarGold._player` — player reference for HP/gold
+- `NTopBarRoomIcon._runState`, `NTopBarFloorIcon._runState`, `NTopBarBossIcon._runState` — run state
+
+**Screens:**
+- `NCrystalSphereScreen._cellContainer`, `._entity` — crystal sphere grid
+- `NGameOverScreen._scoreBar`, `._encounterQuote` — game over display
+- `NTimelineScreen._epochSlotContainer` — timeline slots
+- `NEpochInspectScreen` — epoch inspect data
+
 ### Game's UI Class Hierarchy (key classes)
 - `NClickableControl` - Base for all interactive UI (buttons, cards, relics, etc.)
   - `RefreshFocus()` - private, called on hover and controller focus changes
