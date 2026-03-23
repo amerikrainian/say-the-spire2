@@ -39,8 +39,9 @@ internal class CombatCreatureHandlers
     public void OnPowerDecreased(PowerModel power, bool silent)
     {
         Log.Info($"[EventDebug] CreatureHandler.PowerDecreased: {_creature.Name} {power.Title.GetFormattedText()} amount={power.Amount} silent={silent} handler={GetHashCode()}");
-        // Skip if amount hit 0 — the PowerRemoved event will fire next and handle it
-        if (!silent && power.Amount > 0)
+        // Skip if amount hit 0 — the PowerRemoved event will fire next and handle it.
+        // Allow negative amounts (non-stacking powers use -1).
+        if (!silent && power.Amount != 0)
             EventDispatcher.Enqueue(new PowerEvent(_creature, power, PowerEventType.Decreased));
     }
 

@@ -15,6 +15,8 @@ using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
+using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
+using MegaCrit.Sts2.Core.Nodes.Multiplayer;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Events;
@@ -52,6 +54,8 @@ public class CombatScreen : Screen
         ClaimAction("announce_powers");
         ClaimAction("announce_intents");
         ClaimAction("announce_summarized_intents");
+        ClaimAction("ui_accept", propagate: true);
+        ClaimAction("ui_select", propagate: true);
 
         _rootContainer.Add(_potionContainer);
         _rootContainer.Add(_relicContainer);
@@ -166,6 +170,9 @@ public class CombatScreen : Screen
             case "announce_summarized_intents":
                 AnnounceSummarizedIntents();
                 return true;
+            case "ui_accept":
+            case "ui_select":
+                return TryOpenPlayerExpandedState();
         }
 
         return false;
@@ -273,6 +280,52 @@ public class CombatScreen : Screen
         SpeechManager.Output(Message.Raw(totalDamage > 0
             ? $"{totalDamage} incoming damage"
             : "No incoming damage"));
+    }
+
+    /// <summary>
+    /// If the currently focused creature is a player, simulate clicking
+    /// the corresponding NMultiplayerPlayerState hitbox to open the expanded view.
+    /// Returns true if handled, false to let the action propagate.
+    /// </summary>
+    private bool TryOpenPlayerExpandedState()
+    {
+        try
+        {
+            // Find the currently focused creature
+            var viewport = NRun.Instance?.GetViewport();
+            var focused = viewport?.GuiGetFocusOwner();
+            if (focused == null) return false;
+
+            // Walk up to find the NCreature
+            NCreature? creature = focused as NCreature;
+            var current = focused.GetParent();
+            while (creature == null && current != null)
+            {
+                if (current is NCreature nc)
+                    creature = nc;
+                current = current.GetParent();
+            }
+            if (creature == null || !creature.Entity.IsPlayer) return false;
+
+            // Find the matching NMultiplayerPlayerState
+            var container = NRun.Instance?.GlobalUi?.MultiplayerPlayerContainer;
+            if (container == null) return false;
+
+            foreach (var child in container.GetChildren())
+            {
+                if (child is NMultiplayerPlayerState state && state.Player == creature.Entity.Player)
+                {
+                    // Simulate clicking the hitbox
+                    state.Hitbox.EmitSignal(NClickableControl.SignalName.Released, state.Hitbox);
+                    return true;
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            MegaCrit.Sts2.Core.Logging.Log.Error($"[AccessibilityMod] TryOpenPlayerExpandedState error: {e.Message}");
+        }
+        return false;
     }
 
     private void OnPlayerEndedTurn(Player player, bool canBackOut)

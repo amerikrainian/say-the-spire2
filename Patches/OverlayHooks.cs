@@ -8,6 +8,7 @@ using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Events.Custom.CrystalSphere;
+using MegaCrit.Sts2.Core.Nodes.Multiplayer;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardSelection;
 using MegaCrit.Sts2.Core.Nodes.Screens.Overlays;
@@ -36,6 +37,12 @@ public static class OverlayHooks
                 postfix: new HarmonyMethod(typeof(OverlayHooks), nameof(StartTargetingPostfix)));
             Log.Info("[AccessibilityMod] StartTargeting hook patched.");
         }
+
+        // Multiplayer expanded player state (capstone screen)
+        PatchIfFound(harmony, typeof(NMultiplayerPlayerExpandedState), "AfterCapstoneOpened",
+            nameof(PlayerExpandedOpenedPostfix), "PlayerExpanded AfterCapstoneOpened");
+        PatchIfFound(harmony, typeof(NMultiplayerPlayerExpandedState), "AfterCapstoneClosed",
+            nameof(PlayerExpandedClosedPostfix), "PlayerExpanded AfterCapstoneClosed");
 
         // Bundle preview focus setup
         PatchIfFound(harmony, typeof(NChooseABundleSelectionScreen), "OnBundleClicked",
@@ -237,5 +244,17 @@ public static class OverlayHooks
         {
             Log.Error($"[AccessibilityMod] Bundle cancel focus error: {e.Message}");
         }
+    }
+
+    public static void PlayerExpandedOpenedPostfix(NMultiplayerPlayerExpandedState __instance)
+    {
+        if (PlayerExpandedStateScreen.Current == null)
+            ScreenManager.PushScreen(new PlayerExpandedStateScreen(__instance));
+    }
+
+    public static void PlayerExpandedClosedPostfix()
+    {
+        if (PlayerExpandedStateScreen.Current != null)
+            ScreenManager.RemoveScreen(PlayerExpandedStateScreen.Current);
     }
 }

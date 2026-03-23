@@ -30,7 +30,7 @@ public class PowerEvent : GameEvent
     {
         return _eventType switch
         {
-            PowerEventType.Increased when _hasStacks => $"{_creatureName} gained {_amount} {_powerName}",
+            PowerEventType.Increased when _hasStacks && _amount > 0 => $"{_creatureName} gained {_amount} {_powerName}",
             PowerEventType.Increased => $"{_creatureName} gained {_powerName}",
             PowerEventType.Decreased => $"{_creatureName} {_powerName} decreased",
             PowerEventType.Removed => $"{_creatureName} lost {_powerName}",
