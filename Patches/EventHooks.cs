@@ -102,6 +102,32 @@ public static class EventHooks
             Log.Info("[AccessibilityMod] Hook.AfterOrbEvoked hook patched.");
         }
 
+        // Card played (fires as card is being played, on all clients)
+        var spendResources = AccessTools.Method(typeof(CardModel), "SpendResources");
+        if (spendResources != null)
+        {
+            harmony.Patch(spendResources,
+                prefix: new HarmonyMethod(typeof(EventHooks), nameof(CardPlayedPrefix)));
+            Log.Info("[AccessibilityMod] CardModel.SpendResources hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find CardModel.SpendResources!");
+        }
+
+        // Potion used (fires as potion is being used, on all clients)
+        var onUseWrapper = AccessTools.Method(typeof(PotionModel), "OnUseWrapper");
+        if (onUseWrapper != null)
+        {
+            harmony.Patch(onUseWrapper,
+                prefix: new HarmonyMethod(typeof(EventHooks), nameof(PotionUsedPrefix)));
+            Log.Info("[AccessibilityMod] PotionModel.OnUseWrapper hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find PotionModel.OnUseWrapper!");
+        }
+
         // Gold changes
         var gainGold = AccessTools.Method(typeof(PlayerCmd), "GainGold");
         if (gainGold != null)
@@ -275,6 +301,40 @@ public static class EventHooks
         catch (System.Exception e)
         {
             Log.Error($"[AccessibilityMod] Orb evoked hook error: {e.Message}");
+        }
+    }
+
+    public static void PotionUsedPrefix(PotionModel __instance)
+    {
+        try
+        {
+            var player = __instance.Owner;
+            if (player == null) return;
+            var playerName = player.Creature?.Name ?? Multiplayer.MultiplayerHelper.GetPlayerName(player.NetId);
+            var potionName = __instance.Title.GetFormattedText();
+            if (!string.IsNullOrEmpty(potionName))
+                EventDispatcher.Enqueue(new PotionUsedEvent(playerName, potionName, player.Creature));
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Potion used hook error: {e.Message}");
+        }
+    }
+
+    public static void CardPlayedPrefix(CardModel __instance)
+    {
+        try
+        {
+            var player = __instance.Owner;
+            if (player == null) return;
+            var playerName = player.Creature?.Name ?? Multiplayer.MultiplayerHelper.GetPlayerName(player.NetId);
+            var cardName = __instance.Title;
+            if (!string.IsNullOrEmpty(cardName))
+                EventDispatcher.Enqueue(new CardPlayedEvent(playerName, cardName, player.Creature));
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Card played hook error: {e.Message}");
         }
     }
 

@@ -18,8 +18,13 @@ public class EventSettingsAttribute : ModSettingsAttribute
     public bool AllowOtherPlayers { get; }
     public bool AllowEnemies { get; }
 
+    public bool DefaultCurrentPlayer { get; }
+    public bool DefaultOtherPlayers { get; }
+    public bool DefaultEnemies { get; }
+
     public EventSettingsAttribute(string key, string label, bool defaultAnnounce = true, bool defaultBuffer = true,
-        bool hasSourceFilter = false, bool allowCurrentPlayer = true, bool allowOtherPlayers = true, bool allowEnemies = true)
+        bool hasSourceFilter = false, bool allowCurrentPlayer = true, bool allowOtherPlayers = true, bool allowEnemies = true,
+        bool defaultCurrentPlayer = true, bool defaultOtherPlayers = true, bool defaultEnemies = true)
         : base($"events.{key}", $"Events/{label}")
     {
         Key = key;
@@ -29,5 +34,8 @@ public class EventSettingsAttribute : ModSettingsAttribute
         AllowCurrentPlayer = allowCurrentPlayer;
         AllowOtherPlayers = allowOtherPlayers;
         AllowEnemies = allowEnemies;
+        DefaultCurrentPlayer = defaultCurrentPlayer;
+        DefaultOtherPlayers = defaultOtherPlayers;
+        DefaultEnemies = defaultEnemies;
     }
 }

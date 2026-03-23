@@ -125,12 +125,22 @@ public class CombatScreen : Screen
             _cardPileHandlers.Subscribe();
             Log.Info("[EventDebug] CombatCardPileHandlers subscribed.");
         }
+
+        CombatManager.Instance.PlayerEndedTurn += OnPlayerEndedTurn;
+        CombatManager.Instance.PlayerUnendedTurn += OnPlayerUnendedTurn;
     }
 
     private void UnsubscribeFromState()
     {
         _cardPileHandlers?.Unsubscribe();
         _cardPileHandlers = null;
+
+        if (CombatManager.Instance != null)
+        {
+            CombatManager.Instance.PlayerEndedTurn -= OnPlayerEndedTurn;
+            CombatManager.Instance.PlayerUnendedTurn -= OnPlayerUnendedTurn;
+        }
+
         UnsubscribeAll();
         _currentState = null;
     }
@@ -263,6 +273,18 @@ public class CombatScreen : Screen
         SpeechManager.Output(Message.Raw(totalDamage > 0
             ? $"{totalDamage} incoming damage"
             : "No incoming damage"));
+    }
+
+    private void OnPlayerEndedTurn(Player player, bool canBackOut)
+    {
+        var name = player.Creature?.Name ?? Multiplayer.MultiplayerHelper.GetPlayerName(player.NetId);
+        EventDispatcher.Enqueue(new EndTurnEvent(name, ready: true, player.Creature));
+    }
+
+    private void OnPlayerUnendedTurn(Player player)
+    {
+        var name = player.Creature?.Name ?? Multiplayer.MultiplayerHelper.GetPlayerName(player.NetId);
+        EventDispatcher.Enqueue(new EndTurnEvent(name, ready: false, player.Creature));
     }
 
     private Player? GetLocalPlayer()

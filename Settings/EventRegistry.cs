@@ -34,11 +34,11 @@ public static class EventRegistry
         {
             var sources = new CategorySetting("sources", "Sources");
             if (attr.AllowCurrentPlayer)
-                sources.Add(new BoolSetting("current_player", "Current Player", true));
+                sources.Add(new BoolSetting("current_player", "Current Player", attr.DefaultCurrentPlayer));
             if (attr.AllowOtherPlayers)
-                sources.Add(new BoolSetting("other_players", "Other Players", true));
+                sources.Add(new BoolSetting("other_players", "Other Players", attr.DefaultOtherPlayers));
             if (attr.AllowEnemies)
-                sources.Add(new BoolSetting("enemies", "Enemies", true));
+                sources.Add(new BoolSetting("enemies", "Enemies", attr.DefaultEnemies));
             cat.Add(sources);
         }
     }
@@ -96,6 +96,9 @@ public static class EventRegistry
         Register(typeof(PotionObtainedEvent));
         Register(typeof(OrbEvent));
         Register(typeof(RoomEnteredEvent));
+        Register(typeof(CardPlayedEvent));
+        Register(typeof(PotionUsedEvent));
+        Register(typeof(EndTurnEvent));
         Register(typeof(MapVoteEvent));
         Register(typeof(EventVoteEvent));
     }
