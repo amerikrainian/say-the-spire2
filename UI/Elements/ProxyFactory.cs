@@ -3,16 +3,21 @@ using MegaCrit.sts2.Core.Nodes.TopBar;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
-using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Events;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Orbs;
 using MegaCrit.Sts2.Core.Nodes.Potions;
 using MegaCrit.Sts2.Core.Nodes.Relics;
 using MegaCrit.Sts2.Core.Nodes.Rewards;
+using MegaCrit.Sts2.Core.Nodes.CommonUi;
+using MegaCrit.Sts2.Core.Nodes.Screens.CardLibrary;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
+using MegaCrit.Sts2.Core.Nodes.Screens.PotionLab;
+using MegaCrit.Sts2.Core.Nodes.Screens.RelicCollection;
+using MegaCrit.Sts2.Core.Nodes.Screens.RunHistoryScreen;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
+using MegaCrit.Sts2.Core.Nodes.Screens.StatsScreen;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using MegaCrit.Sts2.Core.Nodes.Screens.TreasureRoomRelic;
 
@@ -46,6 +51,27 @@ public static class ProxyFactory
 
         if (control is NPaginator)
             return new ProxyPaginator(control);
+
+        if (control is NLabPotionHolder)
+            return new ProxyPotionLabHolder(control);
+
+        if (control is NRelicCollectionEntry)
+            return new ProxyRelicCollectionEntry(control);
+
+        if (control is NStatEntry)
+            return new ProxyStatEntry(control);
+
+        if (control is NRunHistoryPlayerIcon)
+            return new ProxyRunHistoryPlayerIcon(control);
+
+        if (control is NMapPointHistoryEntry)
+            return new ProxyRunHistoryMapPoint(control);
+
+        if (control is NCardPoolFilter)
+            return new ProxyCardPoolFilter(control);
+
+        if (control is NCardViewSortButton)
+            return new ProxyCardViewSortButton(control);
 
         // Top bar elements
         if (control is NTopBarHp or NTopBarGold or NTopBarRoomIcon
