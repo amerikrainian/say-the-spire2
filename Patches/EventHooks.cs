@@ -71,18 +71,43 @@ public static class EventHooks
             Log.Error("[AccessibilityMod] Could not find SwipePower.Steal!");
         }
 
-        // Card upgrade
+        // Card upgrade during combat (Apotheosis, Armaments, etc.)
+        // NCardUpgradeVfx doesn't fire for combat piles, so we hook CardCmd.Upgrade directly
+        // but only announce during combat (CardFactory reward creation happens out of combat)
         var upgradeMethod = AccessTools.Method(typeof(CardCmd), "Upgrade",
             new[] { typeof(IEnumerable<CardModel>), typeof(CardPreviewStyle) });
         if (upgradeMethod != null)
         {
             harmony.Patch(upgradeMethod,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardUpgradePostfix)));
-            Log.Info("[AccessibilityMod] CardCmd.Upgrade hook patched.");
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardUpgradeCombatPostfix)));
+            Log.Info("[AccessibilityMod] CardCmd.Upgrade (combat) hook patched.");
+        }
+
+        // Card upgrade VFX — fires when the game shows the upgrade animation (out-of-combat deck upgrades)
+        var upgradeVfx = AccessTools.Method(typeof(MegaCrit.Sts2.Core.Nodes.Vfx.NCardUpgradeVfx), "Create");
+        if (upgradeVfx != null)
+        {
+            harmony.Patch(upgradeVfx,
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardUpgradeVfxPostfix)));
+            Log.Info("[AccessibilityMod] NCardUpgradeVfx.Create hook patched.");
         }
         else
         {
-            Log.Error("[AccessibilityMod] Could not find CardCmd.Upgrade!");
+            Log.Error("[AccessibilityMod] Could not find NCardUpgradeVfx.Create!");
+        }
+
+        // Card smith VFX — fires when upgrading at rest site
+        var smithVfx = AccessTools.Method(typeof(MegaCrit.Sts2.Core.Nodes.Vfx.NCardSmithVfx), "Create",
+            new[] { typeof(IEnumerable<CardModel>), typeof(bool) });
+        if (smithVfx != null)
+        {
+            harmony.Patch(smithVfx,
+                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardSmithVfxPostfix)));
+            Log.Info("[AccessibilityMod] NCardSmithVfx.Create hook patched.");
+        }
+        else
+        {
+            Log.Error("[AccessibilityMod] Could not find NCardSmithVfx.Create!");
         }
 
         // Orb events
@@ -192,7 +217,41 @@ public static class EventHooks
         }
     }
 
-    public static void CardUpgradePostfix(IEnumerable<CardModel> cards)
+    public static void CardUpgradeCombatPostfix(IEnumerable<CardModel> cards)
+    {
+        try
+        {
+            // Only announce during combat — out-of-combat upgrades are handled by VFX hooks
+            if (!MegaCrit.Sts2.Core.Combat.CombatManager.Instance.IsInProgress) return;
+
+            foreach (var card in cards)
+            {
+                var name = card.Title;
+                if (!string.IsNullOrEmpty(name))
+                    EventDispatcher.Enqueue(new CardUpgradeEvent(name));
+            }
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Card upgrade combat hook error: {e.Message}");
+        }
+    }
+
+    public static void CardUpgradeVfxPostfix(CardModel card)
+    {
+        try
+        {
+            var name = card.Title;
+            if (!string.IsNullOrEmpty(name))
+                EventDispatcher.Enqueue(new CardUpgradeEvent(name));
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Card upgrade VFX hook error: {e.Message}");
+        }
+    }
+
+    public static void CardSmithVfxPostfix(IEnumerable<CardModel> cards)
     {
         try
         {
@@ -205,7 +264,7 @@ public static class EventHooks
         }
         catch (System.Exception e)
         {
-            Log.Error($"[AccessibilityMod] Card upgrade hook error: {e.Message}");
+            Log.Error($"[AccessibilityMod] Card smith VFX hook error: {e.Message}");
         }
     }
 
