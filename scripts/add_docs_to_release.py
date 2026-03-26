@@ -1,0 +1,24 @@
+from pathlib import Path
+from zipfile import ZipFile
+
+
+ROOT = Path(__file__).resolve().parents[1]
+RELEASE_ZIP = ROOT / "SayTheSpire2.zip"
+BOOK_DIR = ROOT / "docs_src" / "book"
+
+
+def main() -> None:
+    if not RELEASE_ZIP.exists():
+        raise FileNotFoundError(f"Release zip not found: {RELEASE_ZIP}")
+    if not BOOK_DIR.is_dir():
+        raise FileNotFoundError(f"Docs build output not found: {BOOK_DIR}")
+
+    with ZipFile(RELEASE_ZIP, "a") as archive:
+        for src in sorted(BOOK_DIR.rglob("*")):
+            if src.is_file():
+                arc_name = Path("SayTheSpire2Docs") / src.relative_to(BOOK_DIR)
+                archive.write(src, arc_name.as_posix())
+
+
+if __name__ == "__main__":
+    main()

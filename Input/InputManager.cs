@@ -164,16 +164,18 @@ public static class InputManager
         _actions.Add(new InputAction("mega_top_panel", "Top Panel", gameAction: "mega_top_panel")
             .AddBinding(Key.T)
             .AddBinding(ControllerInput.X));
-        _actions.Add(new InputAction("mega_select_card_1", "Select Card 1", gameAction: "mega_select_card_1").AddBinding(Key.Key1));
-        _actions.Add(new InputAction("mega_select_card_2", "Select Card 2", gameAction: "mega_select_card_2").AddBinding(Key.Key2));
-        _actions.Add(new InputAction("mega_select_card_3", "Select Card 3", gameAction: "mega_select_card_3").AddBinding(Key.Key3));
-        _actions.Add(new InputAction("mega_select_card_4", "Select Card 4", gameAction: "mega_select_card_4").AddBinding(Key.Key4));
-        _actions.Add(new InputAction("mega_select_card_5", "Select Card 5", gameAction: "mega_select_card_5").AddBinding(Key.Key5));
-        _actions.Add(new InputAction("mega_select_card_6", "Select Card 6", gameAction: "mega_select_card_6").AddBinding(Key.Key6));
-        _actions.Add(new InputAction("mega_select_card_7", "Select Card 7", gameAction: "mega_select_card_7").AddBinding(Key.Key7));
-        _actions.Add(new InputAction("mega_select_card_8", "Select Card 8", gameAction: "mega_select_card_8").AddBinding(Key.Key8));
-        _actions.Add(new InputAction("mega_select_card_9", "Select Card 9", gameAction: "mega_select_card_9").AddBinding(Key.Key9));
-        _actions.Add(new InputAction("mega_select_card_10", "Select Card 10", gameAction: "mega_select_card_10").AddBinding(Key.Key0));
+        _actions.Add(new InputAction("mega_select_card_1", "Creature Status 1", gameAction: "mega_select_card_1").AddBinding(Key.Key1));
+        _actions.Add(new InputAction("mega_select_card_2", "Creature Status 2", gameAction: "mega_select_card_2").AddBinding(Key.Key2));
+        _actions.Add(new InputAction("mega_select_card_3", "Creature Status 3", gameAction: "mega_select_card_3").AddBinding(Key.Key3));
+        _actions.Add(new InputAction("mega_select_card_4", "Creature Status 4", gameAction: "mega_select_card_4").AddBinding(Key.Key4));
+        _actions.Add(new InputAction("mega_select_card_5", "Creature Status 5", gameAction: "mega_select_card_5").AddBinding(Key.Key5));
+        _actions.Add(new InputAction("mega_select_card_6", "Creature Status 6", gameAction: "mega_select_card_6").AddBinding(Key.Key6));
+        _actions.Add(new InputAction("mega_select_card_7", "Creature Status 7", gameAction: "mega_select_card_7").AddBinding(Key.Key7));
+        _actions.Add(new InputAction("mega_select_card_8", "Creature Status 8", gameAction: "mega_select_card_8").AddBinding(Key.Key8));
+        _actions.Add(new InputAction("mega_select_card_9", "Creature Status 9", gameAction: "mega_select_card_9").AddBinding(Key.Key9));
+        _actions.Add(new InputAction("mega_select_card_10", "Creature Status 10", gameAction: "mega_select_card_10").AddBinding(Key.Key0));
+        _actions.Add(new InputAction("mega_select_card_11", "Creature Status 11").AddBinding(Key.Minus));
+        _actions.Add(new InputAction("mega_select_card_12", "Creature Status 12").AddBinding(Key.Equal));
         _actions.Add(new InputAction("mega_release_card", "Release Card", gameAction: "mega_release_card").AddBinding(Key.Down));
     }
 
@@ -208,6 +210,18 @@ public static class InputManager
             .AddBinding(ControllerInput.Back, modifier: ControllerInput.RightTrigger));
         _actions.Add(new InputAction("mod_settings", "Mod Settings").AddBinding(Key.M, ctrl: true)
             .AddBinding(ControllerInput.Start, modifier: ControllerInput.LeftTrigger));
+        _actions.Add(new InputAction("announce_combatant_intent_1", "Combatant Intent 1").AddBinding(Key.Key1, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_2", "Combatant Intent 2").AddBinding(Key.Key2, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_3", "Combatant Intent 3").AddBinding(Key.Key3, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_4", "Combatant Intent 4").AddBinding(Key.Key4, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_5", "Combatant Intent 5").AddBinding(Key.Key5, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_6", "Combatant Intent 6").AddBinding(Key.Key6, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_7", "Combatant Intent 7").AddBinding(Key.Key7, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_8", "Combatant Intent 8").AddBinding(Key.Key8, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_9", "Combatant Intent 9").AddBinding(Key.Key9, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_10", "Combatant Intent 10").AddBinding(Key.Key0, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_11", "Combatant Intent 11").AddBinding(Key.Minus, shift: true));
+        _actions.Add(new InputAction("announce_combatant_intent_12", "Combatant Intent 12").AddBinding(Key.Equal, shift: true));
     }
 
     /// <summary>

@@ -15,9 +15,9 @@ public class NavigableContainer : ListContainer
         switch (action.Key)
         {
             case "ui_down":
-                return MoveFocus(1);
+                return MoveRelative(1);
             case "ui_up":
-                return MoveFocus(-1);
+                return MoveRelative(-1);
             case "ui_left":
                 if (FocusedChild is SliderElement slLeft) { slLeft.Decrement(); return true; }
                 return false;
@@ -44,7 +44,7 @@ public class NavigableContainer : ListContainer
         }
     }
 
-    private bool MoveFocus(int direction)
+    public bool MoveRelative(int direction)
     {
         if (Children.Count == 0) return false;
 
@@ -97,8 +97,23 @@ public class NavigableContainer : ListContainer
                 var screen = new ChoiceSelectionScreen(dropdown.Setting);
                 ScreenManager.PushScreen(screen);
                 return true;
+            case ActionElement action:
+                return action.Activate();
             default:
                 return false;
         }
+    }
+
+    public int FocusIndex => _focusIndex;
+
+    public void SetFocusIndex(int index)
+    {
+        if (index < 0 || index >= Children.Count || !Children[index].IsVisible)
+        {
+            FocusFirst();
+            return;
+        }
+
+        SetFocus(index);
     }
 }

@@ -30,6 +30,37 @@ namespace SayTheSpire2.UI.Screens;
 public class CombatScreen : Screen
 {
     public static CombatScreen? Current { get; private set; }
+    private static readonly string[] CombatantSelectActions =
+    {
+        "mega_select_card_1",
+        "mega_select_card_2",
+        "mega_select_card_3",
+        "mega_select_card_4",
+        "mega_select_card_5",
+        "mega_select_card_6",
+        "mega_select_card_7",
+        "mega_select_card_8",
+        "mega_select_card_9",
+        "mega_select_card_10",
+        "mega_select_card_11",
+        "mega_select_card_12",
+    };
+
+    private static readonly string[] CombatantIntentActions =
+    {
+        "announce_combatant_intent_1",
+        "announce_combatant_intent_2",
+        "announce_combatant_intent_3",
+        "announce_combatant_intent_4",
+        "announce_combatant_intent_5",
+        "announce_combatant_intent_6",
+        "announce_combatant_intent_7",
+        "announce_combatant_intent_8",
+        "announce_combatant_intent_9",
+        "announce_combatant_intent_10",
+        "announce_combatant_intent_11",
+        "announce_combatant_intent_12",
+    };
 
     private static readonly string[] _alwaysEnabled = { "events" };
     public override IEnumerable<string> AlwaysEnabledBuffers => _alwaysEnabled;
@@ -56,6 +87,10 @@ public class CombatScreen : Screen
         ClaimAction("announce_summarized_intents");
         ClaimAction("ui_accept", propagate: true);
         ClaimAction("ui_select", propagate: true);
+        foreach (var action in CombatantSelectActions)
+            ClaimAction(action);
+        foreach (var action in CombatantIntentActions)
+            ClaimAction(action);
 
         _rootContainer.Add(_potionContainer);
         _rootContainer.Add(_relicContainer);
@@ -153,6 +188,20 @@ public class CombatScreen : Screen
 
     public override bool OnActionJustPressed(InputAction action)
     {
+        var combatantIndex = System.Array.IndexOf(CombatantSelectActions, action.Key);
+        if (combatantIndex >= 0)
+        {
+            AnnounceCombatantStatus(combatantIndex);
+            return true;
+        }
+
+        var intentIndex = System.Array.IndexOf(CombatantIntentActions, action.Key);
+        if (intentIndex >= 0)
+        {
+            AnnounceCombatantIntent(intentIndex);
+            return true;
+        }
+
         switch (action.Key)
         {
             case "announce_block":
@@ -176,6 +225,82 @@ public class CombatScreen : Screen
         }
 
         return false;
+    }
+
+    private void AnnounceCombatantStatus(int index)
+    {
+        var creature = GetBoundCombatant(index);
+        if (creature == null)
+            return;
+
+        var parts = new List<string>
+        {
+            creature.Name,
+            creature.CurrentHp.ToString()
+        };
+
+        if (creature.Block > 0)
+            parts.Add($"{creature.Block} block");
+
+        SpeechManager.Output(Message.Raw(string.Join(", ", parts)));
+    }
+
+    private void AnnounceCombatantIntent(int index)
+    {
+        var creature = GetBoundCombatant(index);
+        if (creature == null)
+            return;
+
+        var intent = GetCombatantIntentSummary(creature);
+        if (string.IsNullOrEmpty(intent))
+            return;
+
+        SpeechManager.Output(Message.Raw(intent));
+    }
+
+    private Creature? GetBoundCombatant(int index)
+    {
+        if (index < 0)
+            return null;
+
+        var state = GetLiveState();
+        if (state == null)
+            return null;
+
+        var combatants = state.Enemies
+            .Concat(state.Allies)
+            .Where(c => c != null && c.IsAlive && !LocalContext.IsMe(c))
+            .Take(CombatantSelectActions.Length)
+            .ToList();
+
+        if (index >= combatants.Count)
+            return null;
+
+        return combatants[index];
+    }
+
+    private string? GetCombatantIntentSummary(Creature creature)
+    {
+        if (!creature.IsMonster || creature.Monster?.NextMove?.Intents == null)
+            return "No intent";
+
+        var intents = creature.Monster.NextMove.Intents;
+        if (intents.Count == 0)
+            return "No intent";
+
+        var allies = creature.CombatState?.Allies ?? Enumerable.Empty<Creature>();
+        var summaries = new List<string>();
+        foreach (var intent in intents)
+        {
+            var name = ProxyCreature.GetIntentName(intent);
+            var label = intent.GetIntentLabel(allies, creature).GetFormattedText();
+            if (!string.IsNullOrWhiteSpace(label))
+                summaries.Add($"{name} {Message.StripBbcode(label)}");
+            else
+                summaries.Add(name);
+        }
+
+        return summaries.Count > 0 ? string.Join(", ", summaries) : "No intent";
     }
 
     private void AnnounceBlock()
