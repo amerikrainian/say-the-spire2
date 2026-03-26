@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.Screens.RelicCollection;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -11,14 +12,14 @@ public class RelicCollectionGameScreen : GameScreen
     private readonly NRelicCollection _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = "Relic Collection",
+        ContainerLabel = Ui("RELIC_COLLECTION.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
     private readonly Dictionary<Control, ProxyRelicCollectionEntry> _proxyCache = new();
     private string? _stateToken;
 
-    public override string? ScreenName => "Relic Collection";
+    public override string? ScreenName => Ui("RELIC_COLLECTION.SCREEN_NAME");
 
     public RelicCollectionGameScreen(NRelicCollection screen)
     {
@@ -127,6 +128,11 @@ public class RelicCollectionGameScreen : GameScreen
     private static string GetCategoryLabel(NRelicCollectionCategory category)
     {
         var header = category.GetNodeOrNull<RichTextLabel>("%Header") ?? category.GetNodeOrNull<RichTextLabel>("Header");
-        return header == null ? "Relics" : ProxyElement.StripBbcode(header.Text);
+        return header == null ? Ui("RELIC_COLLECTION.CATEGORY_FALLBACK") : ProxyElement.StripBbcode(header.Text);
+    }
+
+    private static string Ui(string key)
+    {
+        return LocalizationManager.GetOrDefault("ui", key, key);
     }
 }

@@ -23,7 +23,7 @@ public class RunHistoryGameScreen : GameScreen
     private readonly NRunHistory _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = "Run History",
+        ContainerLabel = Ui("RUN_HISTORY.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
@@ -32,7 +32,7 @@ public class RunHistoryGameScreen : GameScreen
     private readonly HashSet<ulong> _connectedControls = new();
     private string? _stateToken;
 
-    public override string? ScreenName => "Run History";
+    public override string? ScreenName => Ui("RUN_HISTORY.SCREEN_NAME");
 
     public RunHistoryGameScreen(NRunHistory screen)
     {
@@ -104,15 +104,15 @@ public class RunHistoryGameScreen : GameScreen
     {
         _root.Clear();
 
-        var navigation = NewRow("Runs");
-        var players = NewRow("Players");
-        var summary = NewRow("Summary");
-        var details = NewRow("Details");
-        var map = NewRow("Map");
-        var potions = NewRow("Potions");
-        var relics = NewRow("Relics");
-        var deck = NewRow("Deck");
-        var quote = NewRow("Outcome");
+        var navigation = NewRow(Ui("RUN_HISTORY.ROWS.RUNS"));
+        var players = NewRow(Ui("RUN_HISTORY.ROWS.PLAYERS"));
+        var summary = NewRow(Ui("RUN_HISTORY.ROWS.SUMMARY"));
+        var details = NewRow(Ui("RUN_HISTORY.ROWS.DETAILS"));
+        var map = NewRow(Ui("RUN_HISTORY.ROWS.MAP"));
+        var potions = NewRow(Ui("RUN_HISTORY.ROWS.POTIONS"));
+        var relics = NewRow(Ui("RUN_HISTORY.ROWS.RELICS"));
+        var deck = NewRow(Ui("RUN_HISTORY.ROWS.DECK"));
+        var quote = NewRow(Ui("RUN_HISTORY.ROWS.OUTCOME"));
 
         RegisterNavigation(navigation);
         RegisterPlayers(players);
@@ -152,8 +152,8 @@ public class RunHistoryGameScreen : GameScreen
 
     private void RegisterNavigation(ListContainer container)
     {
-        RegisterStatic(container, _screen.GetNodeOrNull<NClickableControl>("LeftArrow"), "Previous run");
-        RegisterStatic(container, _screen.GetNodeOrNull<NClickableControl>("RightArrow"), "Next run");
+        RegisterStatic(container, _screen.GetNodeOrNull<NClickableControl>("LeftArrow"), Ui("RUN_HISTORY.PREVIOUS_RUN"));
+        RegisterStatic(container, _screen.GetNodeOrNull<NClickableControl>("RightArrow"), Ui("RUN_HISTORY.NEXT_RUN"));
     }
 
     private void RegisterPlayers(ListContainer container)
@@ -172,18 +172,18 @@ public class RunHistoryGameScreen : GameScreen
 
     private void RegisterSummary(ListContainer container)
     {
-        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%HpLabel"), "HP");
-        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%GoldLabel"), "Gold");
-        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%FloorNumLabel"), "Floor");
-        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%RunTimeLabel"), "Run time");
+        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%HpLabel"), Ui("RUN_HISTORY.FIELDS.HP"));
+        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%GoldLabel"), Ui("RUN_HISTORY.FIELDS.GOLD"));
+        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%FloorNumLabel"), Ui("RUN_HISTORY.FIELDS.FLOOR"));
+        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%RunTimeLabel"), Ui("RUN_HISTORY.FIELDS.RUN_TIME"));
     }
 
     private void RegisterDetails(ListContainer container)
     {
-        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%DateLabel"), "Date");
-        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%SeedLabel"), "Seed");
-        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%GameModeLabel"), "Mode");
-        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%BuildLabel"), "Build");
+        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%DateLabel"), Ui("RUN_HISTORY.FIELDS.DATE"));
+        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%SeedLabel"), Ui("RUN_HISTORY.FIELDS.SEED"));
+        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%GameModeLabel"), Ui("RUN_HISTORY.FIELDS.MODE"));
+        RegisterStatic(container, _screen.GetNodeOrNull<Control>("%BuildLabel"), Ui("RUN_HISTORY.FIELDS.BUILD"));
     }
 
     private void RegisterMapHistory(ListContainer container)
@@ -253,7 +253,7 @@ public class RunHistoryGameScreen : GameScreen
         control.FocusMode = Control.FocusModeEnum.All;
         var element = new ActionElement(
             () => null,
-            status: () => GetStaticStatus("Outcome", control));
+            status: () => GetStaticStatus(Ui("RUN_HISTORY.ROWS.OUTCOME"), control));
         ConnectFocusSignal(control, element);
         container.Add(element);
         Register(control, element);
@@ -450,5 +450,10 @@ public class RunHistoryGameScreen : GameScreen
 
         control.GrabFocus();
         return true;
+    }
+
+    private static string Ui(string key)
+    {
+        return LocalizationManager.GetOrDefault("ui", key, key);
     }
 }

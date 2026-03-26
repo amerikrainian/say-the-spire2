@@ -1,6 +1,7 @@
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens.MainMenu;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -10,13 +11,13 @@ public class CompendiumMenuScreen : GameScreen
     private readonly NCompendiumSubmenu _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = "Compendium",
+        ContainerLabel = Ui("COMPENDIUM.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
     private readonly System.Collections.Generic.List<NClickableControl> _buttons = new();
 
-    public override string? ScreenName => "Compendium";
+    public override string? ScreenName => Ui("COMPENDIUM.SCREEN_NAME");
 
     public CompendiumMenuScreen(NCompendiumSubmenu screen)
     {
@@ -60,5 +61,10 @@ public class CompendiumMenuScreen : GameScreen
             _buttons[i].FocusNeighborLeft = self;
             _buttons[i].FocusNeighborRight = self;
         }
+    }
+
+    private static string Ui(string key)
+    {
+        return LocalizationManager.GetOrDefault("ui", key, key);
     }
 }

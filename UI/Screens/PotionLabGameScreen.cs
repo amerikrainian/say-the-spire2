@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.Screens.PotionLab;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI;
 using SayTheSpire2.UI.Elements;
 
@@ -12,7 +13,7 @@ public class PotionLabGameScreen : GameScreen
     private readonly NPotionLab _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = "Potion Lab",
+        ContainerLabel = Ui("POTION_LAB.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
@@ -20,7 +21,7 @@ public class PotionLabGameScreen : GameScreen
     private readonly HashSet<ulong> _connectedControls = new();
     private string? _stateToken;
 
-    public override string? ScreenName => "Potion Lab";
+    public override string? ScreenName => Ui("POTION_LAB.SCREEN_NAME");
 
     public PotionLabGameScreen(NPotionLab screen)
     {
@@ -150,6 +151,11 @@ public class PotionLabGameScreen : GameScreen
     private static string GetCategoryLabel(NPotionLabCategory category)
     {
         var header = category.GetNodeOrNull<RichTextLabel>("Header");
-        return header == null ? "Potions" : ProxyElement.StripBbcode(header.Text);
+        return header == null ? Ui("POTION_LAB.CATEGORY_FALLBACK") : ProxyElement.StripBbcode(header.Text);
+    }
+
+    private static string Ui(string key)
+    {
+        return LocalizationManager.GetOrDefault("ui", key, key);
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.Screens.StatsScreen;
 using SayTheSpire2.Input;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI;
 using SayTheSpire2.UI.Elements;
 
@@ -13,7 +14,7 @@ public class StatsGameScreen : GameScreen
     private readonly NStatsScreen _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = "Statistics",
+        ContainerLabel = Ui("STATS.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
@@ -21,7 +22,7 @@ public class StatsGameScreen : GameScreen
     private readonly Dictionary<Control, StatsValueElement> _elementCache = new();
     private string? _stateToken;
 
-    public override string? ScreenName => "Statistics";
+    public override string? ScreenName => Ui("STATS.SCREEN_NAME");
 
     public StatsGameScreen(NStatsScreen screen)
     {
@@ -85,15 +86,15 @@ public class StatsGameScreen : GameScreen
         var entries = grid.GetNodeOrNull<Node>("%GridContainer")?.GetChildren().OfType<NStatEntry>().ToList() ?? new List<NStatEntry>();
         var labels = new[]
         {
-            "Achievements and epochs",
-            "Playtime",
-            "Cards",
-            "Wins and losses",
-            "Monsters",
-            "Relics",
-            "Potions",
-            "Events",
-            "Win streak",
+            Ui("STATS.OVERALL.ACHIEVEMENTS_AND_EPOCHS"),
+            Ui("STATS.OVERALL.PLAYTIME"),
+            Ui("STATS.OVERALL.CARDS"),
+            Ui("STATS.OVERALL.WINS_AND_LOSSES"),
+            Ui("STATS.OVERALL.MONSTERS"),
+            Ui("STATS.OVERALL.RELICS"),
+            Ui("STATS.OVERALL.POTIONS"),
+            Ui("STATS.OVERALL.EVENTS"),
+            Ui("STATS.OVERALL.WIN_STREAK"),
         };
 
         for (int i = 0; i < entries.Count && i < labels.Length; i++)
@@ -111,11 +112,16 @@ public class StatsGameScreen : GameScreen
             var nameNode = section.GetNodeOrNull<Node>("%NameLabel") ?? section.GetNodeOrNull<Node>("NameLabel");
             var sectionName = nameNode == null ? null : ProxyElement.FindChildTextPublic(nameNode);
             if (string.IsNullOrWhiteSpace(sectionName))
-                sectionName = ProxyElement.FindChildTextPublic(section) ?? "Character";
+                sectionName = ProxyElement.FindChildTextPublic(section) ?? Ui("STATS.CHARACTER_FALLBACK");
 
             var statContainer = section.GetNodeOrNull<Node>("%StatsContainer");
             var entries = statContainer?.GetChildren().OfType<NStatEntry>().ToList() ?? new List<NStatEntry>();
-            var labels = new[] { "Playtime", "Ascension and wins/losses", "Win streak" };
+            var labels = new[]
+            {
+                Ui("STATS.CHARACTER.PLAYTIME"),
+                Ui("STATS.CHARACTER.ASCENSION_AND_WINS_LOSSES"),
+                Ui("STATS.CHARACTER.WIN_STREAK")
+            };
 
             for (int i = 0; i < entries.Count && i < labels.Length; i++)
                 AddStat(entries[i], $"{sectionName}, {labels[i]}");
@@ -197,5 +203,10 @@ public class StatsGameScreen : GameScreen
             controls[i].FocusNeighborLeft = self;
             controls[i].FocusNeighborRight = self;
         }
+    }
+
+    private static string Ui(string key)
+    {
+        return LocalizationManager.GetOrDefault("ui", key, key);
     }
 }

@@ -38,8 +38,8 @@ public class ProxyRunHistoryMapPoint : ProxyElement
 
         var room = entry.Rooms.LastOrDefault();
         return room == null
-            ? $"Floor {control.FloorNum}"
-            : $"Floor {control.FloorNum}, {room.RoomType}";
+            ? Ui("RUN_HISTORY.FLOOR", new { floor = control.FloorNum })
+            : Ui("RUN_HISTORY.FLOOR_WITH_ROOM", new { floor = control.FloorNum, room = room.RoomType });
     }
 
     public override string? GetTypeKey() => "button";
