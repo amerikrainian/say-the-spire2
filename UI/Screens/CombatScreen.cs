@@ -281,26 +281,7 @@ public class CombatScreen : Screen
 
     private string? GetCombatantIntentSummary(Creature creature)
     {
-        if (!creature.IsMonster || creature.Monster?.NextMove?.Intents == null)
-            return "No intent";
-
-        var intents = creature.Monster.NextMove.Intents;
-        if (intents.Count == 0)
-            return "No intent";
-
-        var allies = creature.CombatState?.Allies ?? Enumerable.Empty<Creature>();
-        var summaries = new List<string>();
-        foreach (var intent in intents)
-        {
-            var name = ProxyCreature.GetIntentName(intent);
-            var label = intent.GetIntentLabel(allies, creature).GetFormattedText();
-            if (!string.IsNullOrWhiteSpace(label))
-                summaries.Add($"{name} {Message.StripBbcode(label)}");
-            else
-                summaries.Add(name);
-        }
-
-        return summaries.Count > 0 ? string.Join(", ", summaries) : "No intent";
+        return ProxyCreature.GetIntentSummary(creature, includePrefix: false) ?? "No intent";
     }
 
     private void AnnounceBlock()

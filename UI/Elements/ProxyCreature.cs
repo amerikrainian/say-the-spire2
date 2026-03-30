@@ -6,9 +6,12 @@ using Godot;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Creatures;
+using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.Logging;
+using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using MegaCrit.Sts2.Core.Nodes.Combat;
+using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Multiplayer;
 using SayTheSpire2.Settings;
@@ -58,9 +61,7 @@ public class ProxyCreature : ProxyElement
         var parts = new List<string>();
         var intentFirst = ModSettings.GetValue<bool>("ui.creature.intent_first");
 
-        string? intentSummary = null;
-        if (entity.IsMonster && entity.Monster != null)
-            intentSummary = GetIntentSummary(entity, includePrefix: !intentFirst);
+        var intentSummary = GetIntentSummary(entity, includePrefix: !intentFirst);
 
         if (intentFirst && !string.IsNullOrEmpty(intentSummary))
             parts.Add(intentSummary);
@@ -140,34 +141,119 @@ public class ProxyCreature : ProxyElement
         return intent.IntentType.ToString();
     }
 
-    private static string? GetIntentSummary(Creature entity, bool includePrefix = true)
+    public static string? GetIntentSummary(Creature entity, bool includePrefix = true)
     {
         try
         {
-            var intents = entity.Monster?.NextMove?.Intents;
-            if (intents == null || intents.Count == 0) return null;
+            if (entity.IsMonster && entity.Monster != null)
+                return GetMonsterIntentSummary(entity, includePrefix);
 
-            var summaries = new List<string>();
-            var allies = entity.CombatState?.Allies;
-
-            foreach (var intent in intents)
-            {
-                var name = GetIntentName(intent);
-                var label = intent.GetIntentLabel(allies ?? Enumerable.Empty<Creature>(), entity);
-                var text = label.GetFormattedText();
-                if (!string.IsNullOrEmpty(text) && text != "")
-                    summaries.Add($"{name} {StripBbcode(text)}");
-                else
-                    summaries.Add(name);
-            }
-
-            if (summaries.Count == 0) return null;
-            var joined = string.Join(", ", summaries);
-            return includePrefix ? "Intent " + joined : joined;
+            if (entity.IsPlayer && entity.Player != null)
+                return GetPlayerIntentSummary(entity.Player, includePrefix);
         }
         catch
         {
             return null;
         }
+
+        return null;
+    }
+
+    private static string? GetMonsterIntentSummary(Creature entity, bool includePrefix)
+    {
+        var intents = entity.Monster?.NextMove?.Intents;
+        if (intents == null || intents.Count == 0)
+            return null;
+
+        var summaries = new List<string>();
+        var allies = entity.CombatState?.Allies;
+
+        foreach (var intent in intents)
+        {
+            var name = GetIntentName(intent);
+            var label = intent.GetIntentLabel(allies ?? Enumerable.Empty<Creature>(), entity);
+            var text = label.GetFormattedText();
+            if (!string.IsNullOrEmpty(text) && text != "")
+                summaries.Add($"{name} {StripBbcode(text)}");
+            else
+                summaries.Add(name);
+        }
+
+        if (summaries.Count == 0)
+            return null;
+
+        var joined = string.Join(", ", summaries);
+        return includePrefix ? "Intent " + joined : joined;
+    }
+
+    private static string? GetPlayerIntentSummary(MegaCrit.Sts2.Core.Entities.Players.Player player, bool includePrefix)
+    {
+        var hoveredModel = RunManager.Instance?.HoveredModelTracker?.GetHoveredModel(player.NetId);
+        if (hoveredModel == null)
+            return null;
+
+        var summary = GetHoveredModelSummary(hoveredModel);
+        if (string.IsNullOrWhiteSpace(summary))
+            return null;
+
+        return includePrefix ? "Intent " + summary : summary;
+    }
+
+    private static string? GetHoveredModelSummary(AbstractModel model)
+    {
+        return model switch
+        {
+            CardModel card => GetCardIntentSummary(card),
+            RelicModel relic => GetRelicIntentSummary(relic),
+            PotionModel potion => GetPotionIntentSummary(potion),
+            PowerModel power => GetPowerIntentSummary(power),
+            _ => null,
+        };
+    }
+
+    private static string GetCardIntentSummary(CardModel card)
+    {
+        var proxy = ProxyCard.FromModel(card);
+        var parts = new List<string>();
+        var label = proxy.GetLabel();
+        var extras = proxy.GetExtrasString();
+        var subtype = proxy.GetSubtypeKey();
+
+        if (!string.IsNullOrWhiteSpace(label))
+            parts.Add(label);
+        if (!string.IsNullOrWhiteSpace(extras))
+            parts.Add(extras);
+        if (!string.IsNullOrWhiteSpace(subtype))
+            parts.Add($"{subtype} card");
+
+        return string.Join(", ", parts);
+    }
+
+    private static string GetRelicIntentSummary(RelicModel relic)
+    {
+        var proxy = ProxyRelicHolder.FromModel(relic);
+        var parts = new List<string>();
+        var label = proxy.GetLabel();
+        var status = proxy.GetStatusString();
+
+        if (!string.IsNullOrWhiteSpace(label))
+            parts.Add(label);
+        if (!string.IsNullOrWhiteSpace(status))
+            parts.Add(status);
+
+        return string.Join(", ", parts);
+    }
+
+    private static string GetPotionIntentSummary(PotionModel potion)
+    {
+        return ProxyPotionHolder.FromModel(potion).GetLabel() ?? potion.Title.GetFormattedText();
+    }
+
+    private static string GetPowerIntentSummary(PowerModel power)
+    {
+        var title = power.Title.GetFormattedText();
+        if (power.StackType == PowerStackType.Counter && power.DisplayAmount != 0)
+            return $"{title} {power.DisplayAmount}";
+        return title;
     }
 }
