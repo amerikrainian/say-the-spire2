@@ -97,7 +97,7 @@ public class MapScreen : Screen
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {
-        new TextHelpMessage("Map navigation uses Ctrl+Arrow keys. Buffer controls are remapped on this screen."),
+        new TextHelpMessage("Map navigation uses buffer controls (Ctrl+directional keys by default). Buffer controls are remapped on this screen."),
         new ControlHelpMessage("Move Forward (toward boss)", "buffer_next_item"),
         new ControlHelpMessage("Move Backward (toward start)", "buffer_prev_item"),
         new ControlHelpMessage("Next Branch", "buffer_next"),

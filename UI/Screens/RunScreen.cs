@@ -32,6 +32,7 @@ public class RunScreen : Screen
     public override List<HelpMessage> GetHelpMessages() => new()
     {
         new ControlHelpMessage("Top Panel", "mega_top_panel"),
+        new ControlHelpMessage("View Deck", "mega_view_deck_and_tab_left"),
         new ControlHelpMessage("Announce Gold", "announce_gold"),
         new ControlHelpMessage("Announce HP", "announce_hp"),
         new ControlHelpMessage("Announce Boss", "announce_boss"),

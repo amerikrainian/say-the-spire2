@@ -6,6 +6,7 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
+using SayTheSpire2.Help;
 using SayTheSpire2.UI.Elements;
 using ListContainer = SayTheSpire2.UI.Elements.ListContainer;
 
@@ -26,6 +27,12 @@ public class SettingsGameScreen : GameScreen
         ("Graphics", "%GraphicsSettings"),
         ("Sound", "%SoundSettings"),
         ("Input", "%InputSettings"),
+    };
+
+    public override List<HelpMessage> GetHelpMessages() => new()
+    {
+        new ControlHelpMessage("Previous Tab", "mega_view_deck_and_tab_left"),
+        new ControlHelpMessage("Next Tab", "mega_view_exhaust_pile_and_tab_right"),
     };
 
     public SettingsGameScreen(NSettingsScreen screen)

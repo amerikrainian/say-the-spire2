@@ -8,6 +8,7 @@ using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Platform;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.Help;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Multiplayer;
 using SayTheSpire2.Speech;
@@ -27,6 +28,12 @@ public class CharacterSelectGameScreen : GameScreen
     public override string? ScreenName => "Character Select";
     public override System.Collections.Generic.IEnumerable<string> AlwaysEnabledBuffers =>
         _isMultiplayer ? new[] { "lobby" } : System.Array.Empty<string>();
+
+    public override System.Collections.Generic.List<HelpMessage> GetHelpMessages() => new()
+    {
+        new ControlHelpMessage("Decrease Ascension", "mega_view_deck_and_tab_left"),
+        new ControlHelpMessage("Increase Ascension", "mega_view_exhaust_pile_and_tab_right"),
+    };
 
     public CharacterSelectGameScreen(NCharacterSelectScreen screen)
     {

@@ -5,6 +5,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline.UnlockScreens;
+using SayTheSpire2.Help;
 using SayTheSpire2.Input;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
@@ -22,6 +23,12 @@ public class TimelineGameScreen : GameScreen
 
     private static readonly FieldInfo? EpochSlotContainerField =
         typeof(NTimelineScreen).GetField("_epochSlotContainer", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    public override List<HelpMessage> GetHelpMessages() => new()
+    {
+        new TextHelpMessage("Navigate epochs with directional controls. Epochs are arranged in columns by era. Press Enter to reveal an obtained epoch. You must reveal all available epochs before you can exit this screen."),
+        new ControlHelpMessage("Jump to Next Revealable Epoch", "mega_top_panel"),
+    };
 
     public TimelineGameScreen(NTimelineScreen screen)
     {
