@@ -26,7 +26,7 @@ public class TimelineGameScreen : GameScreen
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {
-        new TextHelpMessage("Navigate epochs with directional controls. Epochs are arranged in columns by era. Press Enter to reveal an obtained epoch. You must reveal all available epochs before you can exit this screen."),
+        new TextHelpMessage("Navigate epochs with directional controls. Epochs are arranged in columns by era. Press Enter to reveal an obtained epoch. You must reveal all available epochs before you can exit this screen.", exclusive: true),
         new ControlHelpMessage("Jump to Next Revealable Epoch", "mega_top_panel"),
     };
 

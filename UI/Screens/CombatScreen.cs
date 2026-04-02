@@ -103,19 +103,19 @@ public class CombatScreen : Screen
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {
-        new TextHelpMessage("Use directional controls to navigate between creatures and your hand. Press Enter on a card to play it. For cards that don't require a target, press Enter a second time to confirm."),
-        new TextHelpMessage("Use your Top Panel key to quickly jump to your potions and relics."),
-        new ControlHelpMessage("End Turn", "ui_accept"),
-        new ControlHelpMessage("Announce Block", "announce_block"),
-        new ControlHelpMessage("Announce Energy", "announce_energy"),
-        new ControlHelpMessage("Announce Powers", "announce_powers"),
-        new ControlHelpMessage("Announce Intents", "announce_intents"),
-        new ControlHelpMessage("Announce Summarized Intents", "announce_summarized_intents"),
-        new ControlHelpMessage("View Draw Pile", "mega_view_draw_pile"),
-        new ControlHelpMessage("View Discard Pile", "mega_view_discard_pile"),
-        new ControlHelpMessage("View Exhaust Pile", "mega_view_exhaust_pile_and_tab_right"),
-        new ControlHelpMessage("Select Combatant 1-12", CombatantSelectActions),
-        new ControlHelpMessage("Announce Combatant Intent 1-12", CombatantIntentActions),
+        new TextHelpMessage("Use directional controls to navigate between creatures and your hand. Press Enter on a card to play it. For cards that don't require a target, press Enter a second time to confirm.", exclusive: true),
+        new TextHelpMessage("Use your Top Panel key to quickly jump to your potions and relics.", exclusive: true),
+        new ControlHelpMessage("End Turn", "ui_accept", exclusive: true),
+        new ControlHelpMessage("Announce Block", "announce_block", exclusive: true),
+        new ControlHelpMessage("Announce Energy", "announce_energy", exclusive: true),
+        new ControlHelpMessage("Announce Powers", "announce_powers", exclusive: true),
+        new ControlHelpMessage("Announce Intents", "announce_intents", exclusive: true),
+        new ControlHelpMessage("Announce Summarized Intents", "announce_summarized_intents", exclusive: true),
+        new ControlHelpMessage("View Draw Pile", "mega_view_draw_pile", exclusive: true),
+        new ControlHelpMessage("View Discard Pile", "mega_view_discard_pile", exclusive: true),
+        new ControlHelpMessage("View Exhaust Pile", "mega_view_exhaust_pile_and_tab_right", exclusive: true),
+        new ControlHelpMessage("Select Combatant 1-12", CombatantSelectActions, exclusive: true),
+        new ControlHelpMessage("Announce Combatant Intent 1-12", CombatantIntentActions, exclusive: true),
     };
 
     private CombatState? GetLiveState()

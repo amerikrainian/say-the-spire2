@@ -13,10 +13,14 @@ public class HelpScreenBuilder
 
     public void AddFromScreenStack()
     {
+        bool isFirst = true;
         foreach (var screen in ScreenManager.WalkScreensDeepestFirst())
         {
             foreach (var message in screen.GetHelpMessages())
             {
+                if (message.Exclusive && !isFirst)
+                    continue;
+
                 switch (message)
                 {
                     case TextHelpMessage text:
@@ -27,6 +31,7 @@ public class HelpScreenBuilder
                         break;
                 }
             }
+            isFirst = false;
         }
     }
 
