@@ -36,6 +36,7 @@ public class CustomRunGameScreen : GameScreen
     private bool _isMultiplayer;
     private int _lastAscension = -1;
     private NCharacterSelectButton? _lastFocusedCharacterButton;
+    private Control? _lastFocusedControl;
 
     private LineEdit? _seedInput;
     private Control? _characterButtonContainer;
@@ -213,17 +214,23 @@ public class CustomRunGameScreen : GameScreen
         if (_ascensionPanel == null || !_ascensionPanel.Visible)
             return;
 
+        var focusedControl = _screen.GetViewport()?.GuiGetFocusOwner() as Control;
         var current = _ascensionPanel.Ascension;
-        if (_lastAscension == -1)
+        if (_lastAscension == -1 || focusedControl != _lastFocusedControl)
         {
             _lastAscension = current;
+            _lastFocusedControl = focusedControl;
             return;
         }
 
         if (current == _lastAscension)
+        {
+            _lastFocusedControl = focusedControl;
             return;
+        }
 
         _lastAscension = current;
+        _lastFocusedControl = focusedControl;
         var title = AscensionHelper.GetTitle(current).GetFormattedText();
         var description = AscensionHelper.GetDescription(current).GetFormattedText();
         SpeechManager.Output(Message.Raw($"{Ui("CUSTOM_RUN.ASCENSION", new { value = current })}: {title}. {description}"));
