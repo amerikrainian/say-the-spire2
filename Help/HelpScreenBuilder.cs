@@ -44,6 +44,7 @@ public class HelpScreenBuilder
         TryAddControl(new ControlHelpMessage("Confirm", "ui_accept"));
         TryAddControl(new ControlHelpMessage("Select", "ui_select"));
         TryAddControl(new ControlHelpMessage("Cancel / Go Back", "ui_cancel"));
+        TryAddControl(new ControlHelpMessage("Pause / Back", "mega_pause_and_back"));
         TryAddControl(new ControlHelpMessage("Next Buffer Item", "buffer_next_item"));
         TryAddControl(new ControlHelpMessage("Previous Buffer Item", "buffer_prev_item"));
         TryAddControl(new ControlHelpMessage("Next Buffer", "buffer_next"));

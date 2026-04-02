@@ -12,6 +12,7 @@ public class RestSiteGameScreen : GameScreen
     public static RestSiteGameScreen? Current { get; private set; }
 
     private readonly NRestSiteRoom _room;
+    private string? _stateToken;
 
     public override string? ScreenName => "Rest Site";
 
@@ -24,12 +25,32 @@ public class RestSiteGameScreen : GameScreen
     {
         Current = this;
         base.OnPush();
+        _stateToken = BuildStateToken();
     }
 
     public override void OnPop()
     {
         base.OnPop();
         if (Current == this) Current = null;
+    }
+
+    public override void OnUpdate()
+    {
+        var token = BuildStateToken();
+        if (token != _stateToken)
+        {
+            _stateToken = token;
+            ClearRegistry();
+            BuildRegistry();
+        }
+    }
+
+    private string? BuildStateToken()
+    {
+        var container = _room.GetNodeOrNull<Godot.Control>("%ChoicesContainer");
+        if (container == null) return null;
+        var buttons = container.GetChildren().OfType<NRestSiteButton>().Where(b => b.Visible);
+        return string.Join("|", buttons.Select(b => b.Name));
     }
 
     protected override void BuildRegistry()

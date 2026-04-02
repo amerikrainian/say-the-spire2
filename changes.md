@@ -16,6 +16,7 @@
 * You can now press f1 for context-sensitive help on any screen. Use the up/down controls to navigate through all available messages on each screen. If a message contains multiple actions, use left/right to browse each action individually.
 * Fixed a bug where UI elements that yielded the same text (such as card reward buttons with identical labels) would be treated as the same element.
 * Fixed a bug where epochs within each timeline era were listed in reverse order.
+* Fixed a bug where controller focus would act strangely in rest sites if you have the ability to choose multiple actions (control focus neighbors were not being continuously updated.)
 
 ## V0.2.0
 * The mod now has documentation. It can be viewed on the github for the latest version [here](https://bradjrenshaw.github.io/say-the-spire2). Alternatively you can select view Documentation from the mod menu.
