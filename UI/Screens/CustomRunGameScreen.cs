@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using HarmonyLib;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
@@ -20,6 +21,11 @@ namespace SayTheSpire2.UI.Screens;
 
 public class CustomRunGameScreen : GameScreen
 {
+    private static readonly System.Reflection.PropertyInfo? CharacterButtonIsSelectedProperty =
+        AccessTools.Property(typeof(NCharacterSelectButton), "IsSelected");
+    private static readonly System.Reflection.FieldInfo? CharacterButtonSelectedField =
+        AccessTools.Field(typeof(NCharacterSelectButton), "_isSelected");
+
     public static CustomRunGameScreen? Current { get; private set; }
 
     private readonly NCustomRunScreen _screen;
@@ -387,11 +393,28 @@ public class CustomRunGameScreen : GameScreen
         if (_lastFocusedCharacterButton != null && IsUsable(_lastFocusedCharacterButton))
             return _lastFocusedCharacterButton;
 
-        var selected = _characterButtons.FirstOrDefault(b => IsUsable(b) && b.IsSelected);
+        var selected = _characterButtons.FirstOrDefault(b => IsUsable(b) && IsCharacterSelected(b));
         if (selected != null)
             return selected;
 
         return _characterButtons.FirstOrDefault(IsUsable);
+    }
+
+    private static bool IsCharacterSelected(NCharacterSelectButton button)
+    {
+        try
+        {
+            if (CharacterButtonIsSelectedProperty?.GetValue(button) is bool selected)
+                return selected;
+
+            if (CharacterButtonSelectedField?.GetValue(button) is bool selectedField)
+                return selectedField;
+        }
+        catch
+        {
+        }
+
+        return false;
     }
 
     private string BuildStateToken()
