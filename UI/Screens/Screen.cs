@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
+using SayTheSpire2.Help;
 using SayTheSpire2.Input;
 using SayTheSpire2.UI.Elements;
 
@@ -9,6 +10,7 @@ namespace SayTheSpire2.UI.Screens;
 public abstract class Screen
 {
     private readonly Dictionary<string, bool> _claimedActions = new();
+    private bool _claimAll;
 
     public virtual string? ScreenName => null;
 
@@ -69,6 +71,9 @@ public abstract class Screen
     public virtual void OnUnfocus() { }
     public virtual void OnUpdate() { }
 
+    // Help messages — screens can provide contextual help
+    public virtual List<HelpMessage> GetHelpMessages() => new();
+
     // Element registry — screens can optionally map controls to UI elements
     public virtual UIElement? GetElement(Control control) => null;
 
@@ -83,9 +88,17 @@ public abstract class Screen
     }
 
     /// <summary>
+    /// Claim all input actions. Nothing propagates unless explicitly set via ClaimAction.
+    /// </summary>
+    protected void ClaimAllActions()
+    {
+        _claimAll = true;
+    }
+
+    /// <summary>
     /// Returns true if this screen has claimed the action.
     /// </summary>
-    public bool HasClaimed(string actionKey) => _claimedActions.ContainsKey(actionKey);
+    public bool HasClaimed(string actionKey) => _claimAll || _claimedActions.ContainsKey(actionKey);
 
     /// <summary>
     /// Returns true if a claimed action should propagate to lower screens.

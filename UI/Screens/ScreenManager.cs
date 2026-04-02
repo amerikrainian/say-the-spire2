@@ -166,6 +166,29 @@ public static class ScreenManager
     }
 
     /// <summary>
+    /// Walk all screens from deepest (innermost child) to shallowest (bottom of stack).
+    /// Matches the priority order used by action dispatch.
+    /// </summary>
+    public static IEnumerable<Screen> WalkScreensDeepestFirst()
+    {
+        for (int i = _screenStack.Count - 1; i >= 0; i--)
+        {
+            foreach (var screen in WalkTreeDeepestFirst(_screenStack[i]))
+                yield return screen;
+        }
+    }
+
+    private static IEnumerable<Screen> WalkTreeDeepestFirst(Screen screen)
+    {
+        if (screen.ActiveChild != null)
+        {
+            foreach (var child in WalkTreeDeepestFirst(screen.ActiveChild))
+                yield return child;
+        }
+        yield return screen;
+    }
+
+    /// <summary>
     /// Dispatch an action through the screen stack. Returns true if consumed.
     /// </summary>
     public static bool DispatchAction(InputAction action, InputActionState state)

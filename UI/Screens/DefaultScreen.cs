@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Logging;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.Help;
 using SayTheSpire2.Input;
 using SayTheSpire2.Settings;
 
@@ -15,6 +16,7 @@ public class DefaultScreen : Screen
         ClaimAction("buffer_prev");
         ClaimAction("reset_bindings");
         ClaimAction("mod_settings");
+        ClaimAction("help");
     }
 
     public override bool OnActionJustPressed(InputAction action)
@@ -41,6 +43,9 @@ public class DefaultScreen : Screen
             case "mod_settings":
                 OpenModMenu();
                 return true;
+            case "help":
+                OpenHelpScreen();
+                return true;
         }
 
         return false;
@@ -49,6 +54,15 @@ public class DefaultScreen : Screen
     private static void OpenModMenu()
     {
         var screen = new ModMenuScreen();
+        ScreenManager.PushScreen(screen);
+    }
+
+    private static void OpenHelpScreen()
+    {
+        var builder = new HelpScreenBuilder();
+        builder.AddFromScreenStack();
+        builder.AddAlwaysPresent();
+        var screen = new HelpScreen(builder.Build());
         ScreenManager.PushScreen(screen);
     }
 }

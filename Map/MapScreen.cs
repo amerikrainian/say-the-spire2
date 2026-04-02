@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.Help;
 using SayTheSpire2.Input;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
@@ -92,6 +94,20 @@ public class MapScreen : Screen
             }
         }
     }
+
+    public override List<HelpMessage> GetHelpMessages() => new()
+    {
+        new TextHelpMessage("Map navigation uses Ctrl+Arrow keys. Buffer controls are remapped on this screen."),
+        new ControlHelpMessage("Move Forward (toward boss)", "buffer_next_item"),
+        new ControlHelpMessage("Move Backward (toward start)", "buffer_prev_item"),
+        new ControlHelpMessage("Next Branch", "buffer_next"),
+        new ControlHelpMessage("Previous Branch", "buffer_prev"),
+        new ControlHelpMessage("Next Point of Interest", "map_poi_next"),
+        new ControlHelpMessage("Previous Point of Interest", "map_poi_prev"),
+        new ControlHelpMessage("Toggle POI Mode (Reachable / All)", "map_poi_toggle_mode"),
+        new ControlHelpMessage("Toggle Marker on Current Node", "map_toggle_current_marker"),
+        new ControlHelpMessage("Clear All Markers", "map_clear_all_markers"),
+    };
 
     public string? DescribePoint(MapPoint point, bool includeChoicePrefix = true)
     {

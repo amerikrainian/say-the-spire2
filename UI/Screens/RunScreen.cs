@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Events;
+using SayTheSpire2.Help;
 using SayTheSpire2.Input;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
@@ -27,6 +28,15 @@ public class RunScreen : Screen
     private readonly UI.Elements.ListContainer _potionContainer = new() { AnnounceName = false, AnnouncePosition = true };
     private readonly UI.Elements.ListContainer _relicContainer = new() { AnnounceName = false, AnnouncePosition = true };
     private readonly Dictionary<Control, UI.Elements.UIElement> _elementCache = new();
+
+    public override List<HelpMessage> GetHelpMessages() => new()
+    {
+        new ControlHelpMessage("Top Panel", "mega_top_panel"),
+        new ControlHelpMessage("Announce Gold", "announce_gold"),
+        new ControlHelpMessage("Announce HP", "announce_hp"),
+        new ControlHelpMessage("Announce Boss", "announce_boss"),
+        new ControlHelpMessage("Announce Relic Counters", "announce_relic_counters"),
+    };
 
     public RunScreen()
     {

@@ -20,6 +20,7 @@ using MegaCrit.Sts2.Core.Nodes.Multiplayer;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Events;
+using SayTheSpire2.Help;
 using SayTheSpire2.Input;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
@@ -99,6 +100,19 @@ public class CombatScreen : Screen
         _rootContainer.Add(_handContainer);
         RootElement = _rootContainer;
     }
+
+    public override List<HelpMessage> GetHelpMessages() => new()
+    {
+        new TextHelpMessage("Use arrow keys to navigate between creatures and your hand. Press Enter on a card to play it."),
+        new ControlHelpMessage("End Turn", "ui_accept"),
+        new ControlHelpMessage("Announce Block", "announce_block"),
+        new ControlHelpMessage("Announce Energy", "announce_energy"),
+        new ControlHelpMessage("Announce Powers", "announce_powers"),
+        new ControlHelpMessage("Announce Intents", "announce_intents"),
+        new ControlHelpMessage("Announce Summarized Intents", "announce_summarized_intents"),
+        new ControlHelpMessage("Select Combatant 1-12", CombatantSelectActions),
+        new ControlHelpMessage("Announce Combatant Intent 1-12", CombatantIntentActions),
+    };
 
     private CombatState? GetLiveState()
     {
