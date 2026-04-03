@@ -8,8 +8,6 @@ dotnet build -c Release
 if errorlevel 1 goto :fail
 
 echo === Building documentation ===
-copy /Y "changes.md" "docs_src\src\changes.md" >nul
-if errorlevel 1 goto :fail
 mdbook build docs_src
 if errorlevel 1 goto :fail
 

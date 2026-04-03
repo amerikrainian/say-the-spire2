@@ -8,7 +8,6 @@ echo "=== Building mod (Release) ==="
 dotnet build -c Release
 
 echo "=== Building documentation ==="
-cp changes.md docs_src/src/changes.md
 mdbook build docs_src
 
 echo "=== Adding docs to release zip ==="
