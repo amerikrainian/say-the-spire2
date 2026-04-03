@@ -4,6 +4,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Multiplayer;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -14,12 +15,12 @@ public class PlayerExpandedStateScreen : Screen
 
     private readonly NMultiplayerPlayerExpandedState _screen;
     private readonly ListContainer _root = new() { AnnounceName = false, AnnouncePosition = false };
-    private readonly ListContainer _relicList = new() { ContainerLabel = "Relics", AnnounceName = true, AnnouncePosition = true };
-    private readonly ListContainer _potionList = new() { ContainerLabel = "Potions", AnnounceName = true, AnnouncePosition = true };
-    private readonly ListContainer _cardList = new() { ContainerLabel = "Cards", AnnounceName = true, AnnouncePosition = true };
+    private readonly ListContainer _relicList = new() { ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.RELICS", "Relics"), AnnounceName = true, AnnouncePosition = true };
+    private readonly ListContainer _potionList = new() { ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.POTIONS", "Potions"), AnnounceName = true, AnnouncePosition = true };
+    private readonly ListContainer _cardList = new() { ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.CARDS", "Cards"), AnnounceName = true, AnnouncePosition = true };
     private readonly Dictionary<Control, UIElement> _elementCache = new();
 
-    public override string? ScreenName => "Player Details";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.PLAYER_DETAILS", "Player Details");
 
     public PlayerExpandedStateScreen(NMultiplayerPlayerExpandedState screen)
     {

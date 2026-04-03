@@ -3,6 +3,7 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens.MainMenu;
 using MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 using ListContainer = SayTheSpire2.UI.Elements.ListContainer;
 
@@ -10,7 +11,7 @@ namespace SayTheSpire2.UI.Screens;
 
 public class MainMenuScreen : GameScreen
 {
-    public override string? ScreenName => "Main Menu";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.MAIN_MENU", "Main Menu");
 
     protected override void BuildRegistry()
     {
@@ -21,7 +22,7 @@ public class MainMenuScreen : GameScreen
             return;
         }
 
-        var root = new ListContainer { ContainerLabel = "Main Menu", AnnounceName = false };
+        var root = new ListContainer { ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.MAIN_MENU", "Main Menu"), AnnounceName = false };
 
         var buttonsContainer = mainMenu.GetNodeOrNull("MainMenuTextButtons");
         if (buttonsContainer == null)

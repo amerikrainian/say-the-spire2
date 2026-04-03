@@ -3,6 +3,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Nodes.RestSite;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -14,7 +15,7 @@ public class RestSiteGameScreen : GameScreen
     private readonly NRestSiteRoom _room;
     private string? _stateToken;
 
-    public override string? ScreenName => "Rest Site";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.REST_SITE", "Rest Site");
 
     public RestSiteGameScreen(NRestSiteRoom room)
     {

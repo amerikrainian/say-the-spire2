@@ -160,7 +160,7 @@ public class BindingListScreen : Screen
         }
 
         // Add keyboard binding
-        var addKeyboard = new ButtonElement("Add Keyboard Binding");
+        var addKeyboard = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.ADD_KEYBOARD", "Add Keyboard Binding"));
         addKeyboard.OnActivated = () =>
         {
             var screen = new ListenScreen(_setting, isController: false);
@@ -170,7 +170,7 @@ public class BindingListScreen : Screen
         AddButton(addKeyboard);
 
         // Add controller binding
-        var addController = new ButtonElement("Add Controller Binding");
+        var addController = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.ADD_CONTROLLER", "Add Controller Binding"));
         addController.OnActivated = () =>
         {
             var screen = new ListenScreen(_setting, isController: true);

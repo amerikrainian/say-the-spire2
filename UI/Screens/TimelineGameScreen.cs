@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline.UnlockScreens;
 using SayTheSpire2.Help;
 using SayTheSpire2.Input;
+using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
 using ListContainer = SayTheSpire2.UI.Elements.ListContainer;
@@ -17,7 +18,7 @@ public class TimelineGameScreen : GameScreen
 {
     public static TimelineGameScreen? Current { get; private set; }
 
-    public override string ScreenName => "Timeline";
+    public override string ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.TIMELINE", "Timeline");
 
     private readonly NTimelineScreen _screen;
 
@@ -26,8 +27,8 @@ public class TimelineGameScreen : GameScreen
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {
-        new TextHelpMessage("Navigate epochs with directional controls. Epochs are arranged in columns by era. Press Enter to reveal an obtained epoch. You must reveal all available epochs before you can exit this screen.", exclusive: true),
-        new ControlHelpMessage("Jump to Next Revealable Epoch", "mega_top_panel"),
+        new TextHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.TIMELINE_NAV", "Navigate epochs with directional controls. Epochs are arranged in columns by era. Press Enter to reveal an obtained epoch. You must reveal all available epochs before you can exit this screen."), exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.JUMP_TO_REVEALABLE", "Jump to Next Revealable Epoch"), "mega_top_panel"),
     };
 
     public TimelineGameScreen(NTimelineScreen screen)
@@ -81,7 +82,7 @@ public class TimelineGameScreen : GameScreen
                 }
             }
 
-            SpeechManager.Output(Localization.Message.Raw("No epochs ready to reveal"));
+            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_EPOCHS_READY", "No epochs ready to reveal")));
         }
         catch (System.Exception ex)
         {
@@ -173,7 +174,7 @@ public class TimelineGameScreen : GameScreen
             {
                 var message = string.Join(". ", parts);
                 Log.Info($"[AccessibilityMod] Unlock screen: {message}");
-                SpeechManager.Output(Localization.Message.Raw(message));
+                SpeechManager.Output(Message.Raw(message));
             }
         }
         catch (System.Exception ex)

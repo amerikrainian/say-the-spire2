@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using SayTheSpire2.Help;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 using ListContainer = SayTheSpire2.UI.Elements.ListContainer;
 
@@ -18,7 +19,7 @@ public class SettingsGameScreen : GameScreen
 
     private readonly NSettingsScreen _screen;
 
-    public override string ScreenName => "Settings";
+    public override string ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.SETTINGS", "Settings");
 
     // Tab node name -> panel node path, in order
     private static readonly (string tabName, string panelPath)[] TabPanels =
@@ -31,8 +32,8 @@ public class SettingsGameScreen : GameScreen
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {
-        new ControlHelpMessage("Previous Tab", "mega_view_deck_and_tab_left"),
-        new ControlHelpMessage("Next Tab", "mega_view_exhaust_pile_and_tab_right"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.PREVIOUS_TAB", "Previous Tab"), "mega_view_deck_and_tab_left"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.NEXT_TAB", "Next Tab"), "mega_view_exhaust_pile_and_tab_right"),
     };
 
     public SettingsGameScreen(NSettingsScreen screen)

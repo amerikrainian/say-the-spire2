@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Nodes.Multiplayer;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using MegaCrit.Sts2.Core.Runs;
+using SayTheSpire2.Localization;
 using SayTheSpire2.Multiplayer;
 using SayTheSpire2.Speech;
 
@@ -40,7 +41,7 @@ public static class MultiplayerHooks
             if (MultiplayerHelper.IsLocalPlayer(player)) return;
 
             var name = MultiplayerHelper.GetPlayerName(player);
-            SpeechManager.Output($"{name} is ready to proceed");
+            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.PLAYER_READY_PROCEED", "{name} is ready to proceed").Replace("{name}", name));
         }
         catch (Exception e)
         {
@@ -53,7 +54,7 @@ public static class MultiplayerHooks
         try
         {
             if (!MultiplayerHelper.IsMultiplayer()) return;
-            SpeechManager.Output("All players ready");
+            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.ALL_PLAYERS_READY", "All players ready"));
         }
         catch (Exception e)
         {
@@ -67,7 +68,7 @@ public static class MultiplayerHooks
         {
             if (!MultiplayerHelper.IsMultiplayer()) return;
             if (RunManager.Instance.ActChangeSynchronizer.IsWaitingForOtherPlayers())
-                SpeechManager.Output("Waiting for other players");
+                SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.WAITING_FOR_PLAYERS", "Waiting for other players"));
         }
         catch (Exception e)
         {
@@ -86,9 +87,9 @@ public static class MultiplayerHooks
             {
                 _lastTimeoutShown = shown;
                 if (shown)
-                    SpeechManager.Output("Warning: No response from host");
+                    SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_RESPONSE_FROM_HOST", "Warning: No response from host"));
                 else
-                    SpeechManager.Output("Connection restored");
+                    SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.CONNECTION_RESTORED", "Connection restored"));
             }
         }
         catch (Exception e)

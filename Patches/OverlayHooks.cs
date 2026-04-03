@@ -136,7 +136,7 @@ public static class OverlayHooks
             control.FocusMode = Control.FocusModeEnum.All;
             control.GrabFocus();
             NTargetManager.Instance.OnNodeHovered(merchantButton);
-            SpeechManager.Output(Message.Raw("Merchant"));
+            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.MERCHANT", "Merchant")));
         }
         catch (System.Exception e)
         {

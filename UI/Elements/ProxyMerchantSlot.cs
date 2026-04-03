@@ -2,6 +2,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Entities.Merchant;
 using MegaCrit.Sts2.Core.Nodes.Screens.Shops;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.Localization;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -47,7 +48,7 @@ public class ProxyMerchantSlot : ProxyElement
 
         var entry = GetEntry();
         if (entry is MerchantCardRemovalEntry)
-            return "Card Removal";
+            return LocalizationManager.GetOrDefault("ui", "LABELS.CARD_REMOVAL", "Card Removal");
 
         return CleanNodeName(Control!.Name);
     }
@@ -80,7 +81,7 @@ public class ProxyMerchantSlot : ProxyElement
         var entry = GetEntry();
         if (entry == null) return null;
 
-        if (!entry.IsStocked) return "Sold out";
+        if (!entry.IsStocked) return LocalizationManager.GetOrDefault("ui", "LABELS.SOLD_OUT", "Sold out");
 
         var parts = new System.Collections.Generic.List<string>();
         parts.Add($"{entry.Cost} gold");

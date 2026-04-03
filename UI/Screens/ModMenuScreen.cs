@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Godot;
 using SayTheSpire2.Input;
+using SayTheSpire2.Localization;
 using SayTheSpire2.Settings;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI.Elements;
@@ -13,7 +14,7 @@ public class ModMenuScreen : Screen
     private readonly PanelContainer _root;
     private readonly NavigableContainer _navContainer;
 
-    public override string? ScreenName => "Mod Menu";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.MOD_MENU", "Mod Menu");
 
     public ModMenuScreen()
     {
@@ -65,14 +66,14 @@ public class ModMenuScreen : Screen
 
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = "Mod Menu",
+            ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.MOD_MENU", "Mod Menu"),
             AnnounceName = true,
             AnnouncePosition = true,
         };
         RootElement = _navContainer;
 
         // Settings
-        var settingsBtn = new ButtonElement("Settings");
+        var settingsBtn = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.SETTINGS", "Settings"));
         settingsBtn.OnActivated = () =>
         {
             var screen = new ModSettingsScreen(ModSettings.Root);
@@ -82,7 +83,7 @@ public class ModMenuScreen : Screen
         AddControl(itemList, settingsBtn);
 
         // View Documentation
-        var docsBtn = new ButtonElement("View Documentation");
+        var docsBtn = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.VIEW_DOCS", "View Documentation"));
         docsBtn.OnActivated = () =>
         {
             OpenLocalDoc("SayTheSpire2Docs/index.html");
@@ -91,7 +92,7 @@ public class ModMenuScreen : Screen
         AddControl(itemList, docsBtn);
 
         // View Change Log
-        var changelogBtn = new ButtonElement("View Change Log");
+        var changelogBtn = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.VIEW_CHANGELOG", "View Change Log"));
         changelogBtn.OnActivated = () =>
         {
             OpenLocalDoc("SayTheSpire2Docs/changes.html");
@@ -100,11 +101,11 @@ public class ModMenuScreen : Screen
         AddControl(itemList, changelogBtn);
 
         // Visit Latest Release Page
-        var releaseBtn = new ButtonElement("Visit Latest Release Page");
+        var releaseBtn = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.VISIT_RELEASE", "Visit Latest Release Page"));
         releaseBtn.OnActivated = () =>
         {
             OS.ShellOpen("https://github.com/bradjrenshaw/say-the-spire2/releases/latest");
-            SpeechManager.Output("Opening release page in browser.");
+            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.OPENING_RELEASE", "Opening release page in browser."));
         };
         _navContainer.Add(releaseBtn);
         AddControl(itemList, releaseBtn);
@@ -152,7 +153,7 @@ public class ModMenuScreen : Screen
         if (action.Key == "ui_cancel" || action.Key == "mod_settings")
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output("Closed");
+            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.CLOSED", "Closed"));
             return true;
         }
 
@@ -168,17 +169,17 @@ public class ModMenuScreen : Screen
             if (File.Exists(fullPath))
             {
                 OS.ShellOpen(fullPath);
-                SpeechManager.Output("Opening documentation in browser.");
+                SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.OPENING_DOCS", "Opening documentation in browser."));
             }
             else
             {
-                SpeechManager.Output("Documentation not found. Please reinstall the mod.");
+                SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.DOCS_NOT_FOUND", "Documentation not found. Please reinstall the mod."));
             }
         }
         catch (Exception e)
         {
             MegaCrit.Sts2.Core.Logging.Log.Error($"[AccessibilityMod] Failed to open docs: {e.Message}");
-            SpeechManager.Output("Failed to open documentation.");
+            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.DOCS_FAILED", "Failed to open documentation."));
         }
     }
 

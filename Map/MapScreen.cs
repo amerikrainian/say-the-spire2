@@ -97,16 +97,16 @@ public class MapScreen : Screen
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {
-        new TextHelpMessage("Map navigation uses buffer controls (Ctrl+directional keys by default). Buffer controls are remapped on this screen.", exclusive: true),
-        new ControlHelpMessage("Move Forward (toward boss)", "buffer_next_item"),
-        new ControlHelpMessage("Move Backward (toward start)", "buffer_prev_item"),
-        new ControlHelpMessage("Next Branch", "buffer_next"),
-        new ControlHelpMessage("Previous Branch", "buffer_prev"),
-        new ControlHelpMessage("Next Point of Interest", "map_poi_next"),
-        new ControlHelpMessage("Previous Point of Interest", "map_poi_prev"),
-        new ControlHelpMessage("Toggle POI Mode (Reachable / All)", "map_poi_toggle_mode"),
-        new ControlHelpMessage("Toggle Marker on Current Node", "map_toggle_current_marker"),
-        new ControlHelpMessage("Clear All Markers", "map_clear_all_markers"),
+        new TextHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_NAV", "Map navigation uses buffer controls (Ctrl+directional keys by default). Buffer controls are remapped on this screen."), exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_FORWARD", "Move Forward (toward boss)"), "buffer_next_item"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_BACKWARD", "Move Backward (toward start)"), "buffer_prev_item"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_NEXT_BRANCH", "Next Branch"), "buffer_next"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_PREV_BRANCH", "Previous Branch"), "buffer_prev"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_NEXT_POI", "Next Point of Interest"), "map_poi_next"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_PREV_POI", "Previous Point of Interest"), "map_poi_prev"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_TOGGLE_POI_MODE", "Toggle POI Mode (Reachable / All)"), "map_poi_toggle_mode"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_TOGGLE_MARKER", "Toggle Marker on Current Node"), "map_toggle_current_marker"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_CLEAR_MARKERS", "Clear All Markers"), "map_clear_all_markers"),
     };
 
     public string? DescribePoint(MapPoint point, bool includeChoicePrefix = true)

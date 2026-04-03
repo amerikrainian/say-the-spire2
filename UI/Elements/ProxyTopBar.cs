@@ -102,37 +102,38 @@ public class ProxyTopBar : ProxyElement
     private string? GetHpLabel()
     {
         var player = HpPlayerField?.GetValue(Control) as MegaCrit.Sts2.Core.Entities.Players.Player;
-        if (player == null) return "HP";
+        if (player == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.HP", "HP");
         return $"HP {player.Creature.CurrentHp}/{player.Creature.MaxHp}";
     }
 
     private string? GetGoldLabel()
     {
         var player = GoldPlayerField?.GetValue(Control) as MegaCrit.Sts2.Core.Entities.Players.Player;
-        if (player == null) return "Gold";
+        if (player == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.GOLD", "Gold");
         return $"Gold {player.Gold}";
     }
 
     private string? GetRoomLabel()
     {
         var runState = RoomRunStateField?.GetValue(Control) as IRunState;
-        if (runState == null) return "Room";
+        var roomFallback = SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.ROOM", "Room");
+        if (runState == null) return roomFallback;
         var tipKey = GetRoomTipPrefix(runState);
         var title = new LocString("static_hover_tips", tipKey + ".title").GetFormattedText();
-        return !string.IsNullOrEmpty(title) ? StripBbcode(title) : "Room";
+        return !string.IsNullOrEmpty(title) ? StripBbcode(title) : roomFallback;
     }
 
     private string? GetFloorLabel()
     {
         var runState = FloorRunStateField?.GetValue(Control) as IRunState;
-        if (runState == null) return "Floor";
+        if (runState == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.FLOOR", "Floor");
         return $"Floor {runState.TotalFloor}";
     }
 
     private string? GetBossLabel()
     {
         var runState = BossRunStateField?.GetValue(Control) as IRunState;
-        if (runState == null) return "Boss";
+        if (runState == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.BOSS", "Boss");
 
         var boss1 = runState.Act.BossEncounter;
         var boss2 = runState.Act.SecondBossEncounter;

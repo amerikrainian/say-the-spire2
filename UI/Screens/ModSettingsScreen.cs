@@ -131,7 +131,7 @@ public class ModSettingsScreen : Screen
         {
             ScreenManager.RemoveScreen(this);
             if (_category.IsRoot)
-                SpeechManager.Output(Message.Raw("Closed"));
+                SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.CLOSED", "Closed")));
             return true;
         }
 

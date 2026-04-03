@@ -3,6 +3,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.Localization;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -25,7 +26,7 @@ public class ProxyCardBundle : ProxyElement
     public override string? GetLabel()
     {
         var bundle = FindBundle();
-        if (bundle == null) return "Card Pack";
+        if (bundle == null) return LocalizationManager.GetOrDefault("ui", "LABELS.CARD_PACK", "Card Pack");
 
         // Determine position among siblings
         var parent = bundle.GetParent();

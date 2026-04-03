@@ -2,6 +2,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Events.Custom.CrystalSphereEvent;
 using MegaCrit.Sts2.Core.Events.Custom.CrystalSphereEvent.CrystalSphereItems;
 using MegaCrit.Sts2.Core.Nodes.Events.Custom.CrystalSphere;
+using SayTheSpire2.Localization;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -19,11 +20,11 @@ public class ProxyCrystalSphereCell : ProxyElement
         if (entity == null) return null;
 
         if (entity.IsHidden)
-            return "Hidden";
+            return LocalizationManager.GetOrDefault("ui", "LABELS.HIDDEN", "Hidden");
 
         var item = entity.Item;
         if (item == null)
-            return "Empty";
+            return LocalizationManager.GetOrDefault("ui", "LABELS.EMPTY", "Empty");
 
         var itemLabel = GetItemLabel(item);
         var rangeStr = GetItemRangeString(item);

@@ -18,7 +18,7 @@ public class ProxyCharacterButton : ProxyElement
         var button = Button;
         if (button == null) return CleanNodeName(Control.Name);
 
-        if (button.IsRandom) return "Random";
+        if (button.IsRandom) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.RANDOM", "Random");
 
         var character = button.Character;
         if (character == null) return CleanNodeName(Control.Name);
@@ -40,7 +40,7 @@ public class ProxyCharacterButton : ProxyElement
         if (character == null) return null;
 
         if (button.IsLocked)
-            return "Locked";
+            return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.LOCKED", "Locked");
 
         if (button.IsRandom) return null;
 

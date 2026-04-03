@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SayTheSpire2.Input;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Screens;
 
 namespace SayTheSpire2.Help;
@@ -37,20 +38,20 @@ public class HelpScreenBuilder
 
     public void AddAlwaysPresent()
     {
-        TryAddControl(new ControlHelpMessage("Navigate Up", "ui_up"));
-        TryAddControl(new ControlHelpMessage("Navigate Down", "ui_down"));
-        TryAddControl(new ControlHelpMessage("Navigate Left", "ui_left"));
-        TryAddControl(new ControlHelpMessage("Navigate Right", "ui_right"));
-        TryAddControl(new ControlHelpMessage("Confirm", "ui_accept"));
-        TryAddControl(new ControlHelpMessage("Select", "ui_select"));
-        TryAddControl(new ControlHelpMessage("Cancel / Go Back", "ui_cancel"));
-        TryAddControl(new ControlHelpMessage("Pause / Back", "mega_pause_and_back"));
-        TryAddControl(new ControlHelpMessage("Next Buffer Item", "buffer_next_item"));
-        TryAddControl(new ControlHelpMessage("Previous Buffer Item", "buffer_prev_item"));
-        TryAddControl(new ControlHelpMessage("Next Buffer", "buffer_next"));
-        TryAddControl(new ControlHelpMessage("Previous Buffer", "buffer_prev"));
-        TryAddControl(new ControlHelpMessage("Open Mod Menu", "mod_settings"));
-        TryAddControl(new ControlHelpMessage("Help", "help"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.NAVIGATE_UP", "Navigate Up"), "ui_up"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.NAVIGATE_DOWN", "Navigate Down"), "ui_down"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.NAVIGATE_LEFT", "Navigate Left"), "ui_left"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.NAVIGATE_RIGHT", "Navigate Right"), "ui_right"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.CONFIRM", "Confirm"), "ui_accept"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.SELECT", "Select"), "ui_select"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.CANCEL_GO_BACK", "Cancel / Go Back"), "ui_cancel"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.PAUSE_BACK", "Pause / Back"), "mega_pause_and_back"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.NEXT_BUFFER_ITEM", "Next Buffer Item"), "buffer_next_item"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.PREV_BUFFER_ITEM", "Previous Buffer Item"), "buffer_prev_item"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.NEXT_BUFFER", "Next Buffer"), "buffer_next"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.PREV_BUFFER", "Previous Buffer"), "buffer_prev"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.OPEN_MOD_MENU", "Open Mod Menu"), "mod_settings"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.HELP", "Help"), "help"));
     }
 
     public List<HelpMessage> Build()

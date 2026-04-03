@@ -81,7 +81,7 @@ public class BindingActionScreen : Screen
 
         // Replace button
         bool isController = binding is ControllerBinding;
-        var replaceBtn = new ButtonElement("Replace");
+        var replaceBtn = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.REPLACE", "Replace"));
         replaceBtn.OnActivated = () =>
         {
             var screen = new ListenScreen(_setting, isController, _binding);
@@ -91,12 +91,12 @@ public class BindingActionScreen : Screen
         AddButton(itemList, replaceBtn);
 
         // Delete button
-        var deleteBtn = new ButtonElement("Delete");
+        var deleteBtn = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.DELETE", "Delete"));
         deleteBtn.OnActivated = () =>
         {
             _setting.Action.RemoveBinding(_binding);
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw("Deleted"));
+            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.DELETED", "Deleted")));
         };
         _navContainer.Add(deleteBtn);
         AddButton(itemList, deleteBtn);
@@ -136,7 +136,7 @@ public class BindingActionScreen : Screen
         if (action.Key == "ui_cancel")
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw("Cancelled"));
+            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.CANCELLED", "Cancelled")));
             return true;
         }
 

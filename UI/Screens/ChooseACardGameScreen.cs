@@ -2,6 +2,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardSelection;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -12,7 +13,7 @@ public class ChooseACardGameScreen : GameScreen
 
     private readonly NChooseACardSelectionScreen _screen;
 
-    public override string? ScreenName => "Choose a Card";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.CHOOSE_A_CARD", "Choose a Card");
 
     public ChooseACardGameScreen(NChooseACardSelectionScreen screen)
     {

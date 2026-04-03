@@ -2,6 +2,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Potions;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.Localization;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -38,7 +39,7 @@ public class ProxyPotionHolder : ProxyElement
     public override string? GetLabel()
     {
         if (IsEmpty())
-            return "Empty potion slot";
+            return LocalizationManager.GetOrDefault("ui", "LABELS.EMPTY_POTION_SLOT", "Empty potion slot");
 
         var model = GetModel();
         return model?.Title.GetFormattedText();

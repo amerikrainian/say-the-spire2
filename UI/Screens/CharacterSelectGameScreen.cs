@@ -26,14 +26,14 @@ public class CharacterSelectGameScreen : GameScreen
     private bool _isMultiplayer;
     private bool _lastLocalReady;
 
-    public override string? ScreenName => "Character Select";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.CHARACTER_SELECT", "Character Select");
     public override System.Collections.Generic.IEnumerable<string> AlwaysEnabledBuffers =>
         _isMultiplayer ? new[] { "lobby" } : System.Array.Empty<string>();
 
     public override System.Collections.Generic.List<HelpMessage> GetHelpMessages() => new()
     {
-        new ControlHelpMessage("Decrease Ascension", "mega_view_deck_and_tab_left"),
-        new ControlHelpMessage("Increase Ascension", "mega_view_exhaust_pile_and_tab_right"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.DECREASE_ASCENSION", "Decrease Ascension"), "mega_view_deck_and_tab_left"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.INCREASE_ASCENSION", "Increase Ascension"), "mega_view_exhaust_pile_and_tab_right"),
     };
 
     public CharacterSelectGameScreen(NCharacterSelectScreen screen)
@@ -103,7 +103,7 @@ public class CharacterSelectGameScreen : GameScreen
                 _lastAscension = current;
                 var title = AscensionHelper.GetTitle(current).GetFormattedText();
                 var description = AscensionHelper.GetDescription(current).GetFormattedText();
-                SpeechManager.Output(Message.Raw($"Ascension {current}: {title}. {description}"));
+                SpeechManager.Output(Message.Localized("ui", "SPEECH.ASCENSION_CHANGED", new { value = current, title, description }));
             }
         }
         _lastFocusedButton = focusedButton;
@@ -121,9 +121,9 @@ public class CharacterSelectGameScreen : GameScreen
                 {
                     _lastLocalReady = localReady;
                     if (localReady)
-                        SpeechManager.Output(Message.Raw("Marked as ready, waiting for other players"));
+                        SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.MARKED_READY", "Marked as ready, waiting for other players")));
                     else
-                        SpeechManager.Output(Message.Raw("No longer ready"));
+                        SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_LONGER_READY", "No longer ready")));
                 }
             }
             catch (Exception e) { MegaCrit.Sts2.Core.Logging.Log.Error($"[AccessibilityMod] Multiplayer ready state poll failed: {e.Message}"); }
@@ -136,7 +136,7 @@ public class CharacterSelectGameScreen : GameScreen
     {
         if (!_isMultiplayer) return;
         var name = GetPlayerName(player.id);
-        SpeechManager.Output(Message.Raw($"{name} joined the lobby"));
+        SpeechManager.Output(Message.Localized("ui", "SPEECH.PLAYER_JOINED", new { name }));
         UpdateLobbyBuffer();
     }
 
@@ -151,9 +151,11 @@ public class CharacterSelectGameScreen : GameScreen
         catch (Exception e) { MegaCrit.Sts2.Core.Logging.Log.Error($"[AccessibilityMod] Lobby local player check failed: {e.Message}"); }
 
         var name = GetPlayerName(player.id);
-        var charName = player.character?.Title?.GetFormattedText() ?? "No character";
-        var readyStr = player.isReady ? "Ready" : "Not ready";
-        SpeechManager.Output(Message.Raw($"{name}: {charName}, {readyStr}"));
+        var charName = player.character?.Title?.GetFormattedText() ?? LocalizationManager.GetOrDefault("ui", "DAILY_RUN.NO_CHARACTER", "No character");
+        var readyStr = player.isReady
+            ? LocalizationManager.GetOrDefault("ui", "DAILY_RUN.READY", "Ready")
+            : LocalizationManager.GetOrDefault("ui", "DAILY_RUN.NOT_READY", "Not ready");
+        SpeechManager.Output(Message.Localized("ui", "SPEECH.PLAYER_CHANGED", new { name, character = charName, status = readyStr }));
         UpdateLobbyBuffer();
     }
 
@@ -161,14 +163,14 @@ public class CharacterSelectGameScreen : GameScreen
     {
         if (!_isMultiplayer) return;
         var name = GetPlayerName(player.id);
-        SpeechManager.Output(Message.Raw($"{name} left the lobby"));
+        SpeechManager.Output(Message.Localized("ui", "SPEECH.PLAYER_LEFT", new { name }));
         UpdateLobbyBuffer();
     }
 
     public void OnLobbyLocalDisconnected(NCharacterSelectScreen screen, NetErrorInfo info)
     {
         if (!_isMultiplayer) return;
-        SpeechManager.Output(Message.Raw("Disconnected from lobby"));
+        SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.DISCONNECTED", "Disconnected from lobby")));
     }
 
     private string GetPlayerName(ulong playerId)

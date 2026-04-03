@@ -27,7 +27,7 @@ public class ProxyMultiplayerPlayerState : ProxyElement
     public override string? GetLabel()
     {
         var player = GetPlayer();
-        if (player == null) return "Player";
+        if (player == null) return Localization.LocalizationManager.GetOrDefault("ui", "LABELS.PLAYER", "Player");
 
         var name = MultiplayerHelper.GetPlayerName(player.NetId);
         var character = player.Character?.Title?.GetFormattedText();

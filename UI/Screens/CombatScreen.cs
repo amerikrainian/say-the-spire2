@@ -103,19 +103,19 @@ public class CombatScreen : Screen
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {
-        new TextHelpMessage("Use directional controls to navigate between creatures and your hand. Press Enter on a card to play it. For cards that don't require a target, press Enter a second time to confirm.", exclusive: true),
-        new TextHelpMessage("Use your Top Panel key to quickly jump to your potions and relics.", exclusive: true),
-        new ControlHelpMessage("End Turn", "ui_accept", exclusive: true),
-        new ControlHelpMessage("Announce Block", "announce_block", exclusive: true),
-        new ControlHelpMessage("Announce Energy", "announce_energy", exclusive: true),
-        new ControlHelpMessage("Announce Powers", "announce_powers", exclusive: true),
-        new ControlHelpMessage("Announce Intents", "announce_intents", exclusive: true),
-        new ControlHelpMessage("Announce Summarized Intents", "announce_summarized_intents", exclusive: true),
-        new ControlHelpMessage("View Draw Pile", "mega_view_draw_pile", exclusive: true),
-        new ControlHelpMessage("View Discard Pile", "mega_view_discard_pile", exclusive: true),
-        new ControlHelpMessage("View Exhaust Pile", "mega_view_exhaust_pile_and_tab_right", exclusive: true),
-        new ControlHelpMessage("Select Combatant 1-12", CombatantSelectActions, exclusive: true),
-        new ControlHelpMessage("Announce Combatant Intent 1-12", CombatantIntentActions, exclusive: true),
+        new TextHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.COMBAT_NAV", "Use directional controls to navigate between creatures and your hand. Press Enter on a card to play it. For cards that don't require a target, press Enter a second time to confirm."), exclusive: true),
+        new TextHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.COMBAT_TOP_PANEL", "Use your Top Panel key to quickly jump to your potions and relics."), exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.END_TURN", "End Turn"), "ui_accept", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_BLOCK", "Announce Block"), "announce_block", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_ENERGY", "Announce Energy"), "announce_energy", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_POWERS", "Announce Powers"), "announce_powers", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_INTENTS", "Announce Intents"), "announce_intents", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_SUMMARIZED_INTENTS", "Announce Summarized Intents"), "announce_summarized_intents", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.VIEW_DRAW_PILE", "View Draw Pile"), "mega_view_draw_pile", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.VIEW_DISCARD_PILE", "View Discard Pile"), "mega_view_discard_pile", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.VIEW_EXHAUST_PILE", "View Exhaust Pile"), "mega_view_exhaust_pile_and_tab_right", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.SELECT_COMBATANT", "Select Combatant 1-12"), CombatantSelectActions, exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_COMBATANT_INTENT", "Announce Combatant Intent 1-12"), CombatantIntentActions, exclusive: true),
     };
 
     private CombatState? GetLiveState()
@@ -325,7 +325,7 @@ public class CombatScreen : Screen
         var powers = player.Creature.Powers;
         if (powers.Count == 0)
         {
-            SpeechManager.Output(Message.Raw("No powers"));
+            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_POWERS", "No powers")));
             return;
         }
 
@@ -374,7 +374,7 @@ public class CombatScreen : Screen
 
         if (sb.Length == 0)
         {
-            SpeechManager.Output(Message.Raw("No enemies"));
+            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_ENEMIES", "No enemies")));
             return;
         }
 

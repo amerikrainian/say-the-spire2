@@ -4,6 +4,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Combat;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -19,12 +20,12 @@ public class HandSelectGameScreen : GameScreen
     private readonly ListContainer _root = new();
     private readonly ListContainer _handList = new()
     {
-        ContainerLabel = "Hand",
+        ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.HAND", "Hand"),
         AnnouncePosition = true,
     };
     private readonly ListContainer _selectedList = new()
     {
-        ContainerLabel = "Selected",
+        ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.SELECTED", "Selected"),
         AnnouncePosition = true,
     };
 

@@ -1,4 +1,5 @@
 using Godot;
+using SayTheSpire2.Localization;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -23,7 +24,7 @@ public class ProxyButton : ProxyElement
     {
         // Check if this is a disabled NClickableControl (locked button)
         if (Control is MegaCrit.Sts2.Core.Nodes.GodotExtensions.NClickableControl ncc && !ncc.IsEnabled)
-            return "Locked";
+            return LocalizationManager.GetOrDefault("ui", "LABELS.LOCKED", "Locked");
         return null;
     }
 

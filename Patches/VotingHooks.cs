@@ -14,6 +14,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens.Map;
 using MegaCrit.Sts2.Core.Platform;
 using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Events;
+using SayTheSpire2.Localization;
 using SayTheSpire2.Multiplayer;
 
 namespace SayTheSpire2.Patches;
@@ -161,7 +162,7 @@ public static class VotingHooks
 
     private static string GetMapPointName(NMapPoint? point)
     {
-        if (point?.Point == null) return "Unknown";
+        if (point?.Point == null) return LocalizationManager.GetOrDefault("ui", "LABELS.UNKNOWN", "Unknown");
         var name = Map.MapNode.GetPointTypeName(point.Point.PointType);
         var coords = Map.MapNode.GetCoordinatesString(point.Point);
         return $"{name} {coords}";

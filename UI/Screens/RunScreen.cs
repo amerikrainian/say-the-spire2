@@ -31,12 +31,12 @@ public class RunScreen : Screen
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {
-        new ControlHelpMessage("Top Panel", "mega_top_panel"),
-        new ControlHelpMessage("View Deck", "mega_view_deck_and_tab_left"),
-        new ControlHelpMessage("Announce Gold", "announce_gold"),
-        new ControlHelpMessage("Announce HP", "announce_hp"),
-        new ControlHelpMessage("Announce Boss", "announce_boss"),
-        new ControlHelpMessage("Announce Relic Counters", "announce_relic_counters"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.TOP_PANEL", "Top Panel"), "mega_top_panel"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.VIEW_DECK", "View Deck"), "mega_view_deck_and_tab_left"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_GOLD", "Announce Gold"), "announce_gold"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_HP", "Announce HP"), "announce_hp"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_BOSS", "Announce Boss"), "announce_boss"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.ANNOUNCE_RELIC_COUNTERS", "Announce Relic Counters"), "announce_relic_counters"),
     };
 
     public RunScreen()
@@ -193,7 +193,7 @@ public class RunScreen : Screen
         }
 
         if (parts.Count == 0)
-            SpeechManager.Output(Message.Raw("No relic counters"));
+            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_RELIC_COUNTERS", "No relic counters")));
         else
             SpeechManager.Output(Message.Raw(string.Join(". ", parts)));
     }

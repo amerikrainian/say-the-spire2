@@ -39,7 +39,7 @@ public class CrystalSphereGameScreen : Screen
     private CrystalSphereMinigame.CrystalSphereToolType _lastTool;
     private int _lastDivinationCount;
 
-    public override string? ScreenName => "Crystal Sphere";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.CRYSTAL_SPHERE", "Crystal Sphere");
 
     public CrystalSphereGameScreen(NCrystalSphereScreen screen)
     {

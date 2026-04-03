@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardLibrary;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI;
 using SayTheSpire2.UI.Elements;
 
@@ -20,14 +21,14 @@ public class CardLibraryGameScreen : GameScreen
     private readonly NCardLibrary _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = "Card Library",
+        ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.CARD_LIBRARY", "Card Library"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
     private readonly HashSet<ulong> _connectedControls = new();
     private string? _stateToken;
 
-    public override string? ScreenName => "Card Library";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.CARD_LIBRARY", "Card Library");
 
     public CardLibraryGameScreen(NCardLibrary screen)
     {
@@ -90,7 +91,7 @@ public class CardLibraryGameScreen : GameScreen
     {
         var filters = new ListContainer
         {
-            ContainerLabel = "Filters",
+            ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.FILTERS", "Filters"),
             AnnounceName = true,
             AnnouncePosition = true,
         };

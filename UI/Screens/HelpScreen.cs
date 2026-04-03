@@ -16,7 +16,7 @@ public class HelpScreen : Screen
     private readonly Dictionary<ActionElement, DetailState> _detailStates = new();
     private bool _removing;
 
-    public override string? ScreenName => "Help";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.HELP", "Help");
 
     public HelpScreen(List<HelpMessage> messages)
     {
@@ -55,7 +55,7 @@ public class HelpScreen : Screen
 
         var title = new Label
         {
-            Text = "Help",
+            Text = LocalizationManager.GetOrDefault("ui", "HELP.TITLE", "Help"),
             HorizontalAlignment = HorizontalAlignment.Center,
         };
         title.AddThemeFontSizeOverride("font_size", 24);
@@ -68,7 +68,7 @@ public class HelpScreen : Screen
 
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = "Help",
+            ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.HELP", "Help"),
             AnnounceName = true,
             AnnouncePosition = true,
         };
@@ -104,7 +104,7 @@ public class HelpScreen : Screen
             var desc = control.Description;
             return new ActionElement(
                 () => desc,
-                status: () => HelpScreenBuilder.FormatBindings(keys) ?? "unbound");
+                status: () => HelpScreenBuilder.FormatBindings(keys) ?? LocalizationManager.GetOrDefault("ui", "HELP.UNBOUND", "unbound"));
         }
 
         var state = new DetailState(control);
@@ -195,7 +195,7 @@ public class HelpScreen : Screen
     {
         _removing = true;
         ScreenManager.RemoveScreen(this);
-        SpeechManager.Output("Closed");
+        SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.CLOSED", "Closed"));
     }
 
     private static void AddLabel(VBoxContainer list, ActionElement element)
@@ -232,9 +232,9 @@ public class HelpScreen : Screen
         public string GetStatus()
         {
             if (_index < 0)
-                return HelpScreenBuilder.FormatBindings(_control.ActionKeys) ?? "unbound";
+                return HelpScreenBuilder.FormatBindings(_control.ActionKeys) ?? LocalizationManager.GetOrDefault("ui", "HELP.UNBOUND", "unbound");
 
-            return HelpScreenBuilder.FormatBindings(new[] { _control.ActionKeys[_index] }) ?? "unbound";
+            return HelpScreenBuilder.FormatBindings(new[] { _control.ActionKeys[_index] }) ?? LocalizationManager.GetOrDefault("ui", "HELP.UNBOUND", "unbound");
         }
 
         public bool MoveNext()

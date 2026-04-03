@@ -15,7 +15,7 @@ public class ListenScreen : Screen
     private readonly PanelContainer _root;
     private bool _listening;
 
-    public override string? ScreenName => "Listen";
+    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.LISTEN", "Listen");
 
     public ListenScreen(BindingSetting setting, bool isController, InputBinding? replacing = null)
     {
@@ -34,7 +34,7 @@ public class ListenScreen : Screen
 
         var label = new Label
         {
-            Text = isController ? "Press a button..." : "Press a key...",
+            Text = isController ? LocalizationManager.GetOrDefault("ui", "LISTEN.PRESS_BUTTON", "Press a button...") : LocalizationManager.GetOrDefault("ui", "LISTEN.PRESS_KEY", "Press a key..."),
             HorizontalAlignment = HorizontalAlignment.Center,
         };
         label.AddThemeFontSizeOverride("font_size", 24);
@@ -75,7 +75,7 @@ public class ListenScreen : Screen
         tree.Root.AddChild(_root);
         _listening = true;
 
-        var prompt = _isController ? "Press a button..." : "Press a key...";
+        var prompt = _isController ? LocalizationManager.GetOrDefault("ui", "LISTEN.PRESS_BUTTON", "Press a button...") : LocalizationManager.GetOrDefault("ui", "LISTEN.PRESS_KEY", "Press a key...");
         var cancelHint = GetCancelHint();
         if (cancelHint != null)
             prompt += $" {cancelHint} to cancel.";
@@ -126,7 +126,7 @@ public class ListenScreen : Screen
         if (IsExistingBinding(binding))
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw("Cancelled"));
+            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.CANCELLED", "Cancelled")));
             return;
         }
 
@@ -135,8 +135,7 @@ public class ListenScreen : Screen
         if (conflict != null)
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw(
-                $"{binding.DisplayName} is already bound to {conflict.Label}."));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.ALREADY_BOUND", new { key = binding.DisplayName, action = conflict.Label }));
             return;
         }
 
@@ -148,7 +147,7 @@ public class ListenScreen : Screen
         action.AddBinding(binding);
 
         ScreenManager.RemoveScreen(this);
-        SpeechManager.Output(Message.Raw($"Bound to {binding.DisplayName}"));
+        SpeechManager.Output(Message.Localized("ui", "SPEECH.BOUND_TO", new { key = binding.DisplayName }));
     }
 
     private InputAction? FindConflict(InputBinding captured)
