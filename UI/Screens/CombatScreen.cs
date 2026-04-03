@@ -586,7 +586,8 @@ public class CombatScreen : Screen
             SyncContainer(_orbContainer, orbNodes);
             SyncContainer(_creatureContainer,
                 combatRoom.CreatureNodes
-                    .Where(c => c != null)
+                    .Where(c => c != null && (!_isTargeting
+                        || (c.Hitbox != null && c.Hitbox.FocusMode != Control.FocusModeEnum.None)))
                     .OfType<Control>());
             SyncContainer(_handContainer, hand?.ActiveHolders?.OfType<Control>());
 

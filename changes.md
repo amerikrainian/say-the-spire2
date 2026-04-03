@@ -22,6 +22,7 @@
 * Fixed a bug where controller focus would act strangely in rest sites if you have the ability to choose multiple actions (control focus neighbors were not being continuously updated.)
 * Fixed a bug where ascension text on the character select screen would be read before newly focused characters. The text is now also part of the tooltip for the character button.
 * Fixed a bug where post-combat rewards were often missing their type and tooltip.
+* Fixed a bug where creatures would have misleading potion info when targeting them with potions or cards. For example, with 3 enemies, the first would be labeled "2 of 4" instead of "1 of 3" due to allies being included in the creature count.
 
 ## V0.2.0
 * The mod now has documentation. It can be viewed on the github for the latest version [here](https://bradjrenshaw.github.io/say-the-spire2). Alternatively you can select view Documentation from the mod menu.
