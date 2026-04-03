@@ -33,10 +33,12 @@ public class CustomRunGameScreen : GameScreen
     {
         ContainerLabel = new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText(),
         AnnounceName = true,
-        AnnouncePosition = true,
+        AnnouncePosition = false,
     };
     private readonly HashSet<ulong> _connectedControls = new();
+    private readonly HashSet<ulong> _connectedModifierListSignals = new();
     private readonly Dictionary<ulong, UIElement> _elementCache = new();
+    private readonly Dictionary<ulong, bool> _modifierStates = new();
 
     private string? _stateToken;
     private bool _isMultiplayer;
@@ -55,6 +57,10 @@ public class CustomRunGameScreen : GameScreen
     private NClickableControl? _confirmButton;
     private NClickableControl? _unreadyButton;
     private NClickableControl? _backButton;
+    private readonly ListContainer _seedRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.SEED"), announcePosition: false);
+    private readonly ListContainer _characterRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.CHARACTERS"));
+    private readonly ListContainer _ascensionRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.ASCENSION"), announcePosition: false);
+    private readonly ListContainer _modifierRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.MODIFIERS"));
 
     public override string? ScreenName => new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText();
     public override IEnumerable<string> AlwaysEnabledBuffers =>
@@ -74,6 +80,7 @@ public class CustomRunGameScreen : GameScreen
         ResolveControls();
         _isMultiplayer = _screen.Lobby != null && _screen.Lobby.NetService.Type != NetGameType.Singleplayer;
         BindLobbyBuffer();
+        RefreshModifierStateSnapshot();
         _stateToken = BuildStateToken();
         base.OnPush();
     }
@@ -82,6 +89,8 @@ public class CustomRunGameScreen : GameScreen
     {
         base.OnPop();
         UnbindLobbyBuffer();
+        DisconnectModifierListSignal();
+        _modifierStates.Clear();
         if (Current == this)
             Current = null;
     }
@@ -100,6 +109,7 @@ public class CustomRunGameScreen : GameScreen
             _stateToken = token;
             ClearRegistry();
             BuildRegistry();
+            RefreshModifierStateSnapshot();
         }
 
         EnsureFocus();
@@ -133,33 +143,43 @@ public class CustomRunGameScreen : GameScreen
     protected override void BuildRegistry()
     {
         _root.Clear();
+        _seedRow.Clear();
+        _characterRow.Clear();
+        _ascensionRow.Clear();
+        _modifierRow.Clear();
 
         if (_seedInput != null)
-            RegisterMain(_seedInput, GetOrCreate(_seedInput, () => ProxyFactory.Create(_seedInput)));
+            RegisterRowItem(_seedRow, _seedInput, GetOrCreate(_seedInput, () => ProxyFactory.Create(_seedInput)));
 
         foreach (var button in _characterButtons.Where(IsUsable))
-            RegisterMain(button, GetOrCreate(button, () => new ProxyCharacterButton(button)));
+            RegisterRowItem(_characterRow, button, GetOrCreate(button, () => new ProxyCharacterButton(button)));
 
         if (_ascensionPanel != null && IsUsable(_ascensionPanel))
         {
             var ascensionElement = GetOrCreate(_ascensionPanel, () => new ActionElement(
                 () => Ui("CUSTOM_RUN.ASCENSION", new { value = _ascensionPanel?.Ascension ?? 0 }),
                 status: GetAscensionStatus));
-            RegisterMain(_ascensionPanel, ascensionElement);
+            RegisterRowItem(_ascensionRow, _ascensionPanel, ascensionElement);
             RegisterAlias(_ascensionLeftArrow, ascensionElement);
             RegisterAlias(_ascensionRightArrow, ascensionElement);
         }
 
         foreach (var tickbox in _modifierTickboxes.Where(IsUsable))
-            RegisterMain(tickbox, GetOrCreate(tickbox, () => ProxyFactory.Create(tickbox)));
+            RegisterRowItem(_modifierRow, tickbox, GetOrCreate(tickbox, () => ProxyFactory.Create(tickbox)));
+
+        AddRowIfNotEmpty(_seedRow);
+        AddRowIfNotEmpty(_characterRow);
+        AddRowIfNotEmpty(_ascensionRow);
+        AddRowIfNotEmpty(_modifierRow);
 
         if (_confirmButton != null && IsUsable(_confirmButton))
-            RegisterMain(_confirmButton, GetOrCreate(_confirmButton, () => ProxyFactory.Create(_confirmButton)));
+            RegisterMain(_confirmButton, GetOrCreate(_confirmButton, CreateConfirmButtonElement));
         if (_isMultiplayer && _unreadyButton != null && IsUsable(_unreadyButton))
-            RegisterMain(_unreadyButton, GetOrCreate(_unreadyButton, () => ProxyFactory.Create(_unreadyButton)));
+            RegisterMain(_unreadyButton, GetOrCreate(_unreadyButton, CreateUnreadyButtonElement));
         if (_backButton != null && IsUsable(_backButton))
-            RegisterMain(_backButton, GetOrCreate(_backButton, () => ProxyFactory.Create(_backButton)));
+            RegisterMain(_backButton, GetOrCreate(_backButton, CreateBackButtonElement));
 
+        ConnectModifierListSignal();
         WireFocusNeighbors();
     }
 
@@ -251,6 +271,14 @@ public class CustomRunGameScreen : GameScreen
         _root.Add(element);
     }
 
+    private void RegisterRowItem(ListContainer row, Control control, UIElement element)
+    {
+        control.FocusMode = Control.FocusModeEnum.All;
+        Register(control, element);
+        ConnectFocusSignal(control, element);
+        row.Add(element);
+    }
+
     private void RegisterAlias(Control? control, UIElement element)
     {
         if (control == null || !GodotObject.IsInstanceValid(control))
@@ -272,6 +300,67 @@ public class CustomRunGameScreen : GameScreen
                 _lastFocusedCharacterButton = button;
             UIManager.SetFocusedControl(control, element);
         };
+    }
+
+    private void ConnectModifierListSignal()
+    {
+        if (_modifiersList == null || !_connectedModifierListSignals.Add(_modifiersList.GetInstanceId()))
+            return;
+
+        _modifiersList.ModifiersChanged += OnModifiersChanged;
+    }
+
+    private void DisconnectModifierListSignal()
+    {
+        if (_modifiersList == null)
+            return;
+
+        if (_connectedModifierListSignals.Remove(_modifiersList.GetInstanceId()))
+            _modifiersList.ModifiersChanged -= OnModifiersChanged;
+    }
+
+    private void OnModifiersChanged()
+    {
+        var focused = _screen.GetViewport()?.GuiGetFocusOwner() as Control;
+        var changes = GetModifierSideEffectAnnouncements(focused as NRunModifierTickbox);
+        if (changes.Count > 0)
+            SpeechManager.Output(Message.Raw(string.Join(". ", changes)));
+    }
+
+    private List<string> GetModifierSideEffectAnnouncements(NRunModifierTickbox? sourceTickbox)
+    {
+        var changes = new List<string>();
+
+        foreach (var tickbox in _modifierTickboxes.Where(IsUsable))
+        {
+            var id = tickbox.GetInstanceId();
+            var current = tickbox.IsTicked;
+            _modifierStates.TryGetValue(id, out var previous);
+
+            if (current == previous)
+                continue;
+
+            _modifierStates[id] = current;
+            if (tickbox == sourceTickbox)
+                continue;
+
+            if (current)
+                continue;
+
+            var label = tickbox.Modifier?.Title.GetFormattedText();
+            var status = LocalizationManager.Get("ui", "CHECKBOX.UNCHECKED");
+            if (!string.IsNullOrWhiteSpace(label) && !string.IsNullOrWhiteSpace(status))
+                changes.Add($"{label} {status}");
+        }
+
+        return changes;
+    }
+
+    private void RefreshModifierStateSnapshot()
+    {
+        _modifierStates.Clear();
+        foreach (var tickbox in _modifierTickboxes)
+            _modifierStates[tickbox.GetInstanceId()] = tickbox.IsTicked;
     }
 
     private void WireFocusNeighbors()
@@ -426,11 +515,24 @@ public class CustomRunGameScreen : GameScreen
         };
 
         parts.AddRange(_characterButtons.Select(b => $"{b.GetInstanceId()}:{b.Visible}:{b.IsEnabled}:{b.IsLocked}"));
-        parts.AddRange(_modifierTickboxes.Select(t => $"{t.GetInstanceId()}:{t.Visible}:{t.IsEnabled}:{t.IsTicked}"));
+        parts.AddRange(_modifierTickboxes.Select(t => $"{t.GetInstanceId()}:{t.Visible}:{t.IsEnabled}"));
         parts.Add($"{_confirmButton?.Visible}:{_confirmButton?.IsEnabled}");
         parts.Add($"{_unreadyButton?.Visible}:{_unreadyButton?.IsEnabled}");
         parts.Add($"{_backButton?.Visible}:{_backButton?.IsEnabled}");
         return string.Join("|", parts);
+    }
+
+    private static ListContainer NewRow(string label, bool announcePosition = true) => new()
+    {
+        ContainerLabel = label,
+        AnnounceName = true,
+        AnnouncePosition = announcePosition,
+    };
+
+    private void AddRowIfNotEmpty(ListContainer row)
+    {
+        if (row.Children.Count > 0)
+            _root.Add(row);
     }
 
     private string? GetAscensionStatus()
@@ -474,5 +576,42 @@ public class CustomRunGameScreen : GameScreen
             return;
 
         control.EmitSignal(NClickableControl.SignalName.Released, control);
+    }
+
+    private static string UiStatic(string key)
+    {
+        return LocalizationManager.GetOrDefault("ui", key, key);
+    }
+
+    private UIElement CreateConfirmButtonElement()
+    {
+        return new ActionElement(
+            () => _isMultiplayer ? Ui("DAILY_RUN.READY") : Ui("CUSTOM_RUN.START"),
+            status: () => GetButtonStatus(_confirmButton),
+            typeKey: () => "button");
+    }
+
+    private UIElement CreateUnreadyButtonElement()
+    {
+        return new ActionElement(
+            () => Ui("DAILY_RUN.CANCEL_READY"),
+            status: () => GetButtonStatus(_unreadyButton),
+            typeKey: () => "button");
+    }
+
+    private UIElement CreateBackButtonElement()
+    {
+        return new ActionElement(
+            () => Ui("DAILY_RUN.BACK"),
+            status: () => GetButtonStatus(_backButton),
+            typeKey: () => "button");
+    }
+
+    private static string? GetButtonStatus(NClickableControl? control)
+    {
+        if (control == null || control.IsEnabled)
+            return null;
+
+        return LocalizationManager.GetOrDefault("ui", "DAILY_RUN.DISABLED", "Disabled");
     }
 }

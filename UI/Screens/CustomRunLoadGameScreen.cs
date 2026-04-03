@@ -32,7 +32,7 @@ public class CustomRunLoadGameScreen : GameScreen
     {
         ContainerLabel = new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText(),
         AnnounceName = true,
-        AnnouncePosition = true,
+        AnnouncePosition = false,
     };
     private readonly HashSet<ulong> _connectedControls = new();
     private readonly Dictionary<ulong, UIElement> _elementCache = new();
@@ -49,6 +49,9 @@ public class CustomRunLoadGameScreen : GameScreen
     private NClickableControl? _confirmButton;
     private NClickableControl? _unreadyButton;
     private NClickableControl? _backButton;
+    private readonly ListContainer _seedRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.SEED"), announcePosition: false);
+    private readonly ListContainer _ascensionRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.ASCENSION"), announcePosition: false);
+    private readonly ListContainer _modifierRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.MODIFIERS"));
 
     public override string? ScreenName => new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText();
 
@@ -173,29 +176,36 @@ public class CustomRunLoadGameScreen : GameScreen
     protected override void BuildRegistry()
     {
         _root.Clear();
+        _seedRow.Clear();
+        _ascensionRow.Clear();
+        _modifierRow.Clear();
 
         if (_seedInput != null)
-            RegisterMain(_seedInput, GetOrCreate(_seedInput, () => ProxyFactory.Create(_seedInput)));
+            RegisterRowItem(_seedRow, _seedInput, GetOrCreate(_seedInput, () => ProxyFactory.Create(_seedInput)));
 
         if (_ascensionPanel != null && IsUsable(_ascensionPanel))
         {
             var ascensionElement = GetOrCreate(_ascensionPanel, () => new ActionElement(
                 () => Ui("CUSTOM_RUN.ASCENSION", new { value = _ascensionPanel?.Ascension ?? 0 }),
                 status: GetAscensionStatus));
-            RegisterMain(_ascensionPanel, ascensionElement);
+            RegisterRowItem(_ascensionRow, _ascensionPanel, ascensionElement);
             RegisterAlias(_ascensionLeftArrow, ascensionElement);
             RegisterAlias(_ascensionRightArrow, ascensionElement);
         }
 
         foreach (var tickbox in _modifierTickboxes.Where(IsUsable))
-            RegisterMain(tickbox, GetOrCreate(tickbox, () => ProxyFactory.Create(tickbox)));
+            RegisterRowItem(_modifierRow, tickbox, GetOrCreate(tickbox, () => ProxyFactory.Create(tickbox)));
+
+        AddRowIfNotEmpty(_seedRow);
+        AddRowIfNotEmpty(_ascensionRow);
+        AddRowIfNotEmpty(_modifierRow);
 
         if (_confirmButton != null && IsUsable(_confirmButton))
-            RegisterMain(_confirmButton, GetOrCreate(_confirmButton, () => ProxyFactory.Create(_confirmButton)));
+            RegisterMain(_confirmButton, GetOrCreate(_confirmButton, CreateConfirmButtonElement));
         if (_unreadyButton != null && IsUsable(_unreadyButton))
-            RegisterMain(_unreadyButton, GetOrCreate(_unreadyButton, () => ProxyFactory.Create(_unreadyButton)));
+            RegisterMain(_unreadyButton, GetOrCreate(_unreadyButton, CreateUnreadyButtonElement));
         if (_backButton != null && IsUsable(_backButton))
-            RegisterMain(_backButton, GetOrCreate(_backButton, () => ProxyFactory.Create(_backButton)));
+            RegisterMain(_backButton, GetOrCreate(_backButton, CreateBackButtonElement));
 
         WireFocusNeighbors();
     }
@@ -246,6 +256,14 @@ public class CustomRunLoadGameScreen : GameScreen
         Register(control, element);
         ConnectFocusSignal(control, element);
         _root.Add(element);
+    }
+
+    private void RegisterRowItem(ListContainer row, Control control, UIElement element)
+    {
+        control.FocusMode = Control.FocusModeEnum.All;
+        Register(control, element);
+        ConnectFocusSignal(control, element);
+        row.Add(element);
     }
 
     private void RegisterAlias(Control? control, UIElement element)
@@ -370,11 +388,24 @@ public class CustomRunLoadGameScreen : GameScreen
             $"{_ascensionPanel?.Visible}|{_ascensionPanel?.Ascension}"
         };
 
-        parts.AddRange(_modifierTickboxes.Select(t => $"{t.GetInstanceId()}:{t.Visible}:{t.IsEnabled}:{t.IsTicked}"));
+        parts.AddRange(_modifierTickboxes.Select(t => $"{t.GetInstanceId()}:{t.Visible}:{t.IsEnabled}"));
         parts.Add($"{_confirmButton?.Visible}:{_confirmButton?.IsEnabled}");
         parts.Add($"{_unreadyButton?.Visible}:{_unreadyButton?.IsEnabled}");
         parts.Add($"{_backButton?.Visible}:{_backButton?.IsEnabled}");
         return string.Join("|", parts);
+    }
+
+    private static ListContainer NewRow(string label, bool announcePosition = true) => new()
+    {
+        ContainerLabel = label,
+        AnnounceName = true,
+        AnnouncePosition = announcePosition,
+    };
+
+    private void AddRowIfNotEmpty(ListContainer row)
+    {
+        if (row.Children.Count > 0)
+            _root.Add(row);
     }
 
     private string? GetAscensionStatus()
@@ -430,5 +461,42 @@ public class CustomRunLoadGameScreen : GameScreen
             return;
 
         control.EmitSignal(NClickableControl.SignalName.Released, control);
+    }
+
+    private static string UiStatic(string key)
+    {
+        return LocalizationManager.GetOrDefault("ui", key, key);
+    }
+
+    private UIElement CreateConfirmButtonElement()
+    {
+        return new ActionElement(
+            () => Ui("DAILY_RUN.READY"),
+            status: () => GetButtonStatus(_confirmButton),
+            typeKey: () => "button");
+    }
+
+    private UIElement CreateUnreadyButtonElement()
+    {
+        return new ActionElement(
+            () => Ui("DAILY_RUN.CANCEL_READY"),
+            status: () => GetButtonStatus(_unreadyButton),
+            typeKey: () => "button");
+    }
+
+    private UIElement CreateBackButtonElement()
+    {
+        return new ActionElement(
+            () => Ui("DAILY_RUN.BACK"),
+            status: () => GetButtonStatus(_backButton),
+            typeKey: () => "button");
+    }
+
+    private static string? GetButtonStatus(NClickableControl? control)
+    {
+        if (control == null || control.IsEnabled)
+            return null;
+
+        return LocalizationManager.GetOrDefault("ui", "DAILY_RUN.DISABLED", "Disabled");
     }
 }
