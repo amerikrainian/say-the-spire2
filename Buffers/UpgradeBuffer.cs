@@ -2,6 +2,7 @@ using System;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
+using SayTheSpire2.Localization;
 namespace SayTheSpire2.Buffers;
 
 public class UpgradeBuffer : Buffer
@@ -11,6 +12,11 @@ public class UpgradeBuffer : Buffer
     private bool _forceUnavailable;
 
     public UpgradeBuffer() : base("upgrade") { }
+
+    private static string NoUpgradeText()
+    {
+        return LocalizationManager.GetOrDefault("ui", "CARD.UPGRADE_UNAVAILABLE", "No upgrade available");
+    }
 
     public void Bind(CardModel model)
     {
@@ -45,7 +51,7 @@ public class UpgradeBuffer : Buffer
     {
         if (_forceUnavailable)
         {
-            Repopulate(() => Add("Upgrade preview unavailable"));
+            Repopulate(() => Add(NoUpgradeText()));
             return;
         }
 
@@ -66,7 +72,7 @@ public class UpgradeBuffer : Buffer
 
         if (!model.IsUpgradable)
         {
-            Add("No upgrade available");
+            Add(NoUpgradeText());
             return;
         }
 
@@ -82,7 +88,7 @@ public class UpgradeBuffer : Buffer
             catch (Exception e)
             {
                 Log.Error($"[AccessibilityMod] Card upgrade preview clone fallback failed: {e.Message}");
-                Add("Upgrade preview unavailable");
+                Add(NoUpgradeText());
                 return;
             }
         }
@@ -120,7 +126,7 @@ public class UpgradeBuffer : Buffer
         catch (System.Exception e)
         {
             Log.Error($"[AccessibilityMod] Card upgrade preview failed: {e.Message}");
-            Add("Upgrade preview unavailable");
+            Add(NoUpgradeText());
         }
     }
 }

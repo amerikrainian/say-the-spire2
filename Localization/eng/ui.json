@@ -98,6 +98,7 @@
   "CARD_LIBRARY.ROWS.RARITY": "Rarity",
   "CARD_LIBRARY.ROWS.COST": "Cost",
   "CARD_LIBRARY.ROWS.DISPLAY": "Display",
+  "CARD.UPGRADE_UNAVAILABLE": "No upgrade available",
   "TEXTBOX.READ_ONLY": "Read only",
   "RUN_HISTORY.QUEST_COMPLETED": "Quest completed",
   "RUN_HISTORY.ASCENSION": "Ascension {value}",
