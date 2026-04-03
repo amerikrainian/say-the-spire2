@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
+using MegaCrit.Sts2.addons.mega_text;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Settings;
 
@@ -45,11 +46,39 @@ public class ProxyCard : ProxyElement
         return null;
     }
 
-    private CardModel? GetCardModel() => _model ?? FindCardHolder()?.CardModel;
+    private NGridCardHolder? FindGridCardHolder() => FindCardHolder() as NGridCardHolder;
+
+    private CardModel? GetDisplayedCardModel()
+    {
+        if (_model != null)
+            return _model;
+
+        var holder = FindCardHolder();
+        if (holder == null)
+            return null;
+
+        if (holder is NGridCardHolder)
+            return holder.CardNode?.Model ?? holder.CardModel;
+
+        return holder.CardModel;
+    }
+
+    private CardModel? GetBaseCardModel() => _model ?? FindCardHolder()?.CardModel;
+
+    private string? GetCardLibraryStatsText()
+    {
+        var stats = FindGridCardHolder()?.CardLibraryStats;
+        if (stats == null || !stats.Visible)
+            return null;
+
+        var label = stats.GetNodeOrNull<MegaRichTextLabel>("%Label");
+        var text = label?.Text;
+        return string.IsNullOrWhiteSpace(text) ? null : StripBbcode(text);
+    }
 
     public override string? GetLabel()
     {
-        var model = GetCardModel();
+        var model = GetDisplayedCardModel();
         if (model == null) return Control != null ? CleanNodeName(Control.Name) : null;
         var title = model.Title;
         var modifiers = new System.Collections.Generic.List<string>();
@@ -66,14 +95,14 @@ public class ProxyCard : ProxyElement
 
     public override string? GetSubtypeKey()
     {
-        var model = GetCardModel();
+        var model = GetDisplayedCardModel();
         if (model == null) return null;
         return model.Type.ToString().ToLower();
     }
 
     public override string? GetExtrasString()
     {
-        var model = GetCardModel();
+        var model = GetDisplayedCardModel();
         if (model == null) return null;
 
         var parts = new System.Collections.Generic.List<string>();
@@ -105,7 +134,7 @@ public class ProxyCard : ProxyElement
 
     public override string? GetTooltip()
     {
-        var model = GetCardModel();
+        var model = GetDisplayedCardModel();
         if (model == null) return null;
 
         try
@@ -121,13 +150,15 @@ public class ProxyCard : ProxyElement
 
     public override string? HandleBuffers(BufferManager buffers)
     {
-        var model = GetCardModel();
-        if (model == null) return base.HandleBuffers(buffers);
+        var displayedModel = GetDisplayedCardModel();
+        var baseModel = GetBaseCardModel();
+        if (displayedModel == null || baseModel == null) return base.HandleBuffers(buffers);
 
         var cardBuffer = buffers.GetBuffer("card") as CardBuffer;
         if (cardBuffer != null)
         {
-            cardBuffer.Bind(model);
+            var statsText = GetCardLibraryStatsText();
+            cardBuffer.Bind(displayedModel, statsText == null ? null : new[] { statsText });
             cardBuffer.Update();
             buffers.EnableBuffer("card", true);
         }
@@ -135,7 +166,11 @@ public class ProxyCard : ProxyElement
         var upgradeBuffer = buffers.GetBuffer("upgrade") as UpgradeBuffer;
         if (upgradeBuffer != null)
         {
-            upgradeBuffer.Bind(model);
+            var gridHolder = FindGridCardHolder();
+            if (gridHolder?.IsShowingUpgradedCard == true)
+                upgradeBuffer.BindUnavailable();
+            else
+                upgradeBuffer.Bind(baseModel);
             upgradeBuffer.Update();
             buffers.EnableBuffer("upgrade", true);
         }

@@ -7,28 +7,60 @@ namespace SayTheSpire2.Buffers;
 public class UpgradeBuffer : Buffer
 {
     private CardModel? _model;
+    private CardModel? _previewModel;
+    private bool _forceUnavailable;
 
     public UpgradeBuffer() : base("upgrade") { }
 
     public void Bind(CardModel model)
     {
         _model = model;
+        _previewModel = null;
+        _forceUnavailable = false;
+    }
+
+    public void Bind(CardModel model, CardModel? previewModel)
+    {
+        _model = model;
+        _previewModel = previewModel;
+        _forceUnavailable = false;
+    }
+
+    public void BindUnavailable()
+    {
+        _model = null;
+        _previewModel = null;
+        _forceUnavailable = true;
     }
 
     protected override void ClearBinding()
     {
         _model = null;
+        _previewModel = null;
+        _forceUnavailable = false;
         Clear();
     }
 
     public override void Update()
     {
-        if (_model == null) return;
+        if (_forceUnavailable)
+        {
+            Repopulate(() => Add("Upgrade preview unavailable"));
+            return;
+        }
+
+        if (_model == null && _previewModel == null) return;
         Repopulate(Populate);
     }
 
     private void Populate()
     {
+        if (_previewModel != null)
+        {
+            CardBuffer.Populate(this, _previewModel);
+            return;
+        }
+
         var model = _model;
         if (model == null) return;
 
@@ -38,7 +70,22 @@ public class UpgradeBuffer : Buffer
             return;
         }
 
-        if (model.CardScope == null) return;
+        if (model.CardScope == null)
+        {
+            try
+            {
+                var clone = (CardModel)model.MutableClone();
+                clone.UpgradeInternal();
+                CardBuffer.Populate(this, clone);
+                return;
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[AccessibilityMod] Card upgrade preview clone fallback failed: {e.Message}");
+                Add("Upgrade preview unavailable");
+                return;
+            }
+        }
 
         try
         {

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Enchantments;
 using MegaCrit.Sts2.Core.HoverTips;
@@ -10,24 +12,37 @@ namespace SayTheSpire2.Buffers;
 public class CardBuffer : Buffer
 {
     private CardModel? _model;
+    private IReadOnlyList<string> _extraLines = Array.Empty<string>();
 
     public CardBuffer() : base("card") { }
 
     public void Bind(CardModel model)
     {
         _model = model;
+        _extraLines = Array.Empty<string>();
+    }
+
+    public void Bind(CardModel model, IEnumerable<string>? extraLines)
+    {
+        _model = model;
+        _extraLines = extraLines?
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .Select(line => line.Trim())
+            .ToArray()
+            ?? Array.Empty<string>();
     }
 
     protected override void ClearBinding()
     {
         _model = null;
+        _extraLines = Array.Empty<string>();
         Clear();
     }
 
     public override void Update()
     {
         if (_model == null) return;
-        Repopulate(() => Populate(this, _model));
+        Repopulate(() => Populate(this, _model, _extraLines));
     }
 
     /// <summary>
@@ -35,7 +50,7 @@ public class CardBuffer : Buffer
     /// Used by CardBuffer.Update(), and by other proxies that need card info
     /// (e.g., relic hover tips that reference cards).
     /// </summary>
-    public static void Populate(Buffer buffer, CardModel model)
+    public static void Populate(Buffer buffer, CardModel model, IEnumerable<string>? extraLines = null)
     {
         // Name, type, and rarity
         var header = $"{model.Title}, {model.Type}";
@@ -124,5 +139,14 @@ public class CardBuffer : Buffer
             }
         }
         catch (Exception e) { Log.Error($"[AccessibilityMod] Card hover tips access failed: {e.Message}"); }
+
+        if (extraLines == null)
+            return;
+
+        foreach (var line in extraLines)
+        {
+            if (!string.IsNullOrWhiteSpace(line))
+                buffer.Add(line.Trim());
+        }
     }
 }

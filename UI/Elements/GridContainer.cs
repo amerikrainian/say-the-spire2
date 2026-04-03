@@ -17,6 +17,14 @@ public class GridContainer : Container
         if (y >= MaxY) MaxY = y + 1;
     }
 
+    public void ClearGrid()
+    {
+        base.Clear();
+        _positions.Clear();
+        MaxX = 0;
+        MaxY = 0;
+    }
+
     public override string? GetPositionString(UIElement child)
     {
         if (!_positions.TryGetValue(child, out var pos)) return null;
