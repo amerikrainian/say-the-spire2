@@ -10,8 +10,10 @@
     * Player intents are now read
     * Fixed a bug where the player buffer would not properly update to match the current player when unhovering another player.
     * Fixed a bug where player names in multiplayer would be read out as their steam ID (a string of numbers) instead of their display name.
+    * Fixed a bug where player join announcements would not work when hosting a saved game.
 * Added several screens thanks to @amerikrainian:
     * The daily run screen, including leaderboard, is now fully supported.
+    * The custom run screen is now fully supported.
     * Added support for run history, stats, potion lab, and relics screens in the compendium.
 * You can now press f1 for context-sensitive help on any screen. Use the up/down controls to navigate through all available messages on each screen. If a message contains multiple actions, use left/right to browse each action individually.
 * Fixed a bug where UI elements that yielded the same text (such as card reward buttons with identical labels) would be treated as the same element.
