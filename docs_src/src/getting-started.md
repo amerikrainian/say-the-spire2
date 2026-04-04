@@ -10,7 +10,7 @@ A note when playing your first game: the tutorial dialogs are a little unintuiti
 
 ## Help
 
-If you want context-sensitive help on any screen, press f1 (keyboard) or left trigger plus back (controller). This will provide help text and available controls for the screen you're currently on.
+If you want context-sensitive help on any screen, press f1 (keyboard) or left trigger plus back (controller). This will provide help text and available controls for the screen you're currently on. Use up and down to navigate through available help messages. If a help message contains multiple actions/controls, use right/left to browse them individually. You can exit the help screen by pressing the help key again, or by using the usual back/cancel controls.
 
 ## Buffers
 
