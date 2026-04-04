@@ -12,7 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: peaceiris/actions-mdbook@v2
-      - run: cp ./changes.md ./docs_src/src/
       - name: generate-docs
         working-directory: ./docs_src
         run: mdbook build
