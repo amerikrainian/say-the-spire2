@@ -185,6 +185,20 @@ public static class FocusHooks
 
     public static void CardHolderFocusPostfix(NCardHolder __instance)
     {
+        if (ScreenManager.CurrentScreen is CardLibraryGameScreen cardLibraryScreen
+            && cardLibraryScreen.ShouldSuppressOpeningCardFocus(__instance))
+        {
+            return;
+        }
+
+        if (ScreenManager.CurrentScreen is CardLibraryGameScreen liveCardLibraryScreen
+            && __instance is NGridCardHolder gridHolder)
+        {
+            var liveElement = liveCardLibraryScreen.ResolveLiveCardHolder(gridHolder);
+            UIManager.SetFocusedControl(gridHolder, liveElement ?? new ProxyCard(gridHolder));
+            return;
+        }
+
         // If a screen has this control registered (e.g., CardPileGameScreen),
         // let ResolveElement find it so it gets container context for position.
         var screenElement = ScreenManager.ResolveElement(__instance);

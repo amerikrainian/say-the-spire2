@@ -2,43 +2,96 @@ using System;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
+using SayTheSpire2.Localization;
 namespace SayTheSpire2.Buffers;
 
 public class UpgradeBuffer : Buffer
 {
     private CardModel? _model;
+    private CardModel? _previewModel;
+    private bool _forceUnavailable;
 
     public UpgradeBuffer() : base("upgrade") { }
+
+    private static string NoUpgradeText()
+    {
+        return LocalizationManager.GetOrDefault("ui", "CARD.UPGRADE_UNAVAILABLE", "No upgrade available");
+    }
 
     public void Bind(CardModel model)
     {
         _model = model;
+        _previewModel = null;
+        _forceUnavailable = false;
+    }
+
+    public void Bind(CardModel model, CardModel? previewModel)
+    {
+        _model = model;
+        _previewModel = previewModel;
+        _forceUnavailable = false;
+    }
+
+    public void BindUnavailable()
+    {
+        _model = null;
+        _previewModel = null;
+        _forceUnavailable = true;
     }
 
     protected override void ClearBinding()
     {
         _model = null;
+        _previewModel = null;
+        _forceUnavailable = false;
         Clear();
     }
 
     public override void Update()
     {
-        if (_model == null) return;
+        if (_forceUnavailable)
+        {
+            Repopulate(() => Add(NoUpgradeText()));
+            return;
+        }
+
+        if (_model == null && _previewModel == null) return;
         Repopulate(Populate);
     }
 
     private void Populate()
     {
+        if (_previewModel != null)
+        {
+            CardBuffer.Populate(this, _previewModel);
+            return;
+        }
+
         var model = _model;
         if (model == null) return;
 
         if (!model.IsUpgradable)
         {
-            Add("No upgrade available");
+            Add(NoUpgradeText());
             return;
         }
 
-        if (model.CardScope == null) return;
+        if (model.CardScope == null)
+        {
+            try
+            {
+                var clone = (CardModel)model.MutableClone();
+                clone.UpgradeInternal();
+                CardBuffer.Populate(this, clone);
+                return;
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[AccessibilityMod] Card upgrade preview clone fallback failed: {e.Message}");
+                Add(NoUpgradeText());
+                return;
+            }
+        }
 
         try
         {
@@ -73,7 +126,7 @@ public class UpgradeBuffer : Buffer
         catch (System.Exception e)
         {
             Log.Error($"[AccessibilityMod] Card upgrade preview failed: {e.Message}");
-            Add("Upgrade preview unavailable");
+            Add(NoUpgradeText());
         }
     }
 }
