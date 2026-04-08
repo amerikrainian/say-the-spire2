@@ -74,6 +74,7 @@ public class CardLibraryGameScreen : GameScreen
     private readonly HashSet<ulong> _connectedControls = new();
     private readonly Dictionary<Control, UIElement> _elementCache = new();
     private readonly ListContainer _poolRow = NewRow(Ui("CARD_LIBRARY.ROWS.POOLS"));
+    private readonly ListContainer _sortColumn = NewRow(Ui("CARD_LIBRARY.ROWS.SORT"));
     private readonly ListContainer _typeRow = NewRow(Ui("CARD_LIBRARY.ROWS.TYPE"));
     private readonly ListContainer _rarityRow = NewRow(Ui("CARD_LIBRARY.ROWS.RARITY"));
     private readonly ListContainer _costRow = NewRow(Ui("CARD_LIBRARY.ROWS.COST"));
@@ -161,6 +162,7 @@ public class CardLibraryGameScreen : GameScreen
     {
         _root.Clear();
         _poolRow.Clear();
+        _sortColumn.Clear();
         _typeRow.Clear();
         _rarityRow.Clear();
         _costRow.Clear();
@@ -201,31 +203,32 @@ public class CardLibraryGameScreen : GameScreen
         RegisterRowControl(_poolRow, _screen.GetNodeOrNull<Control>("%AncientsPool"), "Ancients");
         RegisterRowControl(_poolRow, _screen.GetNodeOrNull<Control>("%MiscPool"), "Miscellaneous");
 
-        RegisterRowControl(_typeRow, _screen.GetNodeOrNull<Control>("%CardTypeSorter"));
+        RegisterRowControl(_sortColumn, _screen.GetNodeOrNull<Control>("%CardTypeSorter"));
         RegisterRowControl(_typeRow, _screen.GetNodeOrNull<Control>("%AttackType"));
         RegisterRowControl(_typeRow, _screen.GetNodeOrNull<Control>("%SkillType"));
         RegisterRowControl(_typeRow, _screen.GetNodeOrNull<Control>("%PowerType"));
         RegisterRowControl(_typeRow, _screen.GetNodeOrNull<Control>("%OtherType"));
 
-        RegisterRowControl(_rarityRow, _screen.GetNodeOrNull<Control>("%RaritySorter"), string.Empty);
+        RegisterRowControl(_sortColumn, _screen.GetNodeOrNull<Control>("%RaritySorter"));
         RegisterRowControl(_rarityRow, _screen.GetNodeOrNull<Control>("%CommonRarity"));
         RegisterRowControl(_rarityRow, _screen.GetNodeOrNull<Control>("%UncommonRarity"));
         RegisterRowControl(_rarityRow, _screen.GetNodeOrNull<Control>("%RareRarity"));
         RegisterRowControl(_rarityRow, _screen.GetNodeOrNull<Control>("%OtherRarity"));
 
-        RegisterRowControl(_costRow, _screen.GetNodeOrNull<Control>("%CostSorter"), string.Empty);
+        RegisterRowControl(_sortColumn, _screen.GetNodeOrNull<Control>("%CostSorter"));
         RegisterRowControl(_costRow, _screen.GetNodeOrNull<Control>("%Cost0"));
         RegisterRowControl(_costRow, _screen.GetNodeOrNull<Control>("%Cost1"));
         RegisterRowControl(_costRow, _screen.GetNodeOrNull<Control>("%Cost2"));
         RegisterRowControl(_costRow, _screen.GetNodeOrNull<Control>("%Cost3+"));
         RegisterRowControl(_costRow, _screen.GetNodeOrNull<Control>("%CostX"));
 
-        RegisterRowControl(_displayRow, _screen.GetNodeOrNull<Control>("%AlphabetSorter"));
+        RegisterRowControl(_sortColumn, _screen.GetNodeOrNull<Control>("%AlphabetSorter"));
         RegisterRowControl(_displayRow, _screen.GetNodeOrNull<Control>("%Stats"));
         RegisterRowControl(_displayRow, _screen.GetNodeOrNull<Control>("%Upgrades"));
         RegisterRowControl(_displayRow, _screen.GetNodeOrNull<Control>("%MultiplayerCards"));
 
         AddRowIfNotEmpty(_poolRow);
+        AddRowIfNotEmpty(_sortColumn);
         AddRowIfNotEmpty(_typeRow);
         AddRowIfNotEmpty(_rarityRow);
         AddRowIfNotEmpty(_costRow);
@@ -241,24 +244,18 @@ public class CardLibraryGameScreen : GameScreen
         _cardGridContainer.ClearCards();
         _cardGridContainer.ContainerLabel = GetCardCountLabel();
 
-        var cardRows = CardRowsField?.GetValue(grid) as System.Collections.IList;
-        if (cardRows == null)
+        var cardRows = GetDisplayedCardRows();
+        if (cardRows.Count == 0)
             return;
 
-        var columnCount = GetGridColumnCount(cardRows);
+        var columnCount = cardRows.Max(row => row.Count);
         _cardGridContainer.SetColumnCount(columnCount);
 
-        for (int row = 0; row < cardRows.Count; row++)
+        foreach (var row in cardRows)
         {
-            var rowList = cardRows[row] as System.Collections.IList;
-            if (rowList == null)
-                continue;
-
-            for (int col = 0; col < rowList.Count; col++)
+            for (int col = 0; col < row.Count; col++)
             {
-                if (rowList[col] is not NGridCardHolder holder || !holder.Visible)
-                    continue;
-
+                var holder = row[col];
                 var proxy = GetOrCreate(holder, () => new ProxyCard(holder));
                 _cardGridContainer.Upsert(proxy, holder);
                 Register(holder, proxy);
@@ -349,11 +346,12 @@ public class CardLibraryGameScreen : GameScreen
     {
         var search = Usable(_screen.GetNodeOrNull<NSearchBar>("%SearchBar")?.TextArea);
         var pool = GetUsableRowControls(_poolRow);
+        var sort = GetUsableRowControls(_sortColumn);
         var type = GetUsableRowControls(_typeRow);
         var rarity = GetUsableRowControls(_rarityRow);
         var cost = GetUsableRowControls(_costRow);
         var display = GetUsableRowControls(_displayRow);
-        var cards = GetVisibleCardRows();
+        var cards = GetDisplayedCardRows();
 
         if (search != null)
         {
@@ -361,31 +359,52 @@ public class CardLibraryGameScreen : GameScreen
             search.FocusNeighborLeft = self;
             search.FocusNeighborRight = self;
             search.FocusNeighborTop = self;
-            search.FocusNeighborBottom = (pool.FirstOrDefault() ?? type.FirstOrDefault() ?? rarity.FirstOrDefault() ?? cost.FirstOrDefault() ?? display.FirstOrDefault() ?? search).GetPath();
+            search.FocusNeighborBottom = (pool.FirstOrDefault() ?? sort.FirstOrDefault() ?? type.FirstOrDefault() ?? rarity.FirstOrDefault() ?? cost.FirstOrDefault() ?? display.FirstOrDefault() ?? search).GetPath();
         }
 
-        WireHorizontalRow(pool, search != null ? new List<Control> { search } : null, type.Count > 0 ? type : rarity.Count > 0 ? rarity : cost.Count > 0 ? cost : display);
-        WireHorizontalRow(type, pool.Count > 0 ? pool : search != null ? new List<Control> { search } : null, rarity.Count > 0 ? rarity : cost.Count > 0 ? cost : display);
-        WireHorizontalRow(rarity, type.Count > 0 ? type : pool.Count > 0 ? pool : search != null ? new List<Control> { search } : null, cost.Count > 0 ? cost : display);
-        WireHorizontalRow(cost, rarity.Count > 0 ? rarity : type.Count > 0 ? type : pool.Count > 0 ? pool : search != null ? new List<Control> { search } : null, display.Count > 0 ? display : cards.FirstOrDefault()?.Cast<Control>().ToList());
-        WireHorizontalRow(display, cost.Count > 0 ? cost : rarity.Count > 0 ? rarity : type.Count > 0 ? type : pool.Count > 0 ? pool : search != null ? new List<Control> { search } : null, cards.FirstOrDefault()?.Cast<Control>().ToList());
+        var classAbove = search != null ? new List<Control> { search } : null;
+        var classBelow = type.Count > 0 ? type : rarity.Count > 0 ? rarity : cost.Count > 0 ? cost : display;
+        WireHorizontalRow(pool, classAbove, classBelow, leftEdgeTarget: sort.FirstOrDefault());
+
+        WireVerticalColumn(
+            sort,
+            above: pool.FirstOrDefault() ?? search,
+            rightTargets: new[] { type, rarity, cost, display },
+            below: cards.FirstOrDefault()?.FirstOrDefault());
+
+        WireHorizontalRow(type, pool.Count > 0 ? pool : classAbove, rarity.Count > 0 ? rarity : cost.Count > 0 ? cost : display, leftEdgeTarget: sort.ElementAtOrDefault(0));
+        WireHorizontalRow(rarity, type.Count > 0 ? type : pool.Count > 0 ? pool : classAbove, cost.Count > 0 ? cost : display, leftEdgeTarget: sort.ElementAtOrDefault(1));
+        WireHorizontalRow(cost, rarity.Count > 0 ? rarity : type.Count > 0 ? type : pool.Count > 0 ? pool : classAbove, display.Count > 0 ? display : cards.FirstOrDefault()?.Cast<Control>().ToList(), leftEdgeTarget: sort.ElementAtOrDefault(2));
+        WireHorizontalRow(display, cost.Count > 0 ? cost : rarity.Count > 0 ? rarity : type.Count > 0 ? type : pool.Count > 0 ? pool : classAbove, cards.FirstOrDefault()?.Cast<Control>().ToList(), leftEdgeTarget: sort.ElementAtOrDefault(3));
 
         if (cards.Count == 0)
             return;
 
-        var topAnchor = display.FirstOrDefault() ?? cost.FirstOrDefault() ?? rarity.FirstOrDefault() ?? type.FirstOrDefault() ?? pool.FirstOrDefault() ?? search;
-        WireCardGridNeighbors(cards, topAnchor);
+        var topAnchor = pool.FirstOrDefault() ?? search;
+        WireCardGridNeighbors(cards, topAnchor, sort.FirstOrDefault());
     }
 
-    private void WireHorizontalRow(List<Control> row, List<Control>? above, List<Control>? below)
+    private void WireHorizontalRow(List<Control> row, List<Control>? above, List<Control>? below, Control? leftEdgeTarget = null)
     {
         for (int i = 0; i < row.Count; i++)
         {
             var self = row[i].GetPath();
-            row[i].FocusNeighborLeft = i > 0 ? row[i - 1].GetPath() : self;
+            row[i].FocusNeighborLeft = i > 0 ? row[i - 1].GetPath() : (leftEdgeTarget ?? row[i]).GetPath();
             row[i].FocusNeighborRight = i < row.Count - 1 ? row[i + 1].GetPath() : self;
             row[i].FocusNeighborTop = ResolveVerticalTarget(above, row).GetPath();
             row[i].FocusNeighborBottom = ResolveVerticalTarget(below, row).GetPath();
+        }
+    }
+
+    private static void WireVerticalColumn(List<Control> column, Control? above, IReadOnlyList<List<Control>> rightTargets, Control? below)
+    {
+        for (int i = 0; i < column.Count; i++)
+        {
+            var self = column[i].GetPath();
+            column[i].FocusNeighborLeft = self;
+            column[i].FocusNeighborRight = (rightTargets.ElementAtOrDefault(i)?.FirstOrDefault() ?? column[i]).GetPath();
+            column[i].FocusNeighborTop = (i > 0 ? column[i - 1] : above ?? column[i]).GetPath();
+            column[i].FocusNeighborBottom = (i < column.Count - 1 ? column[i + 1] : below ?? column[i]).GetPath();
         }
     }
 
@@ -397,7 +416,7 @@ public class CardLibraryGameScreen : GameScreen
         return row[0];
     }
 
-    private static void WireCardGridNeighbors(List<List<NGridCardHolder>> rows, Control? topAnchor)
+    private static void WireCardGridNeighbors(List<List<NGridCardHolder>> rows, Control? topAnchor, Control? leftAnchor)
     {
         for (int rowIndex = 0; rowIndex < rows.Count; rowIndex++)
         {
@@ -405,7 +424,7 @@ public class CardLibraryGameScreen : GameScreen
             for (int colIndex = 0; colIndex < row.Count; colIndex++)
             {
                 var holder = row[colIndex];
-                holder.FocusNeighborLeft = (colIndex > 0 ? row[colIndex - 1] : holder).GetPath();
+                holder.FocusNeighborLeft = (colIndex > 0 ? row[colIndex - 1] : leftAnchor ?? holder).GetPath();
                 holder.FocusNeighborRight = (colIndex < row.Count - 1 ? row[colIndex + 1] : holder).GetPath();
 
                 if (rowIndex == 0)
@@ -431,12 +450,13 @@ public class CardLibraryGameScreen : GameScreen
         }
     }
 
-    private List<List<NGridCardHolder>> GetVisibleCardRows()
+    private List<List<NGridCardHolder>> GetDisplayedCardRows()
     {
         var result = new List<List<NGridCardHolder>>();
         var grid = _screen.GetNodeOrNull<NCardLibraryGrid>("%CardGrid");
+        var scrollContainer = grid?.GetNodeOrNull<Control>("%ScrollContainer");
         var cardRows = grid == null ? null : CardRowsField?.GetValue(grid) as System.Collections.IList;
-        if (cardRows == null)
+        if (cardRows == null || scrollContainer == null)
             return result;
 
         for (int row = 0; row < cardRows.Count; row++)
@@ -445,24 +465,15 @@ public class CardLibraryGameScreen : GameScreen
             if (rowList == null)
                 continue;
 
-            var visible = rowList.OfType<NGridCardHolder>().Where(holder => holder.Visible).ToList();
-            if (visible.Count > 0)
-                result.Add(visible);
+            var displayed = rowList
+                .OfType<NGridCardHolder>()
+                .Where(holder => IsDisplayedCardHolder(holder, scrollContainer))
+                .ToList();
+            if (displayed.Count > 0)
+                result.Add(displayed);
         }
 
         return result;
-    }
-
-    private static int GetGridColumnCount(System.Collections.IList cardRows)
-    {
-        var maxColumns = 0;
-        for (int i = 0; i < cardRows.Count; i++)
-        {
-            if (cardRows[i] is System.Collections.IList rowList && rowList.Count > maxColumns)
-                maxColumns = rowList.Count;
-        }
-
-        return maxColumns > 0 ? maxColumns : 1;
     }
 
     private static Control? Usable(Control? control)
@@ -473,6 +484,19 @@ public class CardLibraryGameScreen : GameScreen
     private static bool IsUsable(Control? control)
     {
         return control != null && control.Visible && GodotObject.IsInstanceValid(control);
+    }
+
+    private static bool IsDisplayedCardHolder(NGridCardHolder holder, Control scrollContainer)
+    {
+        if (!IsUsable(holder) || !IsUsable(scrollContainer))
+            return false;
+
+        var containerTop = scrollContainer.GlobalPosition.Y;
+        var containerBottom = containerTop + scrollContainer.Size.Y;
+        var holderTop = holder.GlobalPosition.Y;
+        var holderBottom = holderTop + holder.Size.Y;
+
+        return holderBottom > containerTop && holderTop < containerBottom;
     }
 
     public bool ShouldSuppressOpeningCardFocus(Control control)
