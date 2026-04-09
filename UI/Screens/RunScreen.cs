@@ -146,14 +146,14 @@ public class RunScreen : Screen
     {
         var player = GetLocalPlayer();
         if (player == null) return;
-        SpeechManager.Output(Message.Raw($"{player.Gold} gold"));
+        SpeechManager.Output(Message.Localized("ui", "RESOURCE.GOLD", new { amount = player.Gold }));
     }
 
     private void AnnounceHp()
     {
         var player = GetLocalPlayer();
         if (player == null) return;
-        SpeechManager.Output(Message.Raw($"{player.Creature.CurrentHp} of {player.Creature.MaxHp} HP"));
+        SpeechManager.Output(Message.Localized("ui", "RESOURCE.HP", new { current = player.Creature.CurrentHp, max = player.Creature.MaxHp }));
     }
 
     private void AnnounceBoss()

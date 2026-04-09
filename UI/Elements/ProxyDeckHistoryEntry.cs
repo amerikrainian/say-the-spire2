@@ -64,19 +64,19 @@ public class ProxyDeckHistoryEntry : ProxyElement
         if (model.EnergyCost != null)
         {
             if (model.EnergyCost.CostsX)
-                parts.Add(verbose ? "X energy" : "X");
+                parts.Add(verbose ? LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_ENERGY", "X energy") : "X");
             else
-                parts.Add(verbose ? $"{model.EnergyCost.GetWithModifiers(CostModifiers.All)} energy" : $"{model.EnergyCost.GetWithModifiers(CostModifiers.All)}");
+                parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost = model.EnergyCost.GetWithModifiers(CostModifiers.All) }).Resolve() : $"{model.EnergyCost.GetWithModifiers(CostModifiers.All)}");
         }
 
         if (model.HasStarCostX)
-            parts.Add(verbose ? "X stars" : "X");
+            parts.Add(verbose ? LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_STARS", "X stars") : "X");
         else if (model.CurrentStarCost >= 0)
         {
             int starCost;
             try { starCost = model.GetStarCostWithModifiers(); }
             catch { starCost = model.CurrentStarCost; }
-            parts.Add(verbose ? $"{starCost} stars" : $"{starCost}");
+            parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = starCost }).Resolve() : $"{starCost}");
         }
 
         return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;

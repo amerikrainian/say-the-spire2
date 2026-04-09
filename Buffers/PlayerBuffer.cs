@@ -3,6 +3,7 @@ using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Runs;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI;
 
 namespace SayTheSpire2.Buffers;
@@ -61,7 +62,7 @@ public class PlayerBuffer : Buffer
         var creature = player.Creature;
         var pcs = player.PlayerCombatState;
 
-        Add($"HP: {creature.CurrentHp}/{creature.MaxHp}");
+        Add(Message.Localized("ui", "RESOURCE.HP", new { current = creature.CurrentHp, max = creature.MaxHp }).Resolve());
 
         if (creature.Block > 0)
             Add($"Block: {creature.Block}");
@@ -73,7 +74,7 @@ public class PlayerBuffer : Buffer
 
         if (pcs != null)
         {
-            var piles = $"Draw: {pcs.DrawPile.Cards.Count}, Hand: {pcs.Hand.Cards.Count}, Discard: {pcs.DiscardPile.Cards.Count}";
+            var piles = Message.Localized("ui", "RESOURCE.DRAW_HAND_DISCARD", new { draw = pcs.DrawPile.Cards.Count, hand = pcs.Hand.Cards.Count, discard = pcs.DiscardPile.Cards.Count }).Resolve();
             if (pcs.ExhaustPile.Cards.Count > 0)
                 piles += $", Exhaust: {pcs.ExhaustPile.Cards.Count}";
             Add(piles);

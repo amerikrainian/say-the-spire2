@@ -37,7 +37,7 @@ public class ProxyOrb : ProxyElement
             return !string.IsNullOrEmpty(desc) ? Message.Raw(StripBbcode(desc)) : null;
         }
 
-        return Message.Raw($"Passive {model.PassiveVal:0}, Evoke {model.EvokeVal:0}");
+        return Message.Localized("ui", "ORB.STATUS", new { passive = (int)model.PassiveVal, evoke = (int)model.EvokeVal });
     }
 
     public override string? HandleBuffers(BufferManager buffers)
@@ -71,7 +71,7 @@ public class ProxyOrb : ProxyElement
     {
         buffer.Add(model.Title.GetFormattedText());
 
-        buffer.Add($"Passive: {model.PassiveVal:0}, Evoke: {model.EvokeVal:0}");
+        buffer.Add(Message.Localized("ui", "ORB.BUFFER_STATUS", new { passive = (int)model.PassiveVal, evoke = (int)model.EvokeVal }).Resolve());
 
         try
         {

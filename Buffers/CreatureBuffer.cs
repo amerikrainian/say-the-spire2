@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.HoverTips;
+using SayTheSpire2.Localization;
 using SayTheSpire2.Multiplayer;
 namespace SayTheSpire2.Buffers;
 
@@ -37,7 +38,7 @@ public class CreatureBuffer : Buffer
         Add(MultiplayerHelper.GetCreatureName(entity));
 
         // HP
-        Add($"HP: {entity.CurrentHp}/{entity.MaxHp}");
+        Add(Message.Localized("ui", "RESOURCE.HP", new { current = entity.CurrentHp, max = entity.MaxHp }).Resolve());
 
         // Block
         if (entity.Block > 0)

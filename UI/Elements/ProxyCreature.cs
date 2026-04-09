@@ -68,11 +68,11 @@ public class ProxyCreature : ProxyElement
             parts.Add(intentSummary);
 
         // HP
-        parts.Add($"{entity.CurrentHp}/{entity.MaxHp} HP");
+        parts.Add(Message.Localized("ui", "RESOURCE.HP", new { current = entity.CurrentHp, max = entity.MaxHp }).Resolve());
 
         // Block
         if (entity.Block > 0)
-            parts.Add($"{entity.Block} block");
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = entity.Block }).Resolve());
 
         if (!intentFirst && !string.IsNullOrEmpty(intentSummary))
             parts.Add(intentSummary);

@@ -6,6 +6,7 @@ using MegaCrit.Sts2.Core.Entities.Enchantments;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 namespace SayTheSpire2.Buffers;
 
@@ -63,19 +64,19 @@ public class CardBuffer : Buffer
         if (model.EnergyCost != null)
         {
             if (model.EnergyCost.CostsX)
-                costs.Add("X energy");
+                costs.Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_ENERGY", "X energy"));
             else
             {
-                try { costs.Add($"{model.EnergyCost.GetWithModifiers(CostModifiers.All)} energy"); }
-                catch { costs.Add($"{model.EnergyCost.Canonical} energy"); }
+                try { costs.Add(Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost = model.EnergyCost.GetWithModifiers(CostModifiers.All) }).Resolve()); }
+                catch { costs.Add(Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost = model.EnergyCost.Canonical }).Resolve()); }
             }
         }
         if (model.HasStarCostX)
-            costs.Add("X stars");
+            costs.Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_STARS", "X stars"));
         else if (model.CurrentStarCost >= 0)
         {
-            try { costs.Add($"{model.GetStarCostWithModifiers()} stars"); }
-            catch { costs.Add($"{model.CurrentStarCost} stars"); }
+            try { costs.Add(Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = model.GetStarCostWithModifiers() }).Resolve()); }
+            catch { costs.Add(Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = model.CurrentStarCost }).Resolve()); }
         }
         if (costs.Count > 0)
             buffer.Add(string.Join(", ", costs));

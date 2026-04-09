@@ -84,13 +84,13 @@ public class ProxyMerchantSlot : ProxyElement
         if (!entry.IsStocked) return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.SOLD_OUT", "Sold out"));
 
         var parts = new System.Collections.Generic.List<string>();
-        parts.Add($"{entry.Cost} gold");
+        parts.Add(Message.Localized("ui", "RESOURCE.PRICE", new { cost = entry.Cost }).Resolve());
 
         if (!entry.EnoughGold)
-            parts.Add("Not enough gold");
+            parts.Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.NOT_ENOUGH_GOLD", "Not enough gold"));
 
         if (entry is MerchantCardEntry cardEntry && cardEntry.IsOnSale)
-            parts.Add("On sale");
+            parts.Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.ON_SALE", "On sale"));
 
         return Message.Raw(string.Join(", ", parts));
     }
@@ -115,7 +115,7 @@ public class ProxyMerchantSlot : ProxyElement
         var buffer = buffers.GetBuffer(bufferKey);
         if (buffer != null)
         {
-            buffer.Add($"Price: {entry.Cost} gold");
+            buffer.Add(Message.Localized("ui", "RESOURCE.PRICE", new { cost = entry.Cost }).Resolve());
             if (entry is MerchantCardEntry cardEntry && cardEntry.IsOnSale)
                 buffer.Add("On sale!");
         }
@@ -130,7 +130,7 @@ public class ProxyMerchantSlot : ProxyElement
         {
             uiBuffer.Clear();
             uiBuffer.Add("Card Removal Service");
-            uiBuffer.Add($"Price: {removalEntry.Cost} gold");
+            uiBuffer.Add(Message.Localized("ui", "RESOURCE.PRICE", new { cost = removalEntry.Cost }).Resolve());
             if (!removalEntry.IsStocked)
                 uiBuffer.Add("Already used");
             buffers.EnableBuffer("ui", true);

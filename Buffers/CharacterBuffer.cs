@@ -1,5 +1,6 @@
 using MegaCrit.Sts2.Core.Localization;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
+using SayTheSpire2.Localization;
 namespace SayTheSpire2.Buffers;
 
 public class CharacterBuffer : Buffer
@@ -49,9 +50,9 @@ public class CharacterBuffer : Buffer
             if (!string.IsNullOrEmpty(desc))
                 Add(desc);
 
-            Add($"HP: {character.StartingHp}");
-            Add($"Gold: {character.StartingGold}");
-            Add($"Energy: {character.MaxEnergy}");
+            Add(Message.Localized("ui", "RESOURCE.HP", new { current = character.StartingHp, max = character.StartingHp }).Resolve());
+            Add(Message.Localized("ui", "RESOURCE.GOLD", new { amount = character.StartingGold }).Resolve());
+            Add(Message.Localized("ui", "RESOURCE.ENERGY", new { current = character.MaxEnergy, max = character.MaxEnergy }).Resolve());
         }
     }
 }

@@ -45,18 +45,18 @@ public class ProxyMultiplayerPlayerState : ProxyElement
         var parts = new System.Collections.Generic.List<string>();
         var creature = player.Creature;
 
-        parts.Add($"{creature.CurrentHp}/{creature.MaxHp} HP");
+        parts.Add(Message.Localized("ui", "RESOURCE.HP", new { current = creature.CurrentHp, max = creature.MaxHp }).Resolve());
 
         if (creature.Block > 0)
-            parts.Add($"{creature.Block} Block");
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }).Resolve());
 
         var pcs = player.PlayerCombatState;
         if (pcs != null)
         {
-            parts.Add($"{pcs.Energy} energy");
+            parts.Add(Message.Localized("ui", "RESOURCE.ENERGY", new { current = pcs.Energy, max = pcs.MaxEnergy }).Resolve());
             if (pcs.Stars > 0)
-                parts.Add($"{pcs.Stars} stars");
-            parts.Add($"{pcs.Hand.Cards.Count} cards in hand");
+                parts.Add(Message.Localized("ui", "RESOURCE.STARS", new { amount = pcs.Stars }).Resolve());
+            parts.Add(Message.Localized("ui", "RESOURCE.CARDS_IN_HAND", new { count = pcs.Hand.Cards.Count }).Resolve());
         }
 
         return Message.Raw(string.Join(", ", parts));

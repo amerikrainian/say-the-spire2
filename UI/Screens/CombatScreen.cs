@@ -258,7 +258,7 @@ public class CombatScreen : Screen
         };
 
         if (creature.Block > 0)
-            parts.Add($"{creature.Block} block");
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }).Resolve());
 
         SpeechManager.Output(Message.Raw(string.Join(", ", parts)));
     }
@@ -299,14 +299,14 @@ public class CombatScreen : Screen
 
     private string? GetCombatantIntentSummary(Creature creature)
     {
-        return ProxyCreature.GetIntentSummary(creature, includePrefix: false) ?? "No intent";
+        return ProxyCreature.GetIntentSummary(creature, includePrefix: false) ?? LocalizationManager.GetOrDefault("ui", "SPEECH.NO_INTENT", "No intent");
     }
 
     private void AnnounceBlock()
     {
         var player = GetLocalPlayer();
         if (player == null) return;
-        SpeechManager.Output(Message.Raw($"{player.Creature.Block} block"));
+        SpeechManager.Output(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = player.Creature.Block }));
     }
 
     private void AnnounceEnergy()
@@ -401,9 +401,9 @@ public class CombatScreen : Screen
             }
         }
 
-        SpeechManager.Output(Message.Raw(totalDamage > 0
-            ? $"{totalDamage} incoming damage"
-            : "No incoming damage"));
+        SpeechManager.Output(totalDamage > 0
+            ? Message.Localized("ui", "SPEECH.INCOMING_DAMAGE", new { amount = totalDamage })
+            : Message.Localized("ui", "SPEECH.NO_INCOMING_DAMAGE"));
     }
 
     /// <summary>
