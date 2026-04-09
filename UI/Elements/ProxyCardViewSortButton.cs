@@ -29,6 +29,6 @@ public class ProxyCardViewSortButton : ProxyElement
         if (Control is not NCardViewSortButton button)
             return null;
 
-        return Message.Raw(button.IsDescending ? "Descending" : "Ascending");
+        return Message.Localized("ui", button.IsDescending ? "SORT.DESCENDING" : "SORT.ASCENDING");
     }
 }

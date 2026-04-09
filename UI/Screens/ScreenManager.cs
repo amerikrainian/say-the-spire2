@@ -44,7 +44,7 @@ public static class ScreenManager
             {
                 _announced = true;
                 Speech.SpeechManager.Output(
-                    Localization.Message.Raw($"Say the Spire {ModEntry.Version}"));
+                    Localization.Message.Localized("ui", "MOD.VERSION_ANNOUNCE", new { version = ModEntry.Version }));
             };
         }
         else if (!_announceQueued && currentContext.GetType().Name == "NMainMenu")
@@ -52,7 +52,7 @@ public static class ScreenManager
             // Logo was skipped — announce immediately
             _announced = true;
             Speech.SpeechManager.Output(
-                Localization.Message.Raw($"Say the Spire {ModEntry.Version}"));
+                Localization.Message.Localized("ui", "MOD.VERSION_ANNOUNCE", new { version = ModEntry.Version }));
         }
     }
 

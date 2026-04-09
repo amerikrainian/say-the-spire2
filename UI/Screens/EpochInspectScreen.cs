@@ -39,7 +39,7 @@ public class EpochInspectScreen : GameScreen
             AddEpochHeader(parts, epoch);
 
             if (wasRevealed)
-                parts.Add("revealed");
+                parts.Add(LocalizationManager.GetOrDefault("ui", "TIMELINE.REVEALED", "revealed"));
 
             var desc = epoch.Description;
             if (!string.IsNullOrEmpty(desc))

@@ -237,6 +237,9 @@
   "SPEECH.DOCS_NOT_FOUND": "Documentation not found. Please reinstall the mod.",
   "SPEECH.DOCS_FAILED": "Failed to open documentation.",
   "SPEECH.OPENING_RELEASE": "Opening release page in browser.",
+  "SPEECH.HANDLER_CHANGED": "Speech handler: {handler}",
+  "SPEECH.ACCESSIBILITY_ENABLED": "Accessibility enabled. Please restart the game for changes to take effect.",
+  "SPEECH.ACCESSIBILITY_DISABLED": "Accessibility disabled. Please restart the game for changes to take effect.",
   "SPEECH.NO_INTENT": "No intent",
   "SPEECH.NO_INCOMING_DAMAGE": "No incoming damage",
   "SPEECH.INCOMING_DAMAGE": "{amount} incoming damage",
@@ -287,6 +290,7 @@
   "EVENT.CARDS_EXHAUSTED": "{count} cards exhausted",
   "EVENT.CARD_EXHAUSTED": "{card} exhausted",
   "EVENT.CARDS_SHUFFLED": "Discard pile shuffled into draw pile",
+  "EVENT.SHARED_PREFIX": "Shared event. ",
   "EVENT.TURN_START": "Turn {turn} start",
   "EVENT.TURN_END": "Turn {turn} end",
 
@@ -300,6 +304,7 @@
   "RESOURCE.CARD_X_ENERGY": "X energy",
   "RESOURCE.CARD_X_STARS": "X stars",
   "RESOURCE.DRAW_HAND_DISCARD": "Draw: {draw}, Hand: {hand}, Discard: {discard}",
+  "RESOURCE.EXHAUST": "Exhaust: {count}",
   "RESOURCE.NOT_ENOUGH_GOLD": "Not enough gold",
   "RESOURCE.ON_SALE": "On sale",
   "RESOURCE.PRICE": "{cost} gold",
@@ -311,6 +316,7 @@
   "TIMELINE.LOCKED": "locked",
   "TIMELINE.REVEALED": "revealed",
   "TIMELINE.OBTAINED": "obtained",
+  "TIMELINE.READY_TO_REVEAL": "ready to reveal",
 
   "CREATURE.INTENT_PREFIX": "Intent",
   "CREATURE.SUBTYPE_CARD": "{subtype} card",
@@ -321,6 +327,7 @@
   "TOPBAR.BOSS": "Boss {name}",
   "TOPBAR.BOSS_DUAL": "Boss {name1} and {name2}",
 
+  "CARD.QUANTITY": "{amount}x {title}",
   "CARD.ENCHANTMENT": "Enchantment: {title} - {description}",
   "CARD.ENCHANTMENT_NO_DESC": "Enchantment: {title}",
   "CARD.ENCHANTMENT_AMOUNT": "Enchantment amount: {amount}",
@@ -338,6 +345,8 @@
   "POTION.UNKNOWN": "Unknown potion",
 
   "CRYSTAL_SPHERE.DIVINATIONS_REMAINING": "{count} divinations remaining",
+  "CRYSTAL_SPHERE.BIG_DIVINATION": "Big Divination, 3 by 3",
+  "CRYSTAL_SPHERE.SMALL_DIVINATION": "Small Divination, 1 by 1",
 
   "EPOCH.CHAPTER": "Chapter {index} - {title}",
 
@@ -377,11 +386,21 @@
   "SCREENS.HAND_SELECT": "Hand",
   "SCREENS.DIALOG": "Dialog",
   "SCREENS.REWARDS": "Rewards",
+  "SCREENS.MOD_SETTINGS": "Mod Settings",
+
+  "SORT.DESCENDING": "Descending",
+  "SORT.ASCENDING": "Ascending",
+
+  "GAME_OVER.SCORE": "Score: {score}",
+
+  "MOD.VERSION_ANNOUNCE": "Say the Spire {version}",
 
   "CONTAINERS.CARD_LIBRARY": "Card Library",
   "CONTAINERS.FILTERS": "Filters",
   "CONTAINERS.HAND": "Hand",
   "CONTAINERS.SELECTED": "Selected",
+  "CONTAINERS.LOBBY": "Lobby",
+  "CONTAINERS.CHARACTERS": "Characters",
   "CONTAINERS.HELP": "Help",
   "CONTAINERS.MAIN_MENU": "Main Menu",
   "CONTAINERS.MOD_MENU": "Mod Menu",

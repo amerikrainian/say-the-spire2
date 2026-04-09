@@ -6,6 +6,7 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardSelection;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -129,6 +130,6 @@ public class CardGridSelectionGameScreen : GameScreen
         }
         catch (System.Exception e) { Log.Error($"[AccessibilityMod] Card grid selection label access failed: {e.Message}"); }
 
-        return "Card Selection";
+        return LocalizationManager.GetOrDefault("ui", "LABELS.CARD_SELECTION", "Card Selection");
     }
 }

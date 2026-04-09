@@ -41,7 +41,7 @@ public static class MultiplayerHooks
             if (MultiplayerHelper.IsLocalPlayer(player)) return;
 
             var name = MultiplayerHelper.GetPlayerName(player);
-            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.PLAYER_READY_PROCEED", "{name} is ready to proceed").Replace("{name}", name));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.PLAYER_READY_PROCEED", new { name }));
         }
         catch (Exception e)
         {
@@ -54,7 +54,7 @@ public static class MultiplayerHooks
         try
         {
             if (!MultiplayerHelper.IsMultiplayer()) return;
-            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.ALL_PLAYERS_READY", "All players ready"));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.ALL_PLAYERS_READY"));
         }
         catch (Exception e)
         {
@@ -68,7 +68,7 @@ public static class MultiplayerHooks
         {
             if (!MultiplayerHelper.IsMultiplayer()) return;
             if (RunManager.Instance.ActChangeSynchronizer.IsWaitingForOtherPlayers())
-                SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.WAITING_FOR_PLAYERS", "Waiting for other players"));
+                SpeechManager.Output(Message.Localized("ui", "SPEECH.WAITING_FOR_PLAYERS"));
         }
         catch (Exception e)
         {
@@ -87,9 +87,9 @@ public static class MultiplayerHooks
             {
                 _lastTimeoutShown = shown;
                 if (shown)
-                    SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_RESPONSE_FROM_HOST", "Warning: No response from host"));
+                    SpeechManager.Output(Message.Localized("ui", "SPEECH.NO_RESPONSE_FROM_HOST"));
                 else
-                    SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.CONNECTION_RESTORED", "Connection restored"));
+                    SpeechManager.Output(Message.Localized("ui", "SPEECH.CONNECTION_RESTORED"));
             }
         }
         catch (Exception e)

@@ -41,7 +41,7 @@ public class ProxyDeckHistoryEntry : ProxyElement
         if (modifiers.Count > 0)
             title = $"{title} ({string.Join(", ", modifiers)})";
 
-        return Amount > 1 ? Message.Raw($"{Amount}x {title}") : Message.Raw(title);
+        return Amount > 1 ? Message.Localized("ui", "CARD.QUANTITY", new { amount = Amount, title }) : Message.Raw(title);
     }
 
     public override string? GetTypeKey() => "card";

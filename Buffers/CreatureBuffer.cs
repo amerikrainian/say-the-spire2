@@ -42,7 +42,7 @@ public class CreatureBuffer : Buffer
 
         // Block
         if (entity.Block > 0)
-            Add($"Block: {entity.Block}");
+            Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = entity.Block }).Resolve());
 
         // Intents for monsters
         if (entity.IsMonster && entity.Monster != null)

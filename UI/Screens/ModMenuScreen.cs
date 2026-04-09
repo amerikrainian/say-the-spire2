@@ -105,7 +105,7 @@ public class ModMenuScreen : Screen
         releaseBtn.OnActivated = () =>
         {
             OS.ShellOpen("https://github.com/bradjrenshaw/say-the-spire2/releases/latest");
-            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.OPENING_RELEASE", "Opening release page in browser."));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.OPENING_RELEASE"));
         };
         _navContainer.Add(releaseBtn);
         AddControl(itemList, releaseBtn);
@@ -153,7 +153,7 @@ public class ModMenuScreen : Screen
         if (action.Key == "ui_cancel" || action.Key == "mod_settings")
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.CLOSED", "Closed"));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.CLOSED"));
             return true;
         }
 
@@ -169,17 +169,17 @@ public class ModMenuScreen : Screen
             if (File.Exists(fullPath))
             {
                 OS.ShellOpen(fullPath);
-                SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.OPENING_DOCS", "Opening documentation in browser."));
+                SpeechManager.Output(Message.Localized("ui", "SPEECH.OPENING_DOCS"));
             }
             else
             {
-                SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.DOCS_NOT_FOUND", "Documentation not found. Please reinstall the mod."));
+                SpeechManager.Output(Message.Localized("ui", "SPEECH.DOCS_NOT_FOUND"));
             }
         }
         catch (Exception e)
         {
             MegaCrit.Sts2.Core.Logging.Log.Error($"[AccessibilityMod] Failed to open docs: {e.Message}");
-            SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.DOCS_FAILED", "Failed to open documentation."));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.DOCS_FAILED"));
         }
     }
 

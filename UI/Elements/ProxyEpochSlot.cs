@@ -28,7 +28,7 @@ public class ProxyEpochSlot : ProxyElement
         var text = slot.State switch
         {
             EpochSlotState.NotObtained => LocalizationManager.GetOrDefault("ui", "TIMELINE.LOCKED", "locked"),
-            EpochSlotState.Obtained => "ready to reveal",
+            EpochSlotState.Obtained => LocalizationManager.GetOrDefault("ui", "TIMELINE.READY_TO_REVEAL", "ready to reveal"),
             EpochSlotState.Complete => LocalizationManager.GetOrDefault("ui", "TIMELINE.REVEALED", "revealed"),
             _ => (string?)null
         };

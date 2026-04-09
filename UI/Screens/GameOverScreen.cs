@@ -115,14 +115,15 @@ public class GameOverScreen : GameScreen
             var score = ScoreField?.GetValue(instance);
             if (score is int scoreVal)
             {
-                var message = $"Score: {scoreVal}";
-                Log.Info($"[AccessibilityMod] {message}");
-                SpeechManager.Output(Message.Raw(message));
+                var message = Message.Localized("ui", "GAME_OVER.SCORE", new { score = scoreVal });
+                var resolved = message.Resolve();
+                Log.Info($"[AccessibilityMod] Score: {scoreVal}");
+                SpeechManager.Output(message);
 
                 var uiBuffer = BufferManager.Instance.GetBuffer("ui");
                 if (uiBuffer != null)
                 {
-                    uiBuffer.Add(message);
+                    uiBuffer.Add(resolved);
                     BufferManager.Instance.EnableBuffer("ui", true);
                 }
             }

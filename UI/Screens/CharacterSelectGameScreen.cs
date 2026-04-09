@@ -210,7 +210,9 @@ public class CharacterSelectGameScreen : GameScreen
     {
         var list = new ListContainer
         {
-            ContainerLabel = _isMultiplayer ? "Lobby" : "Characters",
+            ContainerLabel = _isMultiplayer
+                ? LocalizationManager.GetOrDefault("ui", "CONTAINERS.LOBBY", "Lobby")
+                : LocalizationManager.GetOrDefault("ui", "CONTAINERS.CHARACTERS", "Characters"),
             AnnounceName = true,
             AnnouncePosition = true,
         };

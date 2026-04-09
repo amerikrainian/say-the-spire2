@@ -35,7 +35,6 @@ public class CustomRunGameScreen : GameScreen
         AnnounceName = true,
         AnnouncePosition = false,
     };
-    private readonly HashSet<ulong> _connectedControls = new();
     private readonly HashSet<ulong> _connectedModifierListSignals = new();
     private readonly Dictionary<ulong, UIElement> _elementCache = new();
     private readonly Dictionary<ulong, bool> _modifierStates = new();
@@ -289,7 +288,7 @@ public class CustomRunGameScreen : GameScreen
         ConnectFocusSignal(control, element);
     }
 
-    private void ConnectFocusSignal(Control control, UIElement element)
+    private new void ConnectFocusSignal(Control control, UIElement element)
     {
         if (!_connectedControls.Add(control.GetInstanceId()))
             return;
@@ -556,26 +555,11 @@ public class CustomRunGameScreen : GameScreen
         return created;
     }
 
-    private static bool IsUsable(Control? control)
-    {
-        return control != null
-            && GodotObject.IsInstanceValid(control)
-            && control.Visible;
-    }
-
     private string Ui(string key, object? data = null)
     {
         return data == null
             ? LocalizationManager.GetOrDefault("ui", key, key)
             : Message.Localized("ui", key, data).Resolve();
-    }
-
-    private static void Activate(NClickableControl? control)
-    {
-        if (control == null || !GodotObject.IsInstanceValid(control))
-            return;
-
-        control.EmitSignal(NClickableControl.SignalName.Released, control);
     }
 
     private static string UiStatic(string key)
@@ -605,13 +589,5 @@ public class CustomRunGameScreen : GameScreen
             () => Ui("DAILY_RUN.BACK"),
             status: () => GetButtonStatus(_backButton),
             typeKey: () => "button");
-    }
-
-    private static string? GetButtonStatus(NClickableControl? control)
-    {
-        if (control == null || control.IsEnabled)
-            return null;
-
-        return LocalizationManager.GetOrDefault("ui", "DAILY_RUN.DISABLED", "Disabled");
     }
 }

@@ -29,7 +29,6 @@ public class RunHistoryGameScreen : GameScreen
     };
     private readonly Dictionary<Control, ProxyRunHistoryPlayerIcon> _playerProxyCache = new();
     private readonly Dictionary<Control, ProxyRunHistoryMapPoint> _mapProxyCache = new();
-    private readonly HashSet<ulong> _connectedControls = new();
     private string? _stateToken;
 
     public override string? ScreenName => Ui("RUN_HISTORY.SCREEN_NAME");
@@ -271,14 +270,6 @@ public class RunHistoryGameScreen : GameScreen
         ConnectFocusSignal(control, element);
         container.Add(element);
         Register(control, element);
-    }
-
-    private void ConnectFocusSignal(Control control, UIElement element)
-    {
-        if (!_connectedControls.Add(control.GetInstanceId()))
-            return;
-
-        control.FocusEntered += () => UIManager.SetFocusedControl(control, element);
     }
 
     private ProxyRunHistoryPlayerIcon GetOrCreatePlayerProxy(NRunHistoryPlayerIcon icon)

@@ -60,7 +60,7 @@ public class ModSettingsScreen : Screen
         // Title
         var title = new Label
         {
-            Text = category.IsRoot ? "Mod Settings" : category.Label,
+            Text = category.IsRoot ? LocalizationManager.GetOrDefault("ui", "SCREENS.MOD_SETTINGS", "Mod Settings") : category.Label,
             HorizontalAlignment = HorizontalAlignment.Center,
         };
         title.AddThemeFontSizeOverride("font_size", 24);

@@ -18,7 +18,6 @@ public class PotionLabGameScreen : GameScreen
         AnnouncePosition = true,
     };
     private readonly Dictionary<Control, ProxyPotionLabHolder> _proxyCache = new();
-    private readonly HashSet<ulong> _connectedControls = new();
     private string? _stateToken;
 
     public override string? ScreenName => Ui("POTION_LAB.SCREEN_NAME");
@@ -109,14 +108,6 @@ public class PotionLabGameScreen : GameScreen
         proxy = new ProxyPotionLabHolder(holder);
         _proxyCache[holder] = proxy;
         return proxy;
-    }
-
-    private void ConnectFocusSignal(Control control, UIElement element)
-    {
-        if (!_connectedControls.Add(control.GetInstanceId()))
-            return;
-
-        control.FocusEntered += () => UIManager.SetFocusedControl(control, element);
     }
 
     private void AnnounceFocusedControlIfNeeded()

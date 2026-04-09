@@ -369,7 +369,7 @@ public class CombatScreen : Screen
                 else
                     intentParts.Add(name);
             }
-            sb.Append(intentParts.Count > 0 ? string.Join(", ", intentParts) : "Unknown");
+            sb.Append(intentParts.Count > 0 ? string.Join(", ", intentParts) : LocalizationManager.GetOrDefault("ui", "LABELS.UNKNOWN", "Unknown"));
         }
 
         if (sb.Length == 0)

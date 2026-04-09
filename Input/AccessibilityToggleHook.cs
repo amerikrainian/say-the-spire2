@@ -4,6 +4,7 @@ using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
+using SayTheSpire2.Localization;
 
 namespace SayTheSpire2.Input;
 
@@ -47,9 +48,10 @@ public static class AccessibilityToggleHook
             bool newState = !ModEntry.AccessibilityEnabled;
             ModEntry.SetAccessibilityEnabled(newState);
 
-            string msg = newState
-                ? "Accessibility enabled. Please restart the game for changes to take effect."
-                : "Accessibility disabled. Please restart the game for changes to take effect.";
+            string msg = LocalizationManager.GetOrDefault("ui",
+                newState ? "SPEECH.ACCESSIBILITY_ENABLED" : "SPEECH.ACCESSIBILITY_DISABLED",
+                newState ? "Accessibility enabled. Please restart the game for changes to take effect."
+                         : "Accessibility disabled. Please restart the game for changes to take effect.");
 
             Log.Info($"[AccessibilityMod] {msg}");
 

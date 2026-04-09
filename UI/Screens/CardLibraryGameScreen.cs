@@ -75,7 +75,6 @@ public class CardLibraryGameScreen : GameScreen
         AnnounceName = true,
         AnnouncePosition = false,
     };
-    private readonly HashSet<ulong> _connectedControls = new();
     private readonly Dictionary<Control, UIElement> _elementCache = new();
     private readonly ListContainer _poolRow = NewRow(Ui("CARD_LIBRARY.ROWS.POOLS"));
     private readonly ListContainer _sortColumn = NewRow(Ui("CARD_LIBRARY.ROWS.SORT"));
@@ -315,7 +314,7 @@ public class CardLibraryGameScreen : GameScreen
         return created;
     }
 
-    private void ConnectFocusSignal(Control control, UIElement element)
+    private new void ConnectFocusSignal(Control control, UIElement element)
     {
         if (!_connectedControls.Add(control.GetInstanceId()))
             return;
@@ -483,11 +482,6 @@ public class CardLibraryGameScreen : GameScreen
     private static Control? Usable(Control? control)
     {
         return IsUsable(control) ? control : null;
-    }
-
-    private static bool IsUsable(Control? control)
-    {
-        return control != null && control.Visible && GodotObject.IsInstanceValid(control);
     }
 
     private static bool IsDisplayedCardHolder(NGridCardHolder holder, Control scrollContainer)

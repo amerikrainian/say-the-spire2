@@ -107,9 +107,9 @@ public class UpgradeBuffer : Buffer
             if (clone.EnergyCost != null)
             {
                 if (clone.EnergyCost.CostsX)
-                    Add("X energy");
+                    Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_ENERGY", "X energy"));
                 else
-                    Add($"{clone.EnergyCost.GetWithModifiers(CostModifiers.All)} energy");
+                    Add(Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost = clone.EnergyCost.GetWithModifiers(CostModifiers.All) }).Resolve());
             }
 
             if (clone.CurrentStarCost > 0)

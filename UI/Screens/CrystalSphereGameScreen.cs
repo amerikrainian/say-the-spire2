@@ -75,9 +75,9 @@ public class CrystalSphereGameScreen : Screen
         if (_minigame != null && _minigame.CrystalSphereTool != _lastTool)
         {
             _lastTool = _minigame.CrystalSphereTool;
-            var toolName = _lastTool == CrystalSphereMinigame.CrystalSphereToolType.Big
-                ? "Big Divination, 3 by 3" : "Small Divination, 1 by 1";
-            SpeechManager.Output(Message.Raw(toolName));
+            var toolKey = _lastTool == CrystalSphereMinigame.CrystalSphereToolType.Big
+                ? "CRYSTAL_SPHERE.BIG_DIVINATION" : "CRYSTAL_SPHERE.SMALL_DIVINATION";
+            SpeechManager.Output(Message.Localized("ui", toolKey));
         }
 
         // Announce divination count changes

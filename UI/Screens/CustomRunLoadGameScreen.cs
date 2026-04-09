@@ -34,7 +34,6 @@ public class CustomRunLoadGameScreen : GameScreen
         AnnounceName = true,
         AnnouncePosition = false,
     };
-    private readonly HashSet<ulong> _connectedControls = new();
     private readonly Dictionary<ulong, UIElement> _elementCache = new();
 
     private string? _stateToken;
@@ -276,14 +275,6 @@ public class CustomRunLoadGameScreen : GameScreen
         ConnectFocusSignal(control, element);
     }
 
-    private void ConnectFocusSignal(Control control, UIElement element)
-    {
-        if (!_connectedControls.Add(control.GetInstanceId()))
-            return;
-
-        control.FocusEntered += () => UIManager.SetFocusedControl(control, element);
-    }
-
     private void WireFocusNeighbors()
     {
         var seed = IsUsable(_seedInput) ? _seedInput : null;
@@ -429,13 +420,6 @@ public class CustomRunLoadGameScreen : GameScreen
         return created;
     }
 
-    private static bool IsUsable(Control? control)
-    {
-        return control != null
-            && GodotObject.IsInstanceValid(control)
-            && control.Visible;
-    }
-
     private LoadRunLobby? Lobby => LobbyField?.GetValue(_screen) as LoadRunLobby;
 
     private bool IsMultiplayer()
@@ -453,14 +437,6 @@ public class CustomRunLoadGameScreen : GameScreen
         return data == null
             ? LocalizationManager.GetOrDefault("ui", key, key)
             : Message.Localized("ui", key, data).Resolve();
-    }
-
-    private static void Activate(NClickableControl? control)
-    {
-        if (control == null || !GodotObject.IsInstanceValid(control))
-            return;
-
-        control.EmitSignal(NClickableControl.SignalName.Released, control);
     }
 
     private static string UiStatic(string key)
@@ -490,13 +466,5 @@ public class CustomRunLoadGameScreen : GameScreen
             () => Ui("DAILY_RUN.BACK"),
             status: () => GetButtonStatus(_backButton),
             typeKey: () => "button");
-    }
-
-    private static string? GetButtonStatus(NClickableControl? control)
-    {
-        if (control == null || control.IsEnabled)
-            return null;
-
-        return LocalizationManager.GetOrDefault("ui", "DAILY_RUN.DISABLED", "Disabled");
     }
 }

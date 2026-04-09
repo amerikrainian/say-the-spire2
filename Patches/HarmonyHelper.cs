@@ -10,9 +10,12 @@ public static class HarmonyHelper
     /// Patch a method if it exists, logging success or failure.
     /// </summary>
     public static void PatchIfFound(Harmony harmony, Type targetType, string methodName,
-        Type handlerType, string handlerMethodName, string label, bool isPrefix = false)
+        Type handlerType, string handlerMethodName, string label, bool isPrefix = false,
+        Type[]? parameterTypes = null)
     {
-        var method = AccessTools.Method(targetType, methodName);
+        var method = parameterTypes != null
+            ? AccessTools.Method(targetType, methodName, parameterTypes)
+            : AccessTools.Method(targetType, methodName);
         if (method == null)
         {
             Log.Error($"[AccessibilityMod] Could not find {targetType.Name}.{methodName} for {label}!");

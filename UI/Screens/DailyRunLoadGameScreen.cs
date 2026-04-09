@@ -33,7 +33,6 @@ public class DailyRunLoadGameScreen : GameScreen
         AnnounceName = true,
         AnnouncePosition = true,
     };
-    private readonly HashSet<ulong> _connectedControls = new();
     private string? _stateToken;
 
     private NDailyRunCharacterContainer? _characterContainer;
@@ -236,14 +235,6 @@ public class DailyRunLoadGameScreen : GameScreen
         _root.Add(element);
     }
 
-    private void ConnectFocusSignal(Control control, UIElement element)
-    {
-        if (!_connectedControls.Add(control.GetInstanceId()))
-            return;
-
-        control.FocusEntered += () => UIManager.SetFocusedControl(control, element);
-    }
-
     private void WireFocusNeighbors()
     {
         var controls = GetFocusableControls();
@@ -421,27 +412,6 @@ public class DailyRunLoadGameScreen : GameScreen
     {
         if (control != null && control.Visible)
             controls.Add(control);
-    }
-
-    private static bool IsVisible(Control? control)
-    {
-        return control != null && control.Visible;
-    }
-
-    private static string? GetButtonStatus(NClickableControl? control)
-    {
-        if (control == null || control.IsEnabled)
-            return null;
-
-        return Ui("DAILY_RUN.DISABLED");
-    }
-
-    private static void Activate(NClickableControl? control)
-    {
-        if (control == null || !GodotObject.IsInstanceValid(control))
-            return;
-
-        control.EmitSignal(NClickableControl.SignalName.Released, control);
     }
 
     private static string Ui(string key)

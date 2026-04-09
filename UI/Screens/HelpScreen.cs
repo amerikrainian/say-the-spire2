@@ -195,7 +195,7 @@ public class HelpScreen : Screen
     {
         _removing = true;
         ScreenManager.RemoveScreen(this);
-        SpeechManager.Output(LocalizationManager.GetOrDefault("ui", "SPEECH.CLOSED", "Closed"));
+        SpeechManager.Output(Message.Localized("ui", "SPEECH.CLOSED"));
     }
 
     private static void AddLabel(VBoxContainer list, ActionElement element)

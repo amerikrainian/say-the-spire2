@@ -92,7 +92,7 @@ public static class SpeechManager
         if (!_initialized) return;
         ActivateHandler(key);
         if (_activeHandler != null)
-            Output($"Speech handler: {_activeHandler.Label}");
+            Output(Message.Localized("ui", "SPEECH.HANDLER_CHANGED", new { handler = _activeHandler.Label }));
     }
 
     private static void ActivateHandler(string key)

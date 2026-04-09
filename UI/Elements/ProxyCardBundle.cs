@@ -56,7 +56,7 @@ public class ProxyCardBundle : ProxyElement
         var cards = cardNames.Count > 0 ? string.Join(", ", cardNames) : LocalizationManager.GetOrDefault("ui", "LABELS.EMPTY", "empty");
 
         if (total > 1)
-            return Message.Raw(Message.Localized("ui", "CARD.PACK_POSITION", new { index, total, cards }).Resolve());
+            return Message.Localized("ui", "CARD.PACK_POSITION", new { index, total, cards });
         return Message.Localized("ui", "CARD.PACK", new { cards });
     }
 

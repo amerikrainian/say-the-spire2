@@ -34,187 +34,55 @@ public static class EventHooks
 
     public static void Initialize(Harmony harmony)
     {
-        var setDescription = AccessTools.Method(typeof(NEventLayout), "SetDescription");
-        if (setDescription != null)
-        {
-            harmony.Patch(setDescription,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(SetDescriptionPostfix)));
-            Log.Info("[AccessibilityMod] Event SetDescription hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find NEventLayout.SetDescription!");
-        }
+        // Event descriptions and dialogue
+        PatchIfFound(harmony, typeof(NEventLayout), "SetDescription",
+            nameof(SetDescriptionPostfix), "Event SetDescription");
+        PatchIfFound(harmony, typeof(NAncientEventLayout), "InitializeVisuals",
+            nameof(AncientInitializeVisualsPostfix), "Ancient InitializeVisuals");
+        PatchIfFound(harmony, typeof(NAncientEventLayout), "SetDialogueLineAndAnimate",
+            nameof(SetDialogueLinePostfix), "Ancient dialogue line");
 
-        var initVisuals = AccessTools.Method(typeof(NAncientEventLayout), "InitializeVisuals");
-        if (initVisuals != null)
-        {
-            harmony.Patch(initVisuals,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(AncientInitializeVisualsPostfix)));
-            Log.Info("[AccessibilityMod] Ancient InitializeVisuals hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find NAncientEventLayout.InitializeVisuals!");
-        }
-
-        // Card stealing (SwipePower.Steal)
-        var stealMethod = AccessTools.Method(typeof(SwipePower), "Steal");
-        if (stealMethod != null)
-        {
-            harmony.Patch(stealMethod,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardStolenPostfix)));
-            Log.Info("[AccessibilityMod] SwipePower.Steal hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find SwipePower.Steal!");
-        }
-
-        // Card upgrade during combat (Apotheosis, Armaments, etc.)
-        // NCardUpgradeVfx doesn't fire for combat piles, so we hook CardCmd.Upgrade directly
-        // but only announce during combat (CardFactory reward creation happens out of combat)
-        var upgradeMethod = AccessTools.Method(typeof(CardCmd), "Upgrade",
-            new[] { typeof(IEnumerable<CardModel>), typeof(CardPreviewStyle) });
-        if (upgradeMethod != null)
-        {
-            harmony.Patch(upgradeMethod,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardUpgradeCombatPostfix)));
-            Log.Info("[AccessibilityMod] CardCmd.Upgrade (combat) hook patched.");
-        }
-
-        // Card upgrade VFX — fires when the game shows the upgrade animation (out-of-combat deck upgrades)
-        var upgradeVfx = AccessTools.Method(typeof(MegaCrit.Sts2.Core.Nodes.Vfx.NCardUpgradeVfx), "Create");
-        if (upgradeVfx != null)
-        {
-            harmony.Patch(upgradeVfx,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardUpgradeVfxPostfix)));
-            Log.Info("[AccessibilityMod] NCardUpgradeVfx.Create hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find NCardUpgradeVfx.Create!");
-        }
-
-        // Card smith VFX — fires when upgrading at rest site
-        var smithVfx = AccessTools.Method(typeof(MegaCrit.Sts2.Core.Nodes.Vfx.NCardSmithVfx), "Create",
-            new[] { typeof(IEnumerable<CardModel>), typeof(bool) });
-        if (smithVfx != null)
-        {
-            harmony.Patch(smithVfx,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(CardSmithVfxPostfix)));
-            Log.Info("[AccessibilityMod] NCardSmithVfx.Create hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find NCardSmithVfx.Create!");
-        }
+        // Card events
+        PatchIfFound(harmony, typeof(SwipePower), "Steal",
+            nameof(CardStolenPostfix), "SwipePower.Steal");
+        PatchIfFound(harmony, typeof(CardCmd), "Upgrade",
+            nameof(CardUpgradeCombatPostfix), "CardCmd.Upgrade (combat)",
+            parameterTypes: new[] { typeof(IEnumerable<CardModel>), typeof(CardPreviewStyle) });
+        PatchIfFound(harmony, typeof(MegaCrit.Sts2.Core.Nodes.Vfx.NCardUpgradeVfx), "Create",
+            nameof(CardUpgradeVfxPostfix), "NCardUpgradeVfx.Create");
+        PatchIfFound(harmony, typeof(MegaCrit.Sts2.Core.Nodes.Vfx.NCardSmithVfx), "Create",
+            nameof(CardSmithVfxPostfix), "NCardSmithVfx.Create",
+            parameterTypes: new[] { typeof(IEnumerable<CardModel>), typeof(bool) });
+        PatchIfFound(harmony, typeof(CardModel), "SpendResources",
+            nameof(CardPlayedPrefix), "CardModel.SpendResources", isPrefix: true);
 
         // Orb events
-        var orbChanneled = AccessTools.Method(typeof(Hook), "AfterOrbChanneled");
-        if (orbChanneled != null)
-        {
-            harmony.Patch(orbChanneled,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(OrbChanneledPostfix)));
-            Log.Info("[AccessibilityMod] Hook.AfterOrbChanneled hook patched.");
-        }
+        PatchIfFound(harmony, typeof(Hook), "AfterOrbChanneled",
+            nameof(OrbChanneledPostfix), "Hook.AfterOrbChanneled");
+        PatchIfFound(harmony, typeof(Hook), "AfterOrbEvoked",
+            nameof(OrbEvokedPostfix), "Hook.AfterOrbEvoked");
 
-        var orbEvoked = AccessTools.Method(typeof(Hook), "AfterOrbEvoked");
-        if (orbEvoked != null)
-        {
-            harmony.Patch(orbEvoked,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(OrbEvokedPostfix)));
-            Log.Info("[AccessibilityMod] Hook.AfterOrbEvoked hook patched.");
-        }
-
-        // Card played (fires as card is being played, on all clients)
-        var spendResources = AccessTools.Method(typeof(CardModel), "SpendResources");
-        if (spendResources != null)
-        {
-            harmony.Patch(spendResources,
-                prefix: new HarmonyMethod(typeof(EventHooks), nameof(CardPlayedPrefix)));
-            Log.Info("[AccessibilityMod] CardModel.SpendResources hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find CardModel.SpendResources!");
-        }
-
-        // Potion used (fires as potion is being used, on all clients)
-        var onUseWrapper = AccessTools.Method(typeof(PotionModel), "OnUseWrapper");
-        if (onUseWrapper != null)
-        {
-            harmony.Patch(onUseWrapper,
-                prefix: new HarmonyMethod(typeof(EventHooks), nameof(PotionUsedPrefix)));
-            Log.Info("[AccessibilityMod] PotionModel.OnUseWrapper hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find PotionModel.OnUseWrapper!");
-        }
+        // Potion used
+        PatchIfFound(harmony, typeof(PotionModel), "OnUseWrapper",
+            nameof(PotionUsedPrefix), "PotionModel.OnUseWrapper", isPrefix: true);
 
         // Gold changes
-        var gainGold = AccessTools.Method(typeof(PlayerCmd), "GainGold");
-        if (gainGold != null)
-        {
-            harmony.Patch(gainGold,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(GainGoldPostfix)));
-            Log.Info("[AccessibilityMod] PlayerCmd.GainGold hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find PlayerCmd.GainGold!");
-        }
+        PatchIfFound(harmony, typeof(PlayerCmd), "GainGold",
+            nameof(GainGoldPostfix), "PlayerCmd.GainGold");
+        PatchIfFound(harmony, typeof(PlayerCmd), "LoseGold",
+            nameof(LoseGoldPostfix), "PlayerCmd.LoseGold");
 
-        var loseGold = AccessTools.Method(typeof(PlayerCmd), "LoseGold");
-        if (loseGold != null)
-        {
-            harmony.Patch(loseGold,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(LoseGoldPostfix)));
-            Log.Info("[AccessibilityMod] PlayerCmd.LoseGold hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find PlayerCmd.LoseGold!");
-        }
+        // Treasure and rooms
+        PatchIfFound(harmony, typeof(NTreasureRoomRelicCollection), "InitializeRelics",
+            nameof(InitializeRelicsPostfix), "NTreasureRoomRelicCollection.InitializeRelics");
+        PatchIfFound(harmony, typeof(Hook), "AfterRoomEntered",
+            nameof(RoomEnteredPostfix), "Hook.AfterRoomEntered");
+    }
 
-        // Empty treasure chest
-        var initRelics = AccessTools.Method(typeof(NTreasureRoomRelicCollection), "InitializeRelics");
-        if (initRelics != null)
-        {
-            harmony.Patch(initRelics,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(InitializeRelicsPostfix)));
-            Log.Info("[AccessibilityMod] NTreasureRoomRelicCollection.InitializeRelics hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find NTreasureRoomRelicCollection.InitializeRelics!");
-        }
-
-        // Room entered
-        var afterRoomEntered = AccessTools.Method(typeof(Hook), "AfterRoomEntered");
-        if (afterRoomEntered != null)
-        {
-            harmony.Patch(afterRoomEntered,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(RoomEnteredPostfix)));
-            Log.Info("[AccessibilityMod] Hook.AfterRoomEntered hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find Hook.AfterRoomEntered!");
-        }
-
-        var setDialogueLine = AccessTools.Method(typeof(NAncientEventLayout), "SetDialogueLineAndAnimate");
-        if (setDialogueLine != null)
-        {
-            harmony.Patch(setDialogueLine,
-                postfix: new HarmonyMethod(typeof(EventHooks), nameof(SetDialogueLinePostfix)));
-            Log.Info("[AccessibilityMod] Ancient dialogue line hook patched.");
-        }
-        else
-        {
-            Log.Error("[AccessibilityMod] Could not find NAncientEventLayout.SetDialogueLineAndAnimate!");
-        }
+    private static void PatchIfFound(Harmony harmony, System.Type type, string methodName,
+        string handlerName, string label, bool isPrefix = false, System.Type[]? parameterTypes = null)
+    {
+        HarmonyHelper.PatchIfFound(harmony, type, methodName, typeof(EventHooks), handlerName, label, isPrefix, parameterTypes);
     }
 
     public static void CardUpgradeCombatPostfix(IEnumerable<CardModel> cards)
@@ -485,7 +353,7 @@ public static class EventHooks
             {
                 var eventModel = EventField?.GetValue(__instance) as MegaCrit.Sts2.Core.Models.EventModel;
                 if (eventModel?.IsShared == true)
-                    prefix = "Shared event. ";
+                    prefix = LocalizationManager.GetOrDefault("ui", "EVENT.SHARED_PREFIX", "Shared event. ");
             }
             catch (System.Exception e) { Log.Error($"[AccessibilityMod] Event shared status check failed: {e.Message}"); }
 
