@@ -18,5 +18,15 @@ public class EnemyMoveEvent : GameEvent
         _intentSummary = intentSummary;
     }
 
-    public override Message? GetMessage() => Message.Localized("ui", "EVENT.ENEMY_MOVE", new { creature = _creatureName, intent = _intentSummary });
+    public static void RegisterSettings(CategorySetting category)
+    {
+        category.Add(new BoolSetting("show_intent", "Show Intent on Enemy Move", false));
+    }
+
+    public override Message? GetMessage()
+    {
+        if (ModSettings.GetValue<bool>("events.enemy_move.show_intent") && !string.IsNullOrEmpty(_intentSummary))
+            return Message.Localized("ui", "EVENT.ENEMY_MOVE", new { creature = _creatureName, intent = _intentSummary });
+        return Message.Raw(_creatureName);
+    }
 }
