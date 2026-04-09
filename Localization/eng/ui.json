@@ -291,8 +291,11 @@
   "EVENT.CARD_EXHAUSTED": "{card} exhausted",
   "EVENT.CARDS_SHUFFLED": "Discard pile shuffled into draw pile",
   "EVENT.SHARED_PREFIX": "Shared event. ",
-  "EVENT.TURN_START": "Turn {turn} start",
-  "EVENT.TURN_END": "Turn {turn} end",
+  "EVENT.PLAYER_TURN": "Player turn",
+  "EVENT.PLAYER_TURN_START": "Player turn, round {round}",
+  "EVENT.ENEMY_TURN_START": "Enemy turn",
+  "EVENT.PLAYER_TURN_END": "Player turn end",
+  "EVENT.ENEMY_TURN_END": "Enemy turn end",
 
   "RESOURCE.HP": "{current}/{max} HP",
   "RESOURCE.GOLD": "{amount} gold",

@@ -91,6 +91,8 @@ public static class VotingHooks
     {
         try
         {
+            if (!MultiplayerHelper.IsMultiplayer()) return;
+
             var point = ResolveMapPoint(__instance, coord);
             var nodeName = GetMapPointName(point);
             EventDispatcher.Enqueue(new MapVoteEvent("", nodeName));
