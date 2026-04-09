@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Settings;
@@ -13,24 +12,24 @@ public abstract class UIElement
 
     public virtual bool IsVisible => true;
 
-    public abstract string? GetLabel();
-    public virtual string? GetExtrasString() => null;
+    public abstract Message? GetLabel();
+    public virtual Message? GetExtrasString() => null;
     public virtual string? GetTypeKey() => null;
     public virtual string? GetSubtypeKey() => null;
-    public virtual string? GetStatusString() => null;
-    public virtual string? GetTooltip() => null;
+    public virtual Message? GetStatusString() => null;
+    public virtual Message? GetTooltip() => null;
 
     /// <summary>
     /// Fired during focus string building to collect additional pre-type extras.
-    /// Handlers append strings to the provided list.
+    /// Handlers append messages to the provided list.
     /// </summary>
-    public event Action<List<string>>? CollectPreExtras;
+    public event Action<List<Message>>? CollectPreExtras;
 
     /// <summary>
     /// Fired during focus string building to collect additional post-type extras.
-    /// Handlers append strings to the provided list.
+    /// Handlers append messages to the provided list.
     /// </summary>
-    public event Action<List<string>>? CollectPostExtras;
+    public event Action<List<Message>>? CollectPostExtras;
 
     /// <summary>
     /// Called when this element receives focus. Configure which buffers are enabled
@@ -44,13 +43,13 @@ public abstract class UIElement
         if (uiBuffer != null)
         {
             uiBuffer.Clear();
-            var label = GetLabel();
+            var label = GetLabel()?.Resolve();
             if (!string.IsNullOrEmpty(label))
                 uiBuffer.Add(label);
-            var status = GetStatusString();
+            var status = GetStatusString()?.Resolve();
             if (!string.IsNullOrEmpty(status))
                 uiBuffer.Add(status);
-            var tooltip = GetTooltip();
+            var tooltip = GetTooltip()?.Resolve();
             if (!string.IsNullOrEmpty(tooltip))
                 uiBuffer.Add(tooltip);
             buffers.EnableBuffer("ui", true);
@@ -82,93 +81,84 @@ public abstract class UIElement
     protected virtual void OnUpdate() { }
 
     /// <summary>
-    /// Builds the spoken focus string in the format:
+    /// Builds the spoken focus message in the format:
     /// {label} {extras1}, {subtype} {type} {status}, {extras2}, {tooltip}
     /// </summary>
-    public string GetFocusString()
+    public Message GetFocusMessage()
     {
-        var sb = new StringBuilder();
+        var parts = new List<Message>();
 
-        // Label
-        var label = GetLabel();
-        if (!string.IsNullOrEmpty(label))
-            sb.Append(label);
-
-        // Pre-type extras: element's own + collected from hooks
-        var preExtras = new List<string>();
-        var extras = GetExtrasString();
-        if (!string.IsNullOrEmpty(extras))
-            preExtras.Add(extras);
-        CollectPreExtras?.Invoke(preExtras);
-        if (preExtras.Count > 0)
-        {
-            if (sb.Length > 0) sb.Append(' ');
-            sb.Append(string.Join(", ", preExtras));
-        }
+        // Label + pre-type extras (space-separated from label)
+        var labelPart = BuildLabelPart();
+        if (labelPart != null)
+            parts.Add(labelPart);
 
         // Subtype + type + status
         var typePart = BuildTypePart();
-        if (!string.IsNullOrEmpty(typePart))
-        {
-            if (sb.Length > 0) sb.Append(", ");
-            sb.Append(typePart);
-        }
+        if (typePart != null)
+            parts.Add(typePart);
 
-        // Post-type extras: collected from hooks
-        var postExtras = new List<string>();
+        // Post-type extras
+        var postExtras = new List<Message>();
         CollectPostExtras?.Invoke(postExtras);
-        if (postExtras.Count > 0)
-        {
-            if (sb.Length > 0) sb.Append(", ");
-            sb.Append(string.Join(", ", postExtras));
-        }
+        foreach (var extra in postExtras)
+            parts.Add(extra);
 
-        // Tooltip (respects per-type setting)
+        // Tooltip
         var tooltip = GetTooltip();
-        if (!string.IsNullOrEmpty(tooltip))
+        if (tooltip != null)
         {
             var tk = GetTypeKey();
             if (string.IsNullOrEmpty(tk) || FocusStringSettings.ShouldAnnounceTooltip(tk))
-            {
-                if (sb.Length > 0) sb.Append(", ");
-                sb.Append(tooltip);
-            }
+                parts.Add(tooltip);
         }
 
-        return sb.Length > 0 ? sb.ToString() : "";
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : Message.Empty;
     }
 
-    private string? BuildTypePart()
+    /// <summary>Back-compat: resolve the focus message to a string.</summary>
+    public string GetFocusString() => GetFocusMessage().Resolve();
+
+    private Message? BuildLabelPart()
     {
-        var sb = new StringBuilder();
+        var label = GetLabel();
+        var preExtras = new List<Message>();
+        var extras = GetExtrasString();
+        if (extras != null)
+            preExtras.Add(extras);
+        CollectPreExtras?.Invoke(preExtras);
+
+        if (label == null && preExtras.Count == 0)
+            return null;
+
+        if (preExtras.Count == 0)
+            return label;
+
+        var extrasPart = Message.Join(", ", preExtras.ToArray());
+        return label != null ? label + extrasPart : extrasPart;
+    }
+
+    private Message? BuildTypePart()
+    {
+        var parts = new List<Message>();
         var typeKey = GetTypeKey();
 
         var subtypeKey = GetSubtypeKey();
         if (!string.IsNullOrEmpty(subtypeKey)
             && (string.IsNullOrEmpty(typeKey) || FocusStringSettings.ShouldAnnounceSubtype(typeKey)))
         {
-            var subtypeName = Message.Localized("ui", $"TYPES.{subtypeKey.ToUpperInvariant()}").Resolve();
-            if (!string.IsNullOrEmpty(subtypeName))
-                sb.Append(subtypeName);
+            parts.Add(Message.Localized("ui", $"TYPES.{subtypeKey.ToUpperInvariant()}"));
         }
 
         if (!string.IsNullOrEmpty(typeKey) && FocusStringSettings.ShouldAnnounceType(typeKey))
         {
-            var typeName = Message.Localized("ui", $"TYPES.{typeKey.ToUpperInvariant()}").Resolve();
-            if (!string.IsNullOrEmpty(typeName))
-            {
-                if (sb.Length > 0) sb.Append(' ');
-                sb.Append(typeName);
-            }
+            parts.Add(Message.Localized("ui", $"TYPES.{typeKey.ToUpperInvariant()}"));
         }
 
         var status = GetStatusString();
-        if (!string.IsNullOrEmpty(status))
-        {
-            if (sb.Length > 0) sb.Append(' ');
-            sb.Append(status);
-        }
+        if (status != null)
+            parts.Add(status);
 
-        return sb.Length > 0 ? sb.ToString() : null;
+        return parts.Count > 0 ? Message.Join(" ", parts.ToArray()) : null;
     }
 }
