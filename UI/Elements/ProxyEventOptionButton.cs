@@ -38,7 +38,7 @@ public class ProxyEventOptionButton : ProxyElement
         var option = Button?.Option;
         if (option == null) return null;
 
-        return option.IsLocked ? Message.Raw("Locked") : null;
+        return option.IsLocked ? Message.Localized("ui", "LABELS.LOCKED") : null;
     }
 
     public override Message? GetTooltip()

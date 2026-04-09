@@ -108,15 +108,15 @@ public class CardBuffer : Buffer
                 var enchTitle = enchant.Title.GetFormattedText();
                 var enchDesc = enchant.DynamicDescription.GetFormattedText();
                 if (!string.IsNullOrEmpty(enchTitle) && !string.IsNullOrEmpty(enchDesc))
-                    buffer.Add($"Enchantment: {enchTitle} - {ProxyElement.StripBbcode(enchDesc)}");
+                    buffer.Add(Message.Localized("ui", "CARD.ENCHANTMENT", new { title = enchTitle, description = ProxyElement.StripBbcode(enchDesc) }).Resolve());
                 else if (!string.IsNullOrEmpty(enchTitle))
-                    buffer.Add($"Enchantment: {enchTitle}");
+                    buffer.Add(Message.Localized("ui", "CARD.ENCHANTMENT_NO_DESC", new { title = enchTitle }).Resolve());
 
                 if (enchant.ShowAmount && enchant.DisplayAmount != 0)
-                    buffer.Add($"Enchantment amount: {enchant.DisplayAmount}");
+                    buffer.Add(Message.Localized("ui", "CARD.ENCHANTMENT_AMOUNT", new { amount = enchant.DisplayAmount }).Resolve());
 
                 if (enchant.Status == EnchantmentStatus.Disabled)
-                    buffer.Add("Enchantment disabled");
+                    buffer.Add(LocalizationManager.GetOrDefault("ui", "CARD.ENCHANTMENT_DISABLED", "Enchantment disabled"));
             }
             catch (Exception e) { Log.Error($"[AccessibilityMod] Card enchantment access failed: {e.Message}"); }
         }

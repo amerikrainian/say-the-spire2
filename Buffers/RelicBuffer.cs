@@ -4,6 +4,7 @@ using MegaCrit.Sts2.Core.Entities.Relics;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 namespace SayTheSpire2.Buffers;
 
@@ -48,10 +49,10 @@ public class RelicBuffer : Buffer
             buffer.Add(ProxyElement.StripBbcode(desc));
 
         if (model.ShowCounter && model.DisplayAmount != 0)
-            buffer.Add($"Counter: {model.DisplayAmount}");
+            buffer.Add(Message.Localized("ui", "RELIC.COUNTER", new { amount = model.DisplayAmount }).Resolve());
 
         if (model.Status == RelicStatus.Disabled)
-            buffer.Add("Disabled");
+            buffer.Add(LocalizationManager.GetOrDefault("ui", "RELIC.DISABLED", "Disabled"));
 
         // Hover tips: skip first (it's the relic itself), rest are keywords/references
         try

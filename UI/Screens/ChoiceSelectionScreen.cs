@@ -135,7 +135,7 @@ public class ChoiceSelectionScreen : Screen
             {
                 _setting.Set(choice.Key);
                 ScreenManager.RemoveScreen(this);
-                SpeechManager.Output(Message.Raw($"{choice.Label} selected"));
+                SpeechManager.Output(Message.Localized("ui", "CARD.CHOICE_SELECTED", new { choice = choice.Label }));
             };
             _navContainer.Add(button);
 

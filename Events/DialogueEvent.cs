@@ -19,6 +19,6 @@ public class DialogueEvent : GameEvent
     {
         if (string.IsNullOrEmpty(_text)) return null;
         if (string.IsNullOrEmpty(_speaker)) return Message.Raw(_text);
-        return Message.Raw($"{_speaker}: {_text}");
+        return Message.Localized("ui", "DIALOGUE.FORMAT", new { speaker = _speaker, text = _text });
     }
 }

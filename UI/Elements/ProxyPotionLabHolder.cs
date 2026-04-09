@@ -36,7 +36,7 @@ public class ProxyPotionLabHolder : ProxyElement
 
         return GetVisibility() == ModelVisibility.Visible
             ? Message.Raw(model.Title.GetFormattedText())
-            : Message.Raw("Unknown potion");
+            : Message.Localized("ui", "POTION.UNKNOWN");
     }
 
     public override string? GetTypeKey() => "potion";

@@ -21,7 +21,7 @@ public class ProxyRelicCollectionEntry : ProxyElement
 
         return entry.ModelVisibility == ModelVisibility.Visible
             ? Message.Raw(entry.relic.Title.GetFormattedText())
-            : Message.Raw("Unknown relic");
+            : Message.Localized("ui", "RELIC.UNKNOWN");
     }
 
     public override string? GetTypeKey() => "relic";

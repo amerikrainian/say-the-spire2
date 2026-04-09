@@ -313,6 +313,35 @@
   "TIMELINE.OBTAINED": "obtained",
 
   "CREATURE.INTENT_PREFIX": "Intent",
+  "CREATURE.SUBTYPE_CARD": "{subtype} card",
+
+  "TOPBAR.HP": "HP {current}/{max}",
+  "TOPBAR.GOLD": "Gold {amount}",
+  "TOPBAR.FLOOR": "Floor {floor}",
+  "TOPBAR.BOSS": "Boss {name}",
+  "TOPBAR.BOSS_DUAL": "Boss {name1} and {name2}",
+
+  "CARD.ENCHANTMENT": "Enchantment: {title} - {description}",
+  "CARD.ENCHANTMENT_NO_DESC": "Enchantment: {title}",
+  "CARD.ENCHANTMENT_AMOUNT": "Enchantment amount: {amount}",
+  "CARD.ENCHANTMENT_DISABLED": "Enchantment disabled",
+  "CARD.PACK": "Pack: {cards}",
+  "CARD.PACK_POSITION": "Pack {index} of {total}: {cards}",
+  "CARD.SELECTED": "Selected",
+  "CARD.COUNT_SELECTED": "{count} selected",
+  "CARD.CHOICE_SELECTED": "{choice} selected",
+
+  "RELIC.COUNTER": "Counter {amount}",
+  "RELIC.DISABLED": "Disabled",
+  "RELIC.UNKNOWN": "Unknown relic",
+
+  "POTION.UNKNOWN": "Unknown potion",
+
+  "CRYSTAL_SPHERE.DIVINATIONS_REMAINING": "{count} divinations remaining",
+
+  "EPOCH.CHAPTER": "Chapter {index} - {title}",
+
+  "DIALOGUE.FORMAT": "{speaker}: {text}",
 
   "LABELS.LOCKED": "Locked",
   "LABELS.RANDOM": "Random",

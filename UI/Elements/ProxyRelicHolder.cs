@@ -56,10 +56,10 @@ public class ProxyRelicHolder : ProxyElement
         var parts = new System.Collections.Generic.List<string>();
 
         if (model.ShowCounter && model.DisplayAmount != 0)
-            parts.Add($"Counter {model.DisplayAmount}");
+            parts.Add(Message.Localized("ui", "RELIC.COUNTER", new { amount = model.DisplayAmount }).Resolve());
 
         if (model.Status == RelicStatus.Disabled)
-            parts.Add("Disabled");
+            parts.Add(LocalizationManager.GetOrDefault("ui", "RELIC.DISABLED", "Disabled"));
 
         return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
     }

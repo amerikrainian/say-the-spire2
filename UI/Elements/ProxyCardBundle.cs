@@ -53,11 +53,11 @@ public class ProxyCardBundle : ProxyElement
                 cardNames.Add(title);
         }
 
-        var cards = cardNames.Count > 0 ? string.Join(", ", cardNames) : "empty";
+        var cards = cardNames.Count > 0 ? string.Join(", ", cardNames) : LocalizationManager.GetOrDefault("ui", "LABELS.EMPTY", "empty");
 
         if (total > 1)
-            return Message.Raw($"Pack {index} of {total}: {cards}");
-        return Message.Raw($"Pack: {cards}");
+            return Message.Raw(Message.Localized("ui", "CARD.PACK_POSITION", new { index, total, cards }).Resolve());
+        return Message.Localized("ui", "CARD.PACK", new { cards });
     }
 
     public override string? GetTypeKey() => "card";

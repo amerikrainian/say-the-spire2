@@ -84,7 +84,7 @@ public class CrystalSphereGameScreen : Screen
         if (_minigame != null && _minigame.DivinationCount != _lastDivinationCount)
         {
             _lastDivinationCount = _minigame.DivinationCount;
-            SpeechManager.Output(Message.Raw($"{_lastDivinationCount} divinations remaining"));
+            SpeechManager.Output(Message.Localized("ui", "CRYSTAL_SPHERE.DIVINATIONS_REMAINING", new { count = _lastDivinationCount }));
         }
 
         for (int row = 0; row < _rows; row++)
@@ -120,7 +120,7 @@ public class CrystalSphereGameScreen : Screen
                 parts.Add(ProxyElement.StripBbcode(desc));
 
             if (_minigame != null)
-                parts.Add($"{_minigame.DivinationCount} divinations remaining");
+                parts.Add(Message.Localized("ui", "CRYSTAL_SPHERE.DIVINATIONS_REMAINING", new { count = _minigame.DivinationCount }).Resolve());
 
             if (parts.Count > 0)
                 SpeechManager.Output(Message.Raw(string.Join(". ", parts)));

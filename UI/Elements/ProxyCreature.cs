@@ -184,7 +184,7 @@ public class ProxyCreature : ProxyElement
             return null;
 
         var joined = string.Join(", ", summaries);
-        return includePrefix ? "Intent " + joined : joined;
+        return includePrefix ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + joined : joined;
     }
 
     private static string? GetPlayerIntentSummary(MegaCrit.Sts2.Core.Entities.Players.Player player, bool includePrefix)
@@ -197,7 +197,7 @@ public class ProxyCreature : ProxyElement
         if (string.IsNullOrWhiteSpace(summary))
             return null;
 
-        return includePrefix ? "Intent " + summary : summary;
+        return includePrefix ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + summary : summary;
     }
 
     private static string? GetHoveredModelSummary(AbstractModel model)
@@ -225,7 +225,7 @@ public class ProxyCreature : ProxyElement
         if (!string.IsNullOrWhiteSpace(extras))
             parts.Add(extras);
         if (!string.IsNullOrWhiteSpace(subtype))
-            parts.Add($"{subtype} card");
+            parts.Add(Message.Localized("ui", "CREATURE.SUBTYPE_CARD", new { subtype }).Resolve());
 
         return string.Join(", ", parts);
     }

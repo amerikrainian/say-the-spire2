@@ -104,14 +104,14 @@ public class ProxyTopBar : ProxyElement
     {
         var player = HpPlayerField?.GetValue(Control) as MegaCrit.Sts2.Core.Entities.Players.Player;
         if (player == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.HP", "HP");
-        return $"HP {player.Creature.CurrentHp}/{player.Creature.MaxHp}";
+        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.HP", new { current = player.Creature.CurrentHp, max = player.Creature.MaxHp }).Resolve();
     }
 
     private string? GetGoldLabel()
     {
         var player = GoldPlayerField?.GetValue(Control) as MegaCrit.Sts2.Core.Entities.Players.Player;
         if (player == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.GOLD", "Gold");
-        return $"Gold {player.Gold}";
+        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.GOLD", new { amount = player.Gold }).Resolve();
     }
 
     private string? GetRoomLabel()
@@ -128,7 +128,7 @@ public class ProxyTopBar : ProxyElement
     {
         var runState = FloorRunStateField?.GetValue(Control) as IRunState;
         if (runState == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.FLOOR", "Floor");
-        return $"Floor {runState.TotalFloor}";
+        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.FLOOR", new { floor = runState.TotalFloor }).Resolve();
     }
 
     private string? GetBossLabel()
@@ -140,10 +140,10 @@ public class ProxyTopBar : ProxyElement
         var boss2 = runState.Act.SecondBossEncounter;
 
         if (boss2 != null && !ShouldOnlyShowSecondBoss(runState))
-            return $"Boss {boss1.Title.GetFormattedText()} and {boss2.Title.GetFormattedText()}";
+            return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.BOSS_DUAL", new { name1 = boss1.Title.GetFormattedText(), name2 = boss2.Title.GetFormattedText() }).Resolve();
 
         var activeBoss = (boss2 != null && ShouldOnlyShowSecondBoss(runState)) ? boss2 : boss1;
-        return $"Boss {activeBoss.Title.GetFormattedText()}";
+        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.BOSS", new { name = activeBoss.Title.GetFormattedText() }).Resolve();
     }
 
     private (string? title, string? desc) GetFormattedTooltip()

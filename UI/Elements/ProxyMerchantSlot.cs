@@ -117,7 +117,7 @@ public class ProxyMerchantSlot : ProxyElement
         {
             buffer.Add(Message.Localized("ui", "RESOURCE.PRICE", new { cost = entry.Cost }).Resolve());
             if (entry is MerchantCardEntry cardEntry && cardEntry.IsOnSale)
-                buffer.Add("On sale!");
+                buffer.Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.ON_SALE", "On sale"));
         }
 
         return result;

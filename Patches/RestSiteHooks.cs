@@ -1,6 +1,7 @@
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Nodes.RestSite;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
+using SayTheSpire2.Localization;
 using SayTheSpire2.Multiplayer;
 using SayTheSpire2.Speech;
 using SayTheSpire2.UI;
@@ -49,8 +50,8 @@ public static class RestSiteHooks
             var name = player.Creature != null
                 ? MultiplayerHelper.GetCreatureName(player.Creature)
                 : MultiplayerHelper.GetPlayerName(player.NetId);
-            var hp = $"{player.Creature.CurrentHp}/{player.Creature.MaxHp} HP";
-            SpeechManager.Output($"{name}, {hp}");
+            var hp = Message.Localized("ui", "RESOURCE.HP", new { current = player.Creature.CurrentHp, max = player.Creature.MaxHp }).Resolve();
+            SpeechManager.Output(Message.Raw($"{name}, {hp}"));
         }
         catch (System.Exception e)
         {

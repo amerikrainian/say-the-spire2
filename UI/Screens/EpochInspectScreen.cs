@@ -106,7 +106,7 @@ public class EpochInspectScreen : GameScreen
         if (!string.IsNullOrEmpty(storyTitle))
         {
             var chapterIndex = epoch.ChapterIndex;
-            parts.Add($"Chapter {chapterIndex} - {title}");
+            parts.Add(Message.Localized("ui", "EPOCH.CHAPTER", new { index = chapterIndex, title }).Resolve());
             parts.Add(storyTitle);
         }
         else if (!string.IsNullOrEmpty(title))
