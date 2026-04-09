@@ -1,4 +1,3 @@
-using System.Reflection;
 using Godot;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Localization;
@@ -18,11 +17,6 @@ public class CardPileGameScreen : GameScreen
     private readonly NCardGrid _grid;
     private readonly string _containerLabel;
 
-    private static readonly FieldInfo? CardRowsField =
-        typeof(NCardGrid).GetField("_cardRows", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
-
-    private static readonly PropertyInfo? ColumnsProperty =
-        typeof(NCardGrid).GetProperty("Columns", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
 
     public override string? ScreenName => _containerLabel;
 
@@ -60,9 +54,9 @@ public class CardPileGameScreen : GameScreen
             AnnouncePosition = true,
         };
 
-        var cardRows = CardRowsField?.GetValue(_grid) as System.Collections.IList;
+        var cardRows = CardGridReflection.CardRowsField?.GetValue(_grid) as System.Collections.IList;
         int columns = 1;
-        try { columns = (int)(ColumnsProperty?.GetValue(_grid) ?? 1); }
+        try { columns = CardGridReflection.GetColumns(_grid); }
         catch (System.Exception e) { Log.Error($"[AccessibilityMod] Card pile columns access failed: {e.Message}"); }
 
         if (cardRows != null)

@@ -47,9 +47,7 @@ public static class RestSiteHooks
         {
             var player = __instance.Player;
             if (player == null) return;
-            var name = player.Creature != null
-                ? MultiplayerHelper.GetCreatureName(player.Creature)
-                : MultiplayerHelper.GetPlayerName(player.NetId);
+            var name = MultiplayerHelper.GetPlayerDisplayName(player);
             var hp = Message.Localized("ui", "RESOURCE.HP", new { current = player.Creature.CurrentHp, max = player.Creature.MaxHp }).Resolve();
             SpeechManager.Output(Message.Raw($"{name}, {hp}"));
         }

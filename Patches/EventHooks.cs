@@ -237,9 +237,7 @@ public static class EventHooks
         {
             var player = __instance.Owner;
             if (player == null) return;
-            var playerName = player.Creature != null
-                ? Multiplayer.MultiplayerHelper.GetCreatureName(player.Creature)
-                : Multiplayer.MultiplayerHelper.GetPlayerName(player.NetId);
+            var playerName = Multiplayer.MultiplayerHelper.GetPlayerDisplayName(player);
             var potionName = __instance.Title.GetFormattedText();
             if (!string.IsNullOrEmpty(potionName))
                 EventDispatcher.Enqueue(new PotionUsedEvent(playerName, potionName, player.Creature));
@@ -256,9 +254,7 @@ public static class EventHooks
         {
             var player = __instance.Owner;
             if (player == null) return;
-            var playerName = player.Creature != null
-                ? Multiplayer.MultiplayerHelper.GetCreatureName(player.Creature)
-                : Multiplayer.MultiplayerHelper.GetPlayerName(player.NetId);
+            var playerName = Multiplayer.MultiplayerHelper.GetPlayerDisplayName(player);
             var cardName = __instance.Title;
             if (!string.IsNullOrEmpty(cardName))
                 EventDispatcher.Enqueue(new CardPlayedEvent(playerName, cardName, player.Creature));

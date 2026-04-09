@@ -454,17 +454,13 @@ public class CombatScreen : Screen
 
     private void OnPlayerEndedTurn(Player player, bool canBackOut)
     {
-        var name = player.Creature != null
-            ? Multiplayer.MultiplayerHelper.GetCreatureName(player.Creature)
-            : Multiplayer.MultiplayerHelper.GetPlayerName(player.NetId);
+        var name = Multiplayer.MultiplayerHelper.GetPlayerDisplayName(player);
         EventDispatcher.Enqueue(new EndTurnEvent(name, ready: true, player.Creature));
     }
 
     private void OnPlayerUnendedTurn(Player player)
     {
-        var name = player.Creature != null
-            ? Multiplayer.MultiplayerHelper.GetCreatureName(player.Creature)
-            : Multiplayer.MultiplayerHelper.GetPlayerName(player.NetId);
+        var name = Multiplayer.MultiplayerHelper.GetPlayerDisplayName(player);
         EventDispatcher.Enqueue(new EndTurnEvent(name, ready: false, player.Creature));
     }
 

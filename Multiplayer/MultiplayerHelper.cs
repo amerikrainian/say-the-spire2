@@ -56,6 +56,16 @@ public static class MultiplayerHelper
     }
 
     /// <summary>
+    /// Get the best display name for a player: creature name if in combat, otherwise network name.
+    /// </summary>
+    public static string GetPlayerDisplayName(Player player, PlatformType? platform = null)
+    {
+        return player.Creature != null
+            ? GetCreatureName(player.Creature, platform)
+            : GetPlayerName(player.NetId, platform);
+    }
+
+    /// <summary>
     /// Check if the current run is multiplayer.
     /// Returns false outside of a run or on error.
     /// </summary>

@@ -65,8 +65,6 @@ public class CardLibraryGameScreen : GameScreen
         }
     }
 
-    private static readonly FieldInfo? CardRowsField =
-        typeof(NCardGrid).GetField("_cardRows", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
 
     private readonly NCardLibrary _screen;
     private readonly ListContainer _root = new()
@@ -458,7 +456,7 @@ public class CardLibraryGameScreen : GameScreen
         var result = new List<List<NGridCardHolder>>();
         var grid = _screen.GetNodeOrNull<NCardLibraryGrid>("%CardGrid");
         var scrollContainer = grid?.GetNodeOrNull<Control>("%ScrollContainer");
-        var cardRows = grid == null ? null : CardRowsField?.GetValue(grid) as System.Collections.IList;
+        var cardRows = grid == null ? null : CardGridReflection.CardRowsField?.GetValue(grid) as System.Collections.IList;
         if (cardRows == null || scrollContainer == null)
             return result;
 

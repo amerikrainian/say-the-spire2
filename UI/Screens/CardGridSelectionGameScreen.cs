@@ -19,11 +19,6 @@ public class CardGridSelectionGameScreen : GameScreen
     private readonly NCardGrid _grid;
     private readonly string _containerLabel;
 
-    private static readonly FieldInfo? CardRowsField =
-        typeof(NCardGrid).GetField("_cardRows", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
-
-    private static readonly PropertyInfo? ColumnsProperty =
-        typeof(NCardGrid).GetProperty("Columns", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
 
     private static readonly FieldInfo? SelectedCardsField =
         typeof(NSimpleCardSelectScreen).GetField("_selectedCards", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -62,7 +57,7 @@ public class CardGridSelectionGameScreen : GameScreen
             AnnouncePosition = true,
         };
 
-        var cardRows = CardRowsField?.GetValue(_grid) as System.Collections.IList;
+        var cardRows = CardGridReflection.CardRowsField?.GetValue(_grid) as System.Collections.IList;
 
         if (cardRows != null)
         {
