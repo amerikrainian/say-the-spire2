@@ -22,11 +22,18 @@ public static class HarmonyHelper
             return;
         }
 
-        var handler = new HarmonyMethod(handlerType, handlerMethodName);
-        if (isPrefix)
-            harmony.Patch(method, prefix: handler);
-        else
-            harmony.Patch(method, postfix: handler);
-        Log.Info($"[AccessibilityMod] {label} hook patched.");
+        try
+        {
+            var handler = new HarmonyMethod(handlerType, handlerMethodName);
+            if (isPrefix)
+                harmony.Patch(method, prefix: handler);
+            else
+                harmony.Patch(method, postfix: handler);
+            Log.Info($"[AccessibilityMod] {label} hook patched.");
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[AccessibilityMod] {label} patch FAILED: {e.Message}");
+        }
     }
 }

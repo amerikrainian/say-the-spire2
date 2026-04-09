@@ -153,22 +153,41 @@ These private fields/properties are accessed via reflection. A game update renam
 **Events:**
 - `NEventLayout._title`, `._event` — event title and model
 - `NAncientEventLayout._dialogueContainer` — ancient event dialogue
+- `NTreasureRoomRelicCollection._isEmptyChest` — empty chest detection
 
 **Combat:**
-- `NCardGrid._cardRows`, `.Columns` — card grid layout
+- `NCardGrid._cardRows`, `.Columns` — card grid layout (centralized in `CardGridReflection.cs`)
 - `NSimpleCardSelectScreen._selectedCards` — selected cards in grid selection
+- `AbstractIntent.IntentTitle` (property) — creature intent name
+- `NChooseABundleSelectionScreen._bundlePreviewCards`, `._bundleRow` — bundle preview focus wiring
 
 **UI elements:**
 - `NSettingsSlider._slider` — slider value access
-- `NRewardButton._relic` — reward relic model
+- `RelicReward._relic` — reward relic model
 - `NTopBarHp._player`, `NTopBarGold._player` — player reference for HP/gold
 - `NTopBarRoomIcon._runState`, `NTopBarFloorIcon._runState`, `NTopBarBossIcon._runState` — run state
+- `NDeckHistoryEntry._amount` — card count in deck history
+- `NLabPotionHolder._model`, `._visibility` — potion lab holder state
+- `NRunHistoryPlayerIcon._ascensionLabel`, `._achievementLock`, `._hoverTips` — run history player icon
+- `NMapPointHistoryEntry._entry`, `._questIcon`, `._player` — run history map point
+- `NDropdownPositioner._dropdownNode` — settings dropdown positioning
 
 **Screens:**
 - `NCrystalSphereScreen._cellContainer`, `._entity` — crystal sphere grid
-- `NGameOverScreen._scoreBar`, `._encounterQuote` — game over display
+- `NGameOverScreen._score`, `._encounterQuote` — game over display
 - `NTimelineScreen._epochSlotContainer` — timeline slots
-- `NEpochInspectScreen` — epoch inspect data
+- `NCharacterSelectButton.IsSelected` (property), `._isSelected` — character selection state
+- `NDailyRunScreen._lobby`, `NDailyRunLoadScreen._lobby`, `NCustomRunLoadScreen._lobby` — lobby access
+- `NMultiplayerLoadGameScreen._runLobby` — multiplayer load game lobby
+- `NRunHistory.SelectPlayer` (method) — run history player selection
+
+**Daily leaderboard (DailyLeaderboardAdapter.cs):**
+- `NDailyRunLeaderboard._scoreContainer`, `._loadingIndicator`, `._noScoresIndicator`, `._noFriendsIndicator`, `._noScoreUploadIndicator` — leaderboard state indicators
+- `NDailyRunLeaderboard._currentPage`, `._leftArrow`, `._rightArrow`, `._paginator` — pagination controls
+- `NDailyRunLeaderboard.SetPage` (method) — page navigation
+- `NDailyRunLeaderboardRow._isHeader` — row type detection
+- `NLeaderboardDayPaginator._label`, `._leftArrow`, `._rightArrow` — day paginator UI
+- `NLeaderboardDayPaginator.PageLeft`, `.PageRight` (methods) — day navigation
 
 ### Game's UI Class Hierarchy (key classes)
 - `NClickableControl` - Base for all interactive UI (buttons, cards, relics, etc.)

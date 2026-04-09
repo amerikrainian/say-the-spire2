@@ -53,9 +53,7 @@ public class ProxyMultiplayerPlayerState : ProxyElement
         var pcs = player.PlayerCombatState;
         if (pcs != null)
         {
-            parts.Add(Message.Localized("ui", "RESOURCE.ENERGY", new { current = pcs.Energy, max = pcs.MaxEnergy }).Resolve());
-            if (pcs.Stars > 0)
-                parts.Add(Message.Localized("ui", "RESOURCE.STARS", new { amount = pcs.Stars }).Resolve());
+            parts.Add(ResourceHelper.GetResourceString(pcs));
             parts.Add(Message.Localized("ui", "RESOURCE.CARDS_IN_HAND", new { count = pcs.Hand.Cards.Count }).Resolve());
         }
 
