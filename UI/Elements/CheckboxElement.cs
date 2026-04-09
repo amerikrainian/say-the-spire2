@@ -25,14 +25,14 @@ public class CheckboxElement : UIElement
 
     public override Message? GetLabel() => Message.Raw(_setting.Label);
     public override string? GetTypeKey() => "checkbox";
-    public override Message? GetStatusString() => Message.Raw(_setting.Get() ? LocalizationManager.GetOrDefault("ui", "CHECKBOX.CHECKED", "checked") : LocalizationManager.GetOrDefault("ui", "CHECKBOX.UNCHECKED", "unchecked"));
+    public override Message? GetStatusString() => _setting.Get() ? Message.Localized("ui", "CHECKBOX.CHECKED") : Message.Localized("ui", "CHECKBOX.UNCHECKED");
 
     public void Activate()
     {
         var newValue = !_setting.Get();
         _setting.Set(newValue);
         _control.SetPressedNoSignal(newValue);
-        SpeechManager.Output(Message.Raw(newValue ? LocalizationManager.GetOrDefault("ui", "CHECKBOX.CHECKED", "checked") : LocalizationManager.GetOrDefault("ui", "CHECKBOX.UNCHECKED", "unchecked")));
+        SpeechManager.Output(newValue ? Message.Localized("ui", "CHECKBOX.CHECKED") : Message.Localized("ui", "CHECKBOX.UNCHECKED"));
     }
 
     /// <summary>
@@ -42,6 +42,6 @@ public class CheckboxElement : UIElement
     public void SyncFromControl()
     {
         _setting.Set(_control.ButtonPressed);
-        SpeechManager.Output(Message.Raw(_control.ButtonPressed ? LocalizationManager.GetOrDefault("ui", "CHECKBOX.CHECKED", "checked") : LocalizationManager.GetOrDefault("ui", "CHECKBOX.UNCHECKED", "unchecked")));
+        SpeechManager.Output(_control.ButtonPressed ? Message.Localized("ui", "CHECKBOX.CHECKED") : Message.Localized("ui", "CHECKBOX.UNCHECKED"));
     }
 }

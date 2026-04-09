@@ -126,7 +126,7 @@ public class ListenScreen : Screen
         if (IsExistingBinding(binding))
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.CANCELLED", "Cancelled")));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.CANCELLED"));
             return;
         }
 

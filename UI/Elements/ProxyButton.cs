@@ -24,7 +24,7 @@ public class ProxyButton : ProxyElement
     {
         // Check if this is a disabled NClickableControl (locked button)
         if (Control is MegaCrit.Sts2.Core.Nodes.GodotExtensions.NClickableControl ncc && !ncc.IsEnabled)
-            return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.LOCKED", "Locked"));
+            return Message.Localized("ui", "LABELS.LOCKED");
         return null;
     }
 

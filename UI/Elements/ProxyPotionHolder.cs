@@ -39,7 +39,7 @@ public class ProxyPotionHolder : ProxyElement
     public override Message? GetLabel()
     {
         if (IsEmpty())
-            return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.EMPTY_POTION_SLOT", "Empty potion slot"));
+            return Message.Localized("ui", "LABELS.EMPTY_POTION_SLOT");
 
         var model = GetModel();
         var text = model?.Title.GetFormattedText();

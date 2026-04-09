@@ -96,7 +96,7 @@ public class BindingActionScreen : Screen
         {
             _setting.Action.RemoveBinding(_binding);
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.DELETED", "Deleted")));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.DELETED"));
         };
         _navContainer.Add(deleteBtn);
         AddButton(itemList, deleteBtn);
@@ -136,7 +136,7 @@ public class BindingActionScreen : Screen
         if (action.Key == "ui_cancel")
         {
             ScreenManager.RemoveScreen(this);
-            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.CANCELLED", "Cancelled")));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.CANCELLED"));
             return true;
         }
 

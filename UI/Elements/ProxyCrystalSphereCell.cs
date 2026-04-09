@@ -20,11 +20,11 @@ public class ProxyCrystalSphereCell : ProxyElement
         if (entity == null) return null;
 
         if (entity.IsHidden)
-            return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.HIDDEN", "Hidden"));
+            return Message.Localized("ui", "LABELS.HIDDEN");
 
         var item = entity.Item;
         if (item == null)
-            return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.EMPTY", "Empty"));
+            return Message.Localized("ui", "LABELS.EMPTY");
 
         var itemLabel = GetItemLabel(item);
         var rangeStr = GetItemRangeString(item);

@@ -26,7 +26,7 @@ public class ProxyCardBundle : ProxyElement
     public override Message? GetLabel()
     {
         var bundle = FindBundle();
-        if (bundle == null) return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.CARD_PACK", "Card Pack"));
+        if (bundle == null) return Message.Localized("ui", "LABELS.CARD_PACK");
 
         // Determine position among siblings
         var parent = bundle.GetParent();

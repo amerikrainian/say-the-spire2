@@ -19,7 +19,7 @@ public class ProxyCharacterButton : ProxyElement
         var button = Button;
         if (button == null) return Message.Raw(CleanNodeName(Control.Name));
 
-        if (button.IsRandom) return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.RANDOM", "Random"));
+        if (button.IsRandom) return Message.Localized("ui", "LABELS.RANDOM");
 
         var character = button.Character;
         if (character == null) return Message.Raw(CleanNodeName(Control.Name));
@@ -41,7 +41,7 @@ public class ProxyCharacterButton : ProxyElement
         if (character == null) return null;
 
         if (button.IsLocked)
-            return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.LOCKED", "Locked"));
+            return Message.Localized("ui", "LABELS.LOCKED");
 
         if (button.IsRandom) return null;
 

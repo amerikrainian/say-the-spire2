@@ -121,9 +121,9 @@ public class CharacterSelectGameScreen : GameScreen
                 {
                     _lastLocalReady = localReady;
                     if (localReady)
-                        SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.MARKED_READY", "Marked as ready, waiting for other players")));
+                        SpeechManager.Output(Message.Localized("ui", "SPEECH.MARKED_READY"));
                     else
-                        SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_LONGER_READY", "No longer ready")));
+                        SpeechManager.Output(Message.Localized("ui", "SPEECH.NO_LONGER_READY"));
                 }
             }
             catch (Exception e) { MegaCrit.Sts2.Core.Logging.Log.Error($"[AccessibilityMod] Multiplayer ready state poll failed: {e.Message}"); }
@@ -170,7 +170,7 @@ public class CharacterSelectGameScreen : GameScreen
     public void OnLobbyLocalDisconnected(NCharacterSelectScreen screen, NetErrorInfo info)
     {
         if (!_isMultiplayer) return;
-        SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.DISCONNECTED", "Disconnected from lobby")));
+        SpeechManager.Output(Message.Localized("ui", "SPEECH.DISCONNECTED"));
     }
 
     private string GetPlayerName(ulong playerId)

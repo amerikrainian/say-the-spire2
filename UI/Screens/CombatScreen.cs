@@ -325,7 +325,7 @@ public class CombatScreen : Screen
         var powers = player.Creature.Powers;
         if (powers.Count == 0)
         {
-            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_POWERS", "No powers")));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.NO_POWERS"));
             return;
         }
 
@@ -374,7 +374,7 @@ public class CombatScreen : Screen
 
         if (sb.Length == 0)
         {
-            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_ENEMIES", "No enemies")));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.NO_ENEMIES"));
             return;
         }
 

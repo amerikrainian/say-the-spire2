@@ -193,7 +193,7 @@ public class RunScreen : Screen
         }
 
         if (parts.Count == 0)
-            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_RELIC_COUNTERS", "No relic counters")));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.NO_RELIC_COUNTERS"));
         else
             SpeechManager.Output(Message.Raw(string.Join(". ", parts)));
     }

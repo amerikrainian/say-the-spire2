@@ -82,7 +82,7 @@ public class TimelineGameScreen : GameScreen
                 }
             }
 
-            SpeechManager.Output(Message.Raw(LocalizationManager.GetOrDefault("ui", "SPEECH.NO_EPOCHS_READY", "No epochs ready to reveal")));
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.NO_EPOCHS_READY"));
         }
         catch (System.Exception ex)
         {

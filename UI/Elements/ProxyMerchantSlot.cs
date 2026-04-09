@@ -48,7 +48,7 @@ public class ProxyMerchantSlot : ProxyElement
 
         var entry = GetEntry();
         if (entry is MerchantCardRemovalEntry)
-            return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.CARD_REMOVAL", "Card Removal"));
+            return Message.Localized("ui", "LABELS.CARD_REMOVAL");
 
         return Message.Raw(CleanNodeName(Control!.Name));
     }
@@ -81,7 +81,7 @@ public class ProxyMerchantSlot : ProxyElement
         var entry = GetEntry();
         if (entry == null) return null;
 
-        if (!entry.IsStocked) return Message.Raw(LocalizationManager.GetOrDefault("ui", "LABELS.SOLD_OUT", "Sold out"));
+        if (!entry.IsStocked) return Message.Localized("ui", "LABELS.SOLD_OUT");
 
         var parts = new System.Collections.Generic.List<string>();
         parts.Add(Message.Localized("ui", "RESOURCE.PRICE", new { cost = entry.Cost }).Resolve());
