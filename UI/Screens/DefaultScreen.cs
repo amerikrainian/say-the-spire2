@@ -1,4 +1,7 @@
+using System;
 using MegaCrit.Sts2.Core.Logging;
+using MegaCrit.Sts2.Core.Nodes.Debug;
+using MegaCrit.Sts2.Core.Nodes.Screens.FeedbackScreen;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Help;
 using SayTheSpire2.Input;
@@ -17,6 +20,8 @@ public class DefaultScreen : Screen
         ClaimAction("reset_bindings");
         ClaimAction("mod_settings");
         ClaimAction("help");
+        ClaimAction("dev_console");
+        ClaimAction("feedback");
     }
 
     public override bool OnActionJustPressed(InputAction action)
@@ -46,6 +51,12 @@ public class DefaultScreen : Screen
             case "help":
                 OpenHelpScreen();
                 return true;
+            case "dev_console":
+                ToggleDevConsole();
+                return true;
+            case "feedback":
+                OpenFeedbackScreen();
+                return true;
         }
 
         return false;
@@ -64,5 +75,39 @@ public class DefaultScreen : Screen
         builder.AddAlwaysPresent();
         var screen = new HelpScreen(builder.Build());
         ScreenManager.PushScreen(screen);
+    }
+
+    private static void ToggleDevConsole()
+    {
+        try
+        {
+            var console = NDevConsole.Instance;
+            if (console.Visible)
+                console.HideConsole();
+            else
+                console.ShowConsole();
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Dev console toggle failed: {e.Message}");
+        }
+    }
+
+    private static void OpenFeedbackScreen()
+    {
+        try
+        {
+            var opener = NFeedbackScreenOpener.Instance;
+            if (opener == null) return;
+
+            var feedbackScreen = MegaCrit.Sts2.Core.Nodes.NGame.Instance?.FeedbackScreen;
+            if (feedbackScreen == null || feedbackScreen.Visible) return;
+
+            MegaCrit.Sts2.Core.Helpers.TaskHelper.RunSafely(opener.OpenFeedbackScreen());
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Feedback screen failed: {e.Message}");
+        }
     }
 }

@@ -204,6 +204,8 @@ public static class InputManager
             .AddBinding(Key.Slash));
         _actions.Add(new InputAction("map_clear_all_markers", Ui("MAP_MARKERS.ACTION_CLEAR_ALL", "Clear All Markers"))
             .AddBinding(Key.Slash, ctrl: true, shift: true));
+        _actions.Add(new InputAction("dev_console", "Dev Console").AddBinding(Key.Quoteleft));
+        _actions.Add(new InputAction("feedback", "Report Issue").AddBinding(Key.F2));
         _actions.Add(new InputAction("help", "Help").AddBinding(Key.F1)
             .AddBinding(ControllerInput.Back, modifier: ControllerInput.LeftTrigger));
         _actions.Add(new InputAction("reset_bindings", "Reset Bindings").AddBinding(Key.R, ctrl: true, shift: true));
