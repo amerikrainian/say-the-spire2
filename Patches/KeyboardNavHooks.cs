@@ -90,6 +90,13 @@ public static class KeyboardNavHooks
             __instance.GetViewport()?.SetInputAsHandled();
             return false;
         }
+
+        // When the dev console is open, skip the original _Input (prevents mode switching)
+        // but don't call SetInputAsHandled — the key must still reach _GuiInput for the
+        // console's LineEdit, since Godot dispatches _Input before _GuiInput.
+        if (InputManager.IsDevConsoleVisible())
+            return false;
+
         return true;
     }
 

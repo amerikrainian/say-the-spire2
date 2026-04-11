@@ -305,11 +305,11 @@ public static class InputManager
 
         if (inputEvent is InputEventKey keyEvent)
         {
-            // When the dev console is open, consume the event to prevent game action mapping
-            // but don't process it as a mod action. The console's LineEdit receives input
-            // through Godot's GUI focus path, which is separate from _Input.
+            // When the dev console is open, don't process keys as mod actions.
+            // InputPrefix handles skipping _Input without calling SetInputAsHandled,
+            // so the key still reaches _GuiInput for the console's LineEdit.
             if (IsDevConsoleVisible() && keyEvent.Keycode != Key.Quoteleft)
-                return true;
+                return false;
 
             if (ShouldLetFocusedTextControlHandleKey(controller, keyEvent))
                 return false;
@@ -570,7 +570,7 @@ public static class InputManager
         return IsTextEditingActive(focusedControl);
     }
 
-    private static bool IsDevConsoleVisible()
+    public static bool IsDevConsoleVisible()
     {
         try { return MegaCrit.Sts2.Core.Nodes.Debug.NDevConsole.Instance.Visible; }
         catch (System.Exception e) { Log.Info($"[AccessibilityMod] DevConsole visibility check failed: {e.Message}"); return false; }
