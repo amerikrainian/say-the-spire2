@@ -83,14 +83,9 @@ public class DefaultScreen : Screen
         {
             var console = NDevConsole.Instance;
             if (console.Visible)
-            {
                 console.HideConsole();
-                MegaCrit.Sts2.Core.Nodes.Screens.ScreenContext.ActiveScreenContext.Instance?.FocusOnDefaultControl();
-            }
             else
-            {
                 console.ShowConsole();
-            }
         }
         catch (Exception e)
         {
