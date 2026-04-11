@@ -305,6 +305,10 @@ public static class InputManager
 
         if (inputEvent is InputEventKey keyEvent)
         {
+            // Let the dev console handle all input when it's open (except backtick to close it)
+            if (IsDevConsoleVisible() && keyEvent.Keycode != Key.Quoteleft)
+                return false;
+
             if (ShouldLetFocusedTextControlHandleKey(controller, keyEvent))
                 return false;
 
@@ -562,6 +566,12 @@ public static class InputManager
     {
         var focusedControl = _controllerManager?.GetViewport()?.GuiGetFocusOwner() as Control;
         return IsTextEditingActive(focusedControl);
+    }
+
+    private static bool IsDevConsoleVisible()
+    {
+        try { return MegaCrit.Sts2.Core.Nodes.Debug.NDevConsole.Instance.Visible; }
+        catch (System.Exception e) { Log.Info($"[AccessibilityMod] DevConsole visibility check failed: {e.Message}"); return false; }
     }
 
     private static bool IsTextEditingActive(Control? control)
