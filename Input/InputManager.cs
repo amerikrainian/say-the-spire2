@@ -305,9 +305,11 @@ public static class InputManager
 
         if (inputEvent is InputEventKey keyEvent)
         {
-            // Let the dev console handle all input when it's open (except backtick to close it)
+            // When the dev console is open, consume the event to prevent game action mapping
+            // but don't process it as a mod action. The console's LineEdit receives input
+            // through Godot's GUI focus path, which is separate from _Input.
             if (IsDevConsoleVisible() && keyEvent.Keycode != Key.Quoteleft)
-                return false;
+                return true;
 
             if (ShouldLetFocusedTextControlHandleKey(controller, keyEvent))
                 return false;
