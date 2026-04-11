@@ -298,18 +298,13 @@ public static class InputManager
     /// </summary>
     public static bool OnInputEvent(NControllerManager controller, InputEvent inputEvent)
     {
-        if (!InterceptInput || IsGameListeningForRebind())
+        if (!InterceptInput || IsGameListeningForRebind() || IsDevConsoleVisible())
             return false;
 
         _controllerManager = controller;
 
         if (inputEvent is InputEventKey keyEvent)
         {
-            // When the dev console is open, don't process keys as mod actions.
-            // InputPrefix handles skipping _Input without calling SetInputAsHandled,
-            // so the key still reaches _GuiInput for the console's LineEdit.
-            if (IsDevConsoleVisible() && keyEvent.Keycode != Key.Quoteleft)
-                return false;
 
             if (ShouldLetFocusedTextControlHandleKey(controller, keyEvent))
                 return false;
