@@ -20,14 +20,21 @@ public class MapHandler
 
     private readonly Dictionary<MapPoint, MapNode> _nodeMap = new();
     private readonly List<MapEdge> _edges = new();
+    private MapPoint? _currentPoint;
+    private MapReachabilityContext _reachabilityContext;
 
     public IReadOnlyDictionary<MapPoint, MapNode> Nodes => _nodeMap;
     public IReadOnlyList<MapEdge> Edges => _edges;
+    public MapPoint? CurrentPoint => _currentPoint;
+    public MapNode? CurrentNode => _currentPoint == null ? null : GetNode(_currentPoint);
+    public MapReachabilityContext ReachabilityContext => _reachabilityContext;
 
     public bool Build()
     {
         _nodeMap.Clear();
         _edges.Clear();
+        _currentPoint = null;
+        _reachabilityContext = default;
 
         var screen = NMapScreen.Instance;
         if (screen == null)
@@ -39,6 +46,8 @@ public class MapHandler
         var map = MapField?.GetValue(screen) as ActMap;
         var runState = RunStateField?.GetValue(screen) as RunState;
         var pointDict = MapPointDictField?.GetValue(screen) as Dictionary<MapCoord, NMapPoint>;
+        _currentPoint = runState?.CurrentMapPoint;
+        _reachabilityContext = MapReachability.CreateContext(runState);
 
         if (map == null || pointDict == null)
         {
@@ -60,18 +69,13 @@ public class MapHandler
             EnsureNode(map.SecondBossMapPoint, map, runState, pointDict);
         EnsureNode(map.StartingMapPoint, map, runState, pointDict);
 
-        // Build edges from Children relationships
+        // Build the static map graph from the authored child paths first.
         foreach (var (mapPoint, node) in _nodeMap)
         {
             foreach (var child in mapPoint.Children)
             {
                 if (_nodeMap.TryGetValue(child, out var childNode))
-                {
-                    var edge = new MapEdge(node, childNode);
-                    _edges.Add(edge);
-                    node.ForwardEdges.Add(edge);
-                    childNode.BackwardEdges.Add(edge);
-                }
+                    AddEdge(node, childNode);
             }
         }
 
@@ -149,5 +153,16 @@ public class MapHandler
         if (pointDict.TryGetValue(coord, out var nMapPoint))
             return nMapPoint.State;
         return MapPointState.None;
+    }
+
+    private void AddEdge(MapNode from, MapNode to)
+    {
+        if (from.ForwardEdges.Any(edge => edge.To == to))
+            return;
+
+        var edge = new MapEdge(from, to);
+        _edges.Add(edge);
+        from.ForwardEdges.Add(edge);
+        to.BackwardEdges.Add(edge);
     }
 }
