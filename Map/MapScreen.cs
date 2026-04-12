@@ -115,7 +115,8 @@ public class MapScreen : Screen
         if (node == null)
             return null;
 
-        return MapNodeAnnouncementFormatter.DescribeNode(node, _handler, includeChoicePrefix: includeChoicePrefix);
+        return MapNodeAnnouncementFormatter.DescribeNode(node, _handler, includeChoicePrefix: includeChoicePrefix,
+            travelOrigin: _handler.CurrentNode);
     }
 
     public override bool OnActionJustPressed(InputAction action)
