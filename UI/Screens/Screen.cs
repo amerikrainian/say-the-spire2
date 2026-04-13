@@ -9,7 +9,8 @@ namespace SayTheSpire2.UI.Screens;
 
 public abstract class Screen
 {
-    private readonly Dictionary<string, bool> _claimedActions = new();
+    private readonly record struct ClaimInfo(bool Propagate, bool FocusedOnly);
+    private readonly Dictionary<string, ClaimInfo> _claimedActions = new();
     private bool _claimAll;
 
     public virtual string? ScreenName => null;
@@ -81,10 +82,12 @@ public abstract class Screen
     /// Claim an action for this screen. When propagate is false (default),
     /// the action stops here and lower screens won't see it.
     /// When propagate is true, lower screens also get a chance to handle it.
+    /// When focusedOnly is true, the claim only applies when this screen is
+    /// the innermost focused screen (no active child handling input).
     /// </summary>
-    protected void ClaimAction(string actionKey, bool propagate = false)
+    protected void ClaimAction(string actionKey, bool propagate = false, bool focusedOnly = false)
     {
-        _claimedActions[actionKey] = propagate;
+        _claimedActions[actionKey] = new ClaimInfo(propagate, focusedOnly);
     }
 
     /// <summary>
@@ -97,12 +100,19 @@ public abstract class Screen
 
     /// <summary>
     /// Returns true if this screen has claimed the action.
+    /// When a claim is focusedOnly, it only applies if this screen has no active child.
     /// </summary>
-    public bool HasClaimed(string actionKey) => _claimAll || _claimedActions.ContainsKey(actionKey);
+    public bool HasClaimed(string actionKey)
+    {
+        if (_claimAll) return true;
+        if (!_claimedActions.TryGetValue(actionKey, out var info)) return false;
+        if (info.FocusedOnly && ActiveChild != null) return false;
+        return true;
+    }
 
     /// <summary>
     /// Returns true if a claimed action should propagate to lower screens.
     /// </summary>
     public bool ShouldPropagate(string actionKey) =>
-        _claimedActions.TryGetValue(actionKey, out var propagate) && propagate;
+        _claimedActions.TryGetValue(actionKey, out var info) && info.Propagate;
 }

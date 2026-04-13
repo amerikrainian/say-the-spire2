@@ -27,10 +27,10 @@ public class MapScreen : Screen
 
         // Claim the Ctrl+Arrow actions — on the map these become navigation
         // instead of buffer controls. Not propagated, so DefaultScreen won't see them.
-        ClaimAction("buffer_next_item"); // Ctrl+Up -> forward (toward boss)
-        ClaimAction("buffer_prev_item"); // Ctrl+Down -> backward (toward start)
-        ClaimAction("buffer_next");      // Ctrl+Right -> next branch
-        ClaimAction("buffer_prev");      // Ctrl+Left -> prev branch
+        ClaimAction("buffer_next_item", focusedOnly: true); // Ctrl+Up -> forward (toward boss)
+        ClaimAction("buffer_prev_item", focusedOnly: true); // Ctrl+Down -> backward (toward start)
+        ClaimAction("buffer_next", focusedOnly: true);      // Ctrl+Right -> next branch
+        ClaimAction("buffer_prev", focusedOnly: true);      // Ctrl+Left -> prev branch
         ClaimAction("map_poi_prev");
         ClaimAction("map_poi_next");
         ClaimAction("map_poi_toggle_mode");
