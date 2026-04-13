@@ -10,6 +10,7 @@
 * Added support for relic vote announcements as well as announcements of map node votes when focusing a map node (thanks @amerikrainian)
 * Added badges to leaderboard screen (thanks @amerikrainian)
 * Fixed a bug where the map viewer controls would take priority on screens that opened while the map screen was also open, preventing access to buffers.
+* Fixed a bug where the position information for creatures in combat would often be incorrect.
 
 ## V0.3.0
 * Fixed an issue where localization was only using English and not the current game language.
