@@ -323,6 +323,13 @@ public class TreeMapViewer : MapViewer
         if (_pathStack.Count > 0)
             return _pathStack.Peek().From;
 
+        // No path stack — try the handler's current position first (handles flight nodes
+        // that have no backward edge from the current position), then fall back to
+        // backward edges for cases where the cursor started on a non-adjacent node.
+        var handlerCurrent = Handler.CurrentNode;
+        if (handlerCurrent != null && Current.Row == handlerCurrent.Row + 1)
+            return handlerCurrent;
+
         var parentEdge = Current.BackwardEdges
             .FirstOrDefault(e => e.From.State == MapPointState.Traveled)
             ?? Current.BackwardEdges.FirstOrDefault();
