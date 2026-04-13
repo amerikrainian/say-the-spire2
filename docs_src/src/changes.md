@@ -9,6 +9,7 @@
 * Added support for the dev console (use ` on any screen to access it by default.)
 * Added support for relic vote announcements as well as announcements of map node votes when focusing a map node (thanks @amerikrainian)
 * Added badges to leaderboard screen (thanks @amerikrainian)
+* Fixed a bug where the map viewer controls would take priority on screens that opened while the map screen was also open, preventing access to buffers.
 
 ## V0.3.0
 * Fixed an issue where localization was only using English and not the current game language.
