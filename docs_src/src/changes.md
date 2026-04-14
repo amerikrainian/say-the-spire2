@@ -13,6 +13,7 @@
 * Fixed a bug where the map viewer controls would take priority on screens that opened while the map screen was also open, preventing access to buffers.
 * Fixed a bug where the position information for creatures in combat (mostly for other players and temporary summons) would often be incorrect.
 * Fixed a bug where downgraded cards were not being properly read out.
+* Fixed a bug where the card upgrade/downgrade event would not announce the name of the player in multiplayer who actually got the upgrade/downgrade.
 
 ## V0.3.0
 * Fixed an issue where localization was only using English and not the current game language.
