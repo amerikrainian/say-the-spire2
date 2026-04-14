@@ -22,7 +22,8 @@ All mod log lines are prefixed with `[AccessibilityMod]`.
 - **Game DLLs**: `C:/Program Files (x86)/Steam/steamapps/common/Slay the Spire 2/data_sts2_windows_x86_64/` (sts2.dll, GodotSharp.dll, 0Harmony.dll)
 - **Mods dir**: `C:/Program Files (x86)/Steam/steamapps/common/Slay the Spire 2/mods/`
 - **Settings**: `%APPDATA%/SlayTheSpire2/steam/76561198124893519/settings.save` (JSON, `mod_settings.mods_enabled` must be true)
-- **Decompiled game source**: `/c/Users/bradj/AppData/Local/Temp/sts2_decompiled/` (3299 .cs files)
+- **Decompiled game source (stable)**: `../sts2_decompiled_stable/` (~3304 .cs files)
+- **Decompiled game source (beta)**: `../sts2_decompiled_beta/` (~3299 .cs files)
 
 ### Mod Loading Flow
 1. Game's ModManager scans `mods/` for `.pck` files, loads companion `.dll`
