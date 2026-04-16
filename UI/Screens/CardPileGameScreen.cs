@@ -16,6 +16,7 @@ public class CardPileGameScreen : GameScreen
     private readonly Control _screen;
     private readonly NCardGrid _grid;
     private readonly string _containerLabel;
+    private readonly int _cardCount;
 
 
     public override string? ScreenName => _containerLabel;
@@ -25,6 +26,7 @@ public class CardPileGameScreen : GameScreen
         _screen = screen;
         _grid = screen.GetNode<NCardGrid>("CardGrid");
         _containerLabel = GetPileLabel(screen.Pile.Type);
+        _cardCount = screen.Pile.Cards.Count;
     }
 
     public CardPileGameScreen(NDeckViewScreen screen)
@@ -32,6 +34,12 @@ public class CardPileGameScreen : GameScreen
         _screen = screen;
         _grid = screen.GetNode<NCardGrid>("CardGrid");
         _containerLabel = new LocString("gameplay_ui", "DECK_PILE_INFO").GetFormattedText();
+        try
+        {
+            var me = MegaCrit.Sts2.Core.Context.LocalContext.GetMe(MegaCrit.Sts2.Core.Runs.RunManager.Instance.DebugOnlyGetState());
+            _cardCount = me?.Deck?.Cards?.Count ?? 0;
+        }
+        catch (System.Exception e) { Log.Error($"[AccessibilityMod] Deck count access failed: {e.Message}"); }
     }
 
     public override void OnPush()
@@ -78,7 +86,7 @@ public class CardPileGameScreen : GameScreen
             }
         }
 
-        gridContainer.ContainerLabel = $"{_containerLabel} ({gridContainer.Children.Count})";
+        gridContainer.ContainerLabel = $"{_containerLabel} ({_cardCount})";
         RootElement = gridContainer;
         Log.Info($"[AccessibilityMod] CardPileGameScreen built: {gridContainer.Children.Count} cards in grid");
     }
