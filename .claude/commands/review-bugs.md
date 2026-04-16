@@ -34,6 +34,11 @@ You are the **bug hunter** on a 3-agent code review team. Focus exclusively on c
 - Are localization keys referenced in code actually present in `Localization/eng/ui.json`?
 - Is `.Resolve()` called too early (in composition) or too late (missing at output boundary)?
 
+### Compiler Warnings
+- Run `dotnet build` and check for any warnings. The build must produce 0 warnings.
+- CS8602 (null dereference) and CS8604 (null argument) must be fixed with null checks, not suppressed.
+- Do NOT use `#pragma warning disable`, `!` operator (except on intentional reflection crash points), or `[SuppressMessage]`.
+
 ### Edge Cases
 - What happens if the player is in singleplayer? In multiplayer with 1 player? With 4 players?
 - What happens if the control/element is null, destroyed, or not yet in the scene tree?

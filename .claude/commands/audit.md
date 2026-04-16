@@ -96,6 +96,12 @@ You are performing a comprehensive audit of the entire codebase, not just a diff
 - If more card types or UI elements are added, does ProxyFactory need restructuring?
 - Is the settings system scalable to many more event types?
 
+**Compiler warnings:**
+- Run `dotnet build` and check for any warnings. The build must produce 0 warnings.
+- For CS8602 (null dereference): add null checks or use `?.` operators.
+- For CS8604 (null argument): add null guards before the call.
+- Do NOT suppress warnings with `#pragma`, `!`, or `[SuppressMessage]`. Fix the underlying null safety issue.
+
 **Technical debt:**
 - List any TODO comments or known workarounds in the code.
 - Are there temporary fixes that should be made permanent?

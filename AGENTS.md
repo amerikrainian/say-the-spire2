@@ -14,9 +14,12 @@ This file contains review rules and checklists for AI agents working on this cod
 
 ## Code Review Checklist
 
-### Error Handling
+### Error Handling & Null Safety
 - [ ] Every `catch` block logs the exception — never use empty `catch { }`. Use `Log.Error` for broken functionality, `Log.Info` for expected fallbacks.
 - [ ] All multiplayer hooks gate on `IsMultiplayer()` to avoid firing in singleplayer.
+- [ ] Build produces 0 warnings. Do not suppress warnings with `#pragma` or attributes.
+- [ ] Nullable references handled with `?.`, `is`, or null checks — not `!` (except intentional reflection crash points).
+- [ ] Node/control lookups (`GetNodeOrNull`, `GetChild`, reflection `GetValue`) use null checks before access.
 
 ### Focus System
 - [ ] `SetFocusedControl`/`SetFocusedElement` only store state. No speech output, no buffer updates.

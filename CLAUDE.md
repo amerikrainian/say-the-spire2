@@ -135,6 +135,12 @@ These rules were discovered through bugs. Check against them before making chang
 - Fallback-style catches (e.g., try a modifier, fall back to base value) should log at `Log.Info` level.
 - Errors indicating broken functionality should log at `Log.Error` level.
 
+**Null safety and warnings:**
+- The build must have 0 warnings. Do not suppress warnings with `#pragma` or `[SuppressMessage]`.
+- Handle nullable references with proper null checks instead of `!` (null-forgiving) for new code. Existing `!` on reflection lookups is intentional (crash over silent failure).
+- When accessing potentially null values (node lookups, reflection results, game model properties), use null-conditional operators (`?.`) and early returns rather than assuming non-null.
+- Prefer `if (x is Type t)` pattern matching over `(Type)x` casts for safer type narrowing.
+
 **Multiplayer:**
 - All multiplayer event hooks must gate on `IsMultiplayer()` to avoid firing in singleplayer. This includes voting hooks (`TravelToMapCoord`, `MapPointSelectedLocally`, etc.).
 - Local player checks: use `LocalContext.IsMe(creature)` or `player.NetId == LocalContext.NetId`.
