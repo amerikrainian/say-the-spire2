@@ -1,22 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Godot;
-using HarmonyLib;
-using MegaCrit.Sts2.Core.Combat;
-using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Powers;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
-using MegaCrit.Sts2.Core.Nodes.Combat;
-using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
-using SayTheSpire2.Multiplayer;
 using SayTheSpire2.Settings;
+using SayTheSpire2.Views;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -30,50 +24,34 @@ public class ProxyCreature : ProxyElement
 
     public ProxyCreature(Control control) : base(control) { }
 
-    private NCreature? FindCreature()
-    {
-        if (Control is NCreature direct)
-            return direct;
-        Node? current = Control?.GetParent();
-        while (current != null)
-        {
-            if (current is NCreature creature)
-                return creature;
-            current = current.GetParent();
-        }
-        return null;
-    }
-
-    private Creature? GetEntity() => FindCreature()?.Entity;
+    private CreatureView? GetView() => CreatureView.FromControl(Control);
 
     public override Message? GetLabel()
     {
-        var entity = GetEntity();
-        if (entity == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
-        return Message.Raw(MultiplayerHelper.GetCreatureName(entity));
+        var view = GetView();
+        if (view == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
+        return Message.Raw(view.Name);
     }
 
     public override string? GetTypeKey() => "creature";
 
     public override Message? GetStatusString()
     {
-        var entity = GetEntity();
-        if (entity == null) return null;
+        var view = GetView();
+        if (view == null) return null;
 
         var parts = new List<string>();
         var intentFirst = ModSettings.GetValue<bool>("ui.creature.intent_first");
 
-        var intentSummary = GetIntentSummary(entity, includePrefix: !intentFirst);
+        var intentSummary = GetIntentSummary(view.Entity, includePrefix: !intentFirst);
 
         if (intentFirst && !string.IsNullOrEmpty(intentSummary))
             parts.Add(intentSummary);
 
-        // HP
-        parts.Add(Message.Localized("ui", "RESOURCE.HP", new { current = entity.CurrentHp, max = entity.MaxHp }).Resolve());
+        parts.Add(Message.Localized("ui", "RESOURCE.HP", new { current = view.CurrentHp, max = view.MaxHp }).Resolve());
 
-        // Block
-        if (entity.Block > 0)
-            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = entity.Block }).Resolve());
+        if (view.Block > 0)
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = view.Block }).Resolve());
 
         if (!intentFirst && !string.IsNullOrEmpty(intentSummary))
             parts.Add(intentSummary);
@@ -83,11 +61,11 @@ public class ProxyCreature : ProxyElement
 
     public override string? HandleBuffers(BufferManager buffers)
     {
-        var entity = GetEntity();
-        if (entity == null) return base.HandleBuffers(buffers);
+        var view = GetView();
+        if (view == null) return base.HandleBuffers(buffers);
 
-        // If this is the local player, use the player buffer (always-enabled by RunScreen)
-        if (LocalContext.IsMe(entity))
+        // Local player: use the player buffer, bound to null
+        if (view.IsLocalPlayer)
         {
             var playerBuffer = buffers.GetBuffer("player") as PlayerBuffer;
             if (playerBuffer != null)
@@ -99,13 +77,13 @@ public class ProxyCreature : ProxyElement
             return "player";
         }
 
-        // If this is another player in multiplayer, bind the player buffer to them
-        if (entity.IsPlayer && entity.Player != null)
+        // Another player in multiplayer: bind the player buffer to them
+        if (view.IsPlayer && view.Player != null)
         {
             var playerBuffer = buffers.GetBuffer("player") as PlayerBuffer;
             if (playerBuffer != null)
             {
-                playerBuffer.Bind(entity.Player);
+                playerBuffer.Bind(view.Player);
                 playerBuffer.Update();
                 buffers.EnableBuffer("player", true);
             }
@@ -115,90 +93,62 @@ public class ProxyCreature : ProxyElement
         var creatureBuffer = buffers.GetBuffer("creature") as CreatureBuffer;
         if (creatureBuffer != null)
         {
-            creatureBuffer.Bind(entity);
+            creatureBuffer.Bind(view.Entity);
             creatureBuffer.Update();
             buffers.EnableBuffer("creature", true);
         }
-
         return "creature";
     }
 
-    private static readonly PropertyInfo? IntentTitleProp =
-        AccessTools.Property(typeof(AbstractIntent), "IntentTitle");
-
     /// <summary>
-    /// Gets the game's localized intent title (e.g. from "intents" table).
-    /// Falls back to IntentType enum name if reflection fails.
+    /// Gets the game's localized intent title. Thin delegation to IntentView.
     /// </summary>
-    public static string GetIntentName(AbstractIntent intent)
-    {
-        try
-        {
-            var locString = IntentTitleProp?.GetValue(intent) as MegaCrit.Sts2.Core.Localization.LocString;
-            var title = locString?.GetFormattedText();
-            if (!string.IsNullOrEmpty(title))
-                return title;
-        }
-        catch (Exception e) { Log.Error($"[AccessibilityMod] Intent title lookup failed: {e.Message}"); }
-        return intent.IntentType.ToString();
-    }
+    public static string GetIntentName(AbstractIntent intent) => IntentView.GetIntentName(intent);
 
     public static string? GetIntentSummary(Creature entity, bool includePrefix = true)
     {
         try
         {
-            if (entity.IsMonster && entity.Monster != null)
-                return GetMonsterIntentSummary(entity, includePrefix);
-
-            if (entity.IsPlayer && entity.Player != null)
-                return GetPlayerIntentSummary(entity.Player, includePrefix);
+            var view = CreatureView.FromEntity(entity);
+            if (view.IsMonster)
+                return GetMonsterIntentSummary(view, includePrefix);
+            if (view.IsPlayer && view.Player != null)
+                return GetPlayerIntentSummary(view, includePrefix);
         }
-        catch
+        catch (Exception e)
         {
-            return null;
+            Log.Info($"[AccessibilityMod] Intent summary build failed: {e.Message}");
         }
-
         return null;
     }
 
-    private static string? GetMonsterIntentSummary(Creature entity, bool includePrefix)
+    private static string? GetMonsterIntentSummary(CreatureView view, bool includePrefix)
     {
-        var intents = entity.Monster?.NextMove?.Intents;
-        if (intents == null || intents.Count == 0)
-            return null;
+        var intents = view.MonsterIntents;
+        if (intents.Count == 0) return null;
 
-        var summaries = new List<string>();
-        var allies = entity.CombatState?.Allies;
-
-        foreach (var intent in intents)
-        {
-            var name = GetIntentName(intent);
-            var label = intent.GetIntentLabel(allies ?? Enumerable.Empty<Creature>(), entity);
-            var text = label.GetFormattedText();
-            if (!string.IsNullOrEmpty(text) && text != "")
-                summaries.Add($"{name} {StripBbcode(text)}");
-            else
-                summaries.Add(name);
-        }
-
-        if (summaries.Count == 0)
-            return null;
+        var summaries = intents.Select(intent =>
+            !string.IsNullOrEmpty(intent.Label)
+                ? $"{intent.Name} {intent.Label}"
+                : intent.Name);
 
         var joined = string.Join(", ", summaries);
-        return includePrefix ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + joined : joined;
+        return includePrefix
+            ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + joined
+            : joined;
     }
 
-    private static string? GetPlayerIntentSummary(MegaCrit.Sts2.Core.Entities.Players.Player player, bool includePrefix)
+    private static string? GetPlayerIntentSummary(CreatureView view, bool includePrefix)
     {
-        var hoveredModel = RunManager.Instance?.HoveredModelTracker?.GetHoveredModel(player.NetId);
-        if (hoveredModel == null)
-            return null;
+        var model = view.PlayerHoveredModel;
+        if (model == null) return null;
 
-        var summary = GetHoveredModelSummary(hoveredModel);
-        if (string.IsNullOrWhiteSpace(summary))
-            return null;
+        var summary = GetHoveredModelSummary(model);
+        if (string.IsNullOrWhiteSpace(summary)) return null;
 
-        return includePrefix ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + summary : summary;
+        return includePrefix
+            ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + summary
+            : summary;
     }
 
     private static string? GetHoveredModelSummary(AbstractModel model)
