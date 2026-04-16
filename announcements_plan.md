@@ -174,6 +174,8 @@ Shared labels reuse existing keys naturally — if two settings both render as "
 
 **Out of scope:** existing settings that hardcode English today (e.g., event `"Announce"` / `"Add to buffer"` labels). Retroactively localizing them is a separate follow-up. This refactor ensures the *new* settings are localized and provides the mechanism that a follow-up could adopt.
 
+**No per-source settings.** Announcements do not have source-level toggles (current player / other players / enemies / allies). Source-awareness lives in the proxy instead — `ProxyCreature.GetFocusAnnouncements()` varies its yields by `view.IsLocalPlayer` / `view.IsMonster` / etc. Users already get different announcement sets for different creature types by design, not by setting. Rationale: a per-source setting layer would multiply the settings tree by 4× for little real gain (most announcements are desired across all sources), and filtering by source is far less natural for focus announcements than for events (the user is deliberately focusing *this* thing). If concrete demand for per-source toggles appears later, a fourth cascade layer can be added without breaking anything.
+
 ## Phasing
 
 Three phases. Each is shippable on its own; each is reversible without blocking the next.
