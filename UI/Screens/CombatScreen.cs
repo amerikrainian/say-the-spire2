@@ -24,7 +24,9 @@ using SayTheSpire2.Help;
 using SayTheSpire2.Input;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
+using SayTheSpire2.UI;
 using SayTheSpire2.UI.Elements;
+using SayTheSpire2.Views;
 
 namespace SayTheSpire2.UI.Screens;
 
@@ -299,7 +301,8 @@ public class CombatScreen : Screen
 
     private string? GetCombatantIntentSummary(Creature creature)
     {
-        return ProxyCreature.GetIntentSummary(creature, includePrefix: false) ?? LocalizationManager.GetOrDefault("ui", "SPEECH.NO_INTENT", "No intent");
+        return CreatureIntentFormatter.Summary(CreatureView.FromEntity(creature), includePrefix: false)
+            ?? LocalizationManager.GetOrDefault("ui", "SPEECH.NO_INTENT", "No intent");
     }
 
     private void AnnounceBlock()
@@ -347,8 +350,6 @@ public class CombatScreen : Screen
         var state = GetLiveState();
         if (state == null) return;
 
-        var allies = state.Allies;
-
         var sb = new StringBuilder();
         foreach (var enemy in state.Enemies)
         {
@@ -358,17 +359,9 @@ public class CombatScreen : Screen
             sb.Append(enemy.Name);
             sb.Append(": ");
 
-            var move = enemy.Monster!.NextMove;
-            var intentParts = new List<string>();
-            foreach (var intent in move.Intents)
-            {
-                var name = ProxyCreature.GetIntentName(intent);
-                var label = intent.GetIntentLabel(allies, enemy).GetFormattedText();
-                if (!string.IsNullOrEmpty(label) && label != "")
-                    intentParts.Add($"{name} {label}");
-                else
-                    intentParts.Add(name);
-            }
+            var intentParts = CreatureView.FromEntity(enemy).MonsterIntents
+                .Select(i => !string.IsNullOrEmpty(i.Label) ? $"{i.Name} {i.Label}" : i.Name)
+                .ToList();
             sb.Append(intentParts.Count > 0 ? string.Join(", ", intentParts) : LocalizationManager.GetOrDefault("ui", "LABELS.UNKNOWN", "Unknown"));
         }
 

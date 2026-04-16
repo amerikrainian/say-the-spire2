@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using Godot;
-using MegaCrit.Sts2.Core.Entities.Creatures;
-using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Settings;
+using SayTheSpire2.UI;
 using SayTheSpire2.Views;
 
 namespace SayTheSpire2.UI.Elements;
@@ -94,17 +93,4 @@ public class ProxyCreature : ProxyElement
         }
         return "creature";
     }
-
-    /// <summary>
-    /// Thin delegation kept for CombatScreen / CombatNavigationHooks during the
-    /// focus announcements refactor. Callers should migrate to IntentView.GetIntentName directly.
-    /// </summary>
-    public static string GetIntentName(AbstractIntent intent) => IntentView.GetIntentName(intent);
-
-    /// <summary>
-    /// Thin delegation kept for CombatScreen / CombatNavigationHooks during the
-    /// focus announcements refactor. Callers should migrate to CreatureIntentFormatter.Summary directly.
-    /// </summary>
-    public static string? GetIntentSummary(Creature entity, bool includePrefix = true) =>
-        CreatureIntentFormatter.Summary(CreatureView.FromEntity(entity), includePrefix);
 }
