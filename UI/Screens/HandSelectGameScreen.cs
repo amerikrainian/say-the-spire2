@@ -121,6 +121,22 @@ public class HandSelectGameScreen : GameScreen
             selectedHolders[i].FocusNeighborBottom = self;
         }
 
+        // When the hand is empty, wire selected cards directly to the creature row
+        // so pressing down from creatures reaches the selected cards
+        if (handHolders.Count == 0 && selectedHolders.Count > 0)
+        {
+            var combatRoom = MegaCrit.Sts2.Core.Nodes.Rooms.NCombatRoom.Instance;
+            if (combatRoom != null)
+            {
+                var firstSelected = selectedHolders[0].GetPath();
+                foreach (var creature in combatRoom.CreatureNodes)
+                {
+                    if (creature?.Hitbox != null)
+                        creature.Hitbox.FocusNeighborBottom = firstSelected;
+                }
+            }
+        }
+
         _root.Add(_handList);
         if (selectedHolders.Count > 0)
             _root.Add(_selectedList);
