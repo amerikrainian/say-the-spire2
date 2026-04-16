@@ -1,11 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Godot;
 using MegaCrit.Sts2.Core.Entities.Creatures;
-using MegaCrit.Sts2.Core.Entities.Powers;
-using MegaCrit.Sts2.Core.Logging;
-using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.MonsterMoves.Intents;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
@@ -43,7 +38,7 @@ public class ProxyCreature : ProxyElement
         var parts = new List<string>();
         var intentFirst = ModSettings.GetValue<bool>("ui.creature.intent_first");
 
-        var intentSummary = GetIntentSummary(view.Entity, includePrefix: !intentFirst);
+        var intentSummary = CreatureIntentFormatter.Summary(view, includePrefix: !intentFirst);
 
         if (intentFirst && !string.IsNullOrEmpty(intentSummary))
             parts.Add(intentSummary);
@@ -101,111 +96,15 @@ public class ProxyCreature : ProxyElement
     }
 
     /// <summary>
-    /// Gets the game's localized intent title. Thin delegation to IntentView.
+    /// Thin delegation kept for CombatScreen / CombatNavigationHooks during the
+    /// focus announcements refactor. Callers should migrate to IntentView.GetIntentName directly.
     /// </summary>
     public static string GetIntentName(AbstractIntent intent) => IntentView.GetIntentName(intent);
 
-    public static string? GetIntentSummary(Creature entity, bool includePrefix = true)
-    {
-        try
-        {
-            var view = CreatureView.FromEntity(entity);
-            if (view.IsMonster)
-                return GetMonsterIntentSummary(view, includePrefix);
-            if (view.IsPlayer && view.Player != null)
-                return GetPlayerIntentSummary(view, includePrefix);
-        }
-        catch (Exception e)
-        {
-            Log.Info($"[AccessibilityMod] Intent summary build failed: {e.Message}");
-        }
-        return null;
-    }
-
-    private static string? GetMonsterIntentSummary(CreatureView view, bool includePrefix)
-    {
-        var intents = view.MonsterIntents;
-        if (intents.Count == 0) return null;
-
-        var summaries = intents.Select(intent =>
-            !string.IsNullOrEmpty(intent.Label)
-                ? $"{intent.Name} {intent.Label}"
-                : intent.Name);
-
-        var joined = string.Join(", ", summaries);
-        return includePrefix
-            ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + joined
-            : joined;
-    }
-
-    private static string? GetPlayerIntentSummary(CreatureView view, bool includePrefix)
-    {
-        var model = view.PlayerHoveredModel;
-        if (model == null) return null;
-
-        var summary = GetHoveredModelSummary(model);
-        if (string.IsNullOrWhiteSpace(summary)) return null;
-
-        return includePrefix
-            ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + summary
-            : summary;
-    }
-
-    private static string? GetHoveredModelSummary(AbstractModel model)
-    {
-        return model switch
-        {
-            CardModel card => GetCardIntentSummary(card),
-            RelicModel relic => GetRelicIntentSummary(relic),
-            PotionModel potion => GetPotionIntentSummary(potion),
-            PowerModel power => GetPowerIntentSummary(power),
-            _ => null,
-        };
-    }
-
-    private static string GetCardIntentSummary(CardModel card)
-    {
-        var proxy = ProxyCard.FromModel(card);
-        var parts = new List<string>();
-        var label = proxy.GetLabel()?.Resolve();
-        var extras = proxy.GetExtrasString()?.Resolve();
-        var subtype = proxy.GetSubtypeKey();
-
-        if (!string.IsNullOrWhiteSpace(label))
-            parts.Add(label);
-        if (!string.IsNullOrWhiteSpace(extras))
-            parts.Add(extras);
-        if (!string.IsNullOrWhiteSpace(subtype))
-            parts.Add(Message.Localized("ui", "CREATURE.SUBTYPE_CARD", new { subtype }).Resolve());
-
-        return string.Join(", ", parts);
-    }
-
-    private static string GetRelicIntentSummary(RelicModel relic)
-    {
-        var proxy = ProxyRelicHolder.FromModel(relic);
-        var parts = new List<string>();
-        var label = proxy.GetLabel()?.Resolve();
-        var status = proxy.GetStatusString()?.Resolve();
-
-        if (!string.IsNullOrWhiteSpace(label))
-            parts.Add(label);
-        if (!string.IsNullOrWhiteSpace(status))
-            parts.Add(status);
-
-        return string.Join(", ", parts);
-    }
-
-    private static string GetPotionIntentSummary(PotionModel potion)
-    {
-        return ProxyPotionHolder.FromModel(potion).GetLabel()?.Resolve() ?? potion.Title.GetFormattedText();
-    }
-
-    private static string GetPowerIntentSummary(PowerModel power)
-    {
-        var title = power.Title.GetFormattedText();
-        if (power.StackType == PowerStackType.Counter && power.DisplayAmount != 0)
-            return $"{title} {power.DisplayAmount}";
-        return title;
-    }
+    /// <summary>
+    /// Thin delegation kept for CombatScreen / CombatNavigationHooks during the
+    /// focus announcements refactor. Callers should migrate to CreatureIntentFormatter.Summary directly.
+    /// </summary>
+    public static string? GetIntentSummary(Creature entity, bool includePrefix = true) =>
+        CreatureIntentFormatter.Summary(CreatureView.FromEntity(entity), includePrefix);
 }
