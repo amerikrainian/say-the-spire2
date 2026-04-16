@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Settings;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -81,30 +82,44 @@ public abstract class UIElement
     protected virtual void OnUpdate() { }
 
     /// <summary>
-    /// Builds the spoken focus message in the format:
-    /// {label} {extras1}, {subtype} {type} {status}, {extras2}, {tooltip}
+    /// Builds the spoken focus message by composing the announcements yielded by
+    /// GetFocusAnnouncements. Unmigrated proxies rely on the default shim which
+    /// surfaces the old GetLabel/GetExtrasString/GetTypeKey/GetSubtypeKey/
+    /// GetStatusString/GetTooltip output as one LegacyAnnouncement.
     /// </summary>
-    public Message GetFocusMessage()
+    public Message GetFocusMessage() =>
+        AnnouncementComposer.Compose(this, GetFocusAnnouncements());
+
+    /// <summary>
+    /// Yields the announcements that make up this element's focus message.
+    /// Default implementation returns a single LegacyAnnouncement wrapping the
+    /// old focus-string output. Migrated proxies override this to yield
+    /// structured announcement instances directly.
+    /// </summary>
+    public virtual IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var legacy = BuildLegacyFocusMessage();
+        if (legacy != null && !legacy.IsEmpty)
+            yield return new LegacyAnnouncement(legacy);
+    }
+
+    private Message BuildLegacyFocusMessage()
     {
         var parts = new List<Message>();
 
-        // Label + pre-type extras (space-separated from label)
         var labelPart = BuildLabelPart();
         if (labelPart != null)
             parts.Add(labelPart);
 
-        // Subtype + type + status
         var typePart = BuildTypePart();
         if (typePart != null)
             parts.Add(typePart);
 
-        // Post-type extras
         var postExtras = new List<Message>();
         CollectPostExtras?.Invoke(postExtras);
         foreach (var extra in postExtras)
             parts.Add(extra);
 
-        // Tooltip
         var tooltip = GetTooltip();
         if (tooltip != null)
         {
