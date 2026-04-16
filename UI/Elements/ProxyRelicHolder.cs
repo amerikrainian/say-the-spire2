@@ -1,18 +1,15 @@
 using System.Collections.Generic;
 using Godot;
-using MegaCrit.Sts2.Core.Entities.Relics;
-using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Nodes.Relics;
-using MegaCrit.Sts2.Core.Nodes.Screens.TreasureRoomRelic;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.Views;
 
 namespace SayTheSpire2.UI.Elements;
 
 public class ProxyRelicHolder : ProxyElement
 {
-    private RelicModel? _model;
+    private readonly RelicModel? _model;
 
     public ProxyRelicHolder(Control control) : base(control) { }
 
@@ -23,42 +20,29 @@ public class ProxyRelicHolder : ProxyElement
 
     public static ProxyRelicHolder FromModel(RelicModel model) => new(model);
 
-    private RelicModel? GetModel()
-    {
-        if (_model != null) return _model;
-
-        if (Control is NRelicInventoryHolder invHolder)
-            return invHolder.Relic?.Model;
-
-        if (Control is NTreasureRoomRelicHolder treasureHolder)
-            return treasureHolder.Relic?.Model;
-
-        if (Control is NRelicBasicHolder basicHolder)
-            return basicHolder.Relic?.Model;
-
-        return null;
-    }
+    private RelicView? GetView() =>
+        _model != null ? RelicView.FromModel(_model) : RelicView.FromControl(Control);
 
     public override Message? GetLabel()
     {
-        var model = GetModel();
-        if (model == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
-        return Message.Raw(model.Title.GetFormattedText());
+        var view = GetView();
+        if (view == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
+        return Message.Raw(view.Title);
     }
 
     public override string? GetTypeKey() => "relic";
 
     public override Message? GetStatusString()
     {
-        var model = GetModel();
-        if (model == null) return null;
+        var view = GetView();
+        if (view == null) return null;
 
-        var parts = new System.Collections.Generic.List<string>();
+        var parts = new List<string>();
 
-        if (model.ShowCounter && model.DisplayAmount != 0)
-            parts.Add(Message.Localized("ui", "RELIC.COUNTER", new { amount = model.DisplayAmount }).Resolve());
+        if (view.ShowCounter && view.DisplayAmount != 0)
+            parts.Add(Message.Localized("ui", "RELIC.COUNTER", new { amount = view.DisplayAmount }).Resolve());
 
-        if (model.Status == RelicStatus.Disabled)
+        if (view.IsDisabled)
             parts.Add(LocalizationManager.GetOrDefault("ui", "RELIC.DISABLED", "Disabled"));
 
         return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
@@ -66,28 +50,25 @@ public class ProxyRelicHolder : ProxyElement
 
     public override Message? GetTooltip()
     {
-        var model = GetModel();
-        if (model == null) return null;
-
-        var desc = model.DynamicDescription.GetFormattedText();
-        return !string.IsNullOrEmpty(desc) ? Message.Raw(StripBbcode(desc)) : null;
+        var desc = GetView()?.Description;
+        return string.IsNullOrEmpty(desc) ? null : Message.Raw(desc);
     }
 
     public override string? HandleBuffers(BufferManager buffers)
     {
-        var model = GetModel();
-        if (model == null) return base.HandleBuffers(buffers);
+        var view = GetView();
+        if (view == null) return base.HandleBuffers(buffers);
 
         var relicBuffer = buffers.GetBuffer("relic") as RelicBuffer;
         if (relicBuffer != null)
         {
-            relicBuffer.Bind(model);
+            relicBuffer.Bind(view.Model);
             relicBuffer.Update();
             buffers.EnableBuffer("relic", true);
         }
 
         // Populate card buffer if relic has card hover tips
-        var cardTips = RelicBuffer.GetCardTips(model);
+        var cardTips = RelicBuffer.GetCardTips(view.Model);
         if (cardTips.Count > 0)
         {
             var cardBuffer = buffers.GetBuffer("card");
