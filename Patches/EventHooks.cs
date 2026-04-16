@@ -58,6 +58,10 @@ public static class EventHooks
         HarmonyHelper.PatchIfFound(harmony, typeof(CardModel), "SpendResources",
             typeof(EventHooks), nameof(CardPlayedPrefix), "CardModel.SpendResources", isPrefix: true);
 
+        // Card discard tracking — mark cards before they hit the discard pile
+        HarmonyHelper.PatchIfFound(harmony, typeof(CardCmd), "DiscardAndDraw",
+            typeof(EventHooks), nameof(DiscardAndDrawPrefix), "CardCmd.DiscardAndDraw", isPrefix: true);
+
         // Orb events
         HarmonyHelper.PatchIfFound(harmony, typeof(Hook), "AfterOrbChanneled",
             typeof(EventHooks), nameof(OrbChanneledPostfix), "Hook.AfterOrbChanneled");
@@ -156,6 +160,19 @@ public static class EventHooks
         }
 
         EventDispatcher.Enqueue(new CardUpgradeEvent(name, source: source, isDowngrade: isDowngrade, playerName: playerName));
+    }
+
+    public static void DiscardAndDrawPrefix(IEnumerable<CardModel> cardsToDiscard)
+    {
+        try
+        {
+            foreach (var card in cardsToDiscard)
+                CombatCardPileHandlers.OnCardActivelyDiscarded(card);
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] DiscardAndDraw prefix error: {e.Message}");
+        }
     }
 
     public static void CardStolenPostfix(SwipePower __instance, CardModel card)

@@ -10,6 +10,7 @@ public enum CardPileEventType
     Discarded,
     Exhausted,
     AddedToDraw,
+    AddedToDiscard,
     HandDiscarded,
     DeckShuffled,
 }
@@ -39,6 +40,7 @@ public class CardPileEvent : GameEvent
         CardPileEventType.Discarded => Message.Localized("ui", "EVENT.CARD_DISCARDED", new { card = _cardName }),
         CardPileEventType.Exhausted => Message.Localized("ui", "EVENT.CARD_EXHAUSTED", new { card = _cardName }),
         CardPileEventType.AddedToDraw => Message.Localized("ui", "EVENT.CARD_ADDED_TO_DRAW", new { card = _cardName }),
+        CardPileEventType.AddedToDiscard => Message.Localized("ui", "EVENT.CARD_ADDED_TO_DISCARD", new { card = _cardName }),
         CardPileEventType.HandDiscarded => Message.Localized("ui", "EVENT.HAND_DISCARDED"),
         CardPileEventType.DeckShuffled => Message.Localized("ui", "EVENT.CARDS_SHUFFLED"),
         _ => null,

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -19,6 +20,13 @@ internal class CombatCardPileHandlers
     private bool _isShuffling;
     private Task? _shuffleTask;
     private bool _endOfTurnDiscardAnnounced;
+
+    /// <summary>
+    /// Cards that were actively discarded by the player (via CardCmd.Discard).
+    /// When these arrive in OnDiscardCardAdded, they're announced as "discarded"
+    /// rather than "added to discard pile".
+    /// </summary>
+    private static readonly HashSet<CardModel> _activelyDiscarded = new();
 
     public CombatCardPileHandlers(PlayerCombatState combatState)
     {
@@ -68,6 +76,15 @@ internal class CombatCardPileHandlers
         EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.Drew, card.Title));
     }
 
+    /// <summary>
+    /// Called from the AfterCardDiscarded Harmony hook. Marks a card as actively
+    /// discarded so OnDiscardCardAdded can use the correct message.
+    /// </summary>
+    public static void OnCardActivelyDiscarded(CardModel card)
+    {
+        _activelyDiscarded.Add(card);
+    }
+
     private void OnDiscardCardAdded(CardModel card)
     {
         if (CombatManager.Instance.EndingPlayerTurnPhaseTwo
@@ -79,15 +96,21 @@ internal class CombatCardPileHandlers
                 Log.Info($"[EventDebug] CardPile.HandDiscarded handler={GetHashCode()}");
                 EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.HandDiscarded));
             }
+            _activelyDiscarded.Remove(card);
             return;
         }
 
         if (RunManager.Instance.ActionExecutor.CurrentlyRunningAction is PlayCardAction pca
             && pca.NetCombatCard.ToCardModelOrNull() == card)
+        {
+            _activelyDiscarded.Remove(card);
             return;
+        }
 
-        Log.Info($"[EventDebug] CardPile.Discarded: {card.Title} handler={GetHashCode()}");
-        EventDispatcher.Enqueue(new CardPileEvent(CardPileEventType.Discarded, card.Title));
+        bool wasActiveDiscard = _activelyDiscarded.Remove(card);
+        var type = wasActiveDiscard ? CardPileEventType.Discarded : CardPileEventType.AddedToDiscard;
+        Log.Info($"[EventDebug] CardPile.{type}: {card.Title} handler={GetHashCode()}");
+        EventDispatcher.Enqueue(new CardPileEvent(type, card.Title));
     }
 
     private void OnExhaustCardAdded(CardModel card)
