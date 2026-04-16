@@ -41,15 +41,15 @@ public class ProxyInputBinding : ProxyElement
 
     public override Message? GetLabel()
     {
-        var labelNode = Control.GetNodeOrNull("%InputLabel");
+        var labelNode = Control?.GetNodeOrNull("%InputLabel");
         if (labelNode != null)
         {
             var text = FindChildText(labelNode);
             if (text != null) return Message.Raw(text);
         }
 
-        var fallback = OverrideLabel ?? CleanNodeName(Control.Name);
-        return Message.Raw(fallback);
+        var fallback = OverrideLabel ?? (Control != null ? CleanNodeName(Control.Name) : null);
+        return fallback != null ? Message.Raw(fallback) : null;
     }
 
     public override string? GetTypeKey() => "keybind";
@@ -66,7 +66,7 @@ public class ProxyInputBinding : ProxyElement
         // Keyboard binding
         if (isKeyboardRemappable)
         {
-            var keyLabel = Control.GetNodeOrNull("%KeyBindingInputLabel");
+            var keyLabel = Control?.GetNodeOrNull("%KeyBindingInputLabel");
             var text = keyLabel != null ? FindChildText(keyLabel) : null;
             parts.Add(!string.IsNullOrEmpty(text) ? $"keyboard {text}" : "keyboard unbound");
         }

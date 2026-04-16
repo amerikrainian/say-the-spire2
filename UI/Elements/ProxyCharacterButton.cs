@@ -17,12 +17,12 @@ public class ProxyCharacterButton : ProxyElement
     public override Message? GetLabel()
     {
         var button = Button;
-        if (button == null) return Message.Raw(CleanNodeName(Control.Name));
+        if (button == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
 
         if (button.IsRandom) return Message.Localized("ui", "LABELS.RANDOM");
 
         var character = button.Character;
-        if (character == null) return Message.Raw(CleanNodeName(Control.Name));
+        if (character == null) return Message.Raw(CleanNodeName(button.Name));
 
         if (button.IsLocked)
             return Message.Raw(new LocString("main_menu_ui", "CHARACTER_SELECT.locked.title").GetFormattedText());

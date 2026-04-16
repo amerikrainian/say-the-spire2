@@ -331,7 +331,7 @@ public class DailyRunLoadGameScreen : GameScreen
     private string GetCharacterLabel()
     {
         var player = GetLocalSerializablePlayer();
-        return player?.CharacterId.ToString() ?? Ui("DAILY_RUN.CHARACTER");
+        return player?.CharacterId?.ToString() ?? Ui("DAILY_RUN.CHARACTER");
     }
 
     private string? GetCharacterStatus()

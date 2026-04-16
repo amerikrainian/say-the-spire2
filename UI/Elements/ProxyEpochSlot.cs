@@ -13,8 +13,8 @@ public class ProxyEpochSlot : ProxyElement
 
     public override Message? GetLabel()
     {
-        var slot = Control as NEpochSlot;
-        if (slot?.model == null) return Message.Raw(CleanNodeName(Control.Name));
+        if (Control is not NEpochSlot slot || slot.model == null)
+            return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
         return Message.Raw(slot.model.Title.GetFormattedText());
     }
 

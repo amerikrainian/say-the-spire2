@@ -13,7 +13,7 @@ public class ProxyRestSiteButton : ProxyElement
     public override Message? GetLabel()
     {
         var option = Button?.Option;
-        if (option == null) return Message.Raw(CleanNodeName(Control.Name));
+        if (option == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
 
         return Message.Raw(option.Title.GetFormattedText());
     }

@@ -10,9 +10,9 @@ public class ProxyButton : ProxyElement
     public override Message? GetLabel()
     {
         if (OverrideLabel != null) return Message.Raw(OverrideLabel);
+        if (Control == null) return null;
         var text = FindChildText(Control) ?? FindSiblingLabel(Control);
         if (text != null) return Message.Raw(text);
-        // Skip auto-generated Godot names like @Control@1384
         var name = Control.Name.ToString();
         if (name.StartsWith('@')) return null;
         return Message.Raw(CleanNodeName(name));
@@ -30,7 +30,7 @@ public class ProxyButton : ProxyElement
 
     public override Message? GetTooltip()
     {
-        // Look for a Description child (e.g., NSubmenuButton has %Description)
+        if (Control == null) return null;
         var desc = Control.GetNodeOrNull<RichTextLabel>("%Description");
         if (desc != null)
         {

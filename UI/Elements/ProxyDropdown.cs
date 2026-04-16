@@ -9,6 +9,7 @@ public class ProxyDropdown : ProxyElement
 
     public override Message? GetLabel()
     {
+        if (Control == null) return null;
         var text = OverrideLabel ?? FindSiblingLabel(Control) ?? CleanNodeName(Control.Name);
         return Message.Raw(text);
     }
@@ -16,13 +17,14 @@ public class ProxyDropdown : ProxyElement
     public override Message? GetStatusString()
     {
         // The dropdown's selected value is in %Label or a child text node
-        var labelNode = Control.GetNodeOrNull("%Label");
+        var labelNode = Control?.GetNodeOrNull("%Label");
         if (labelNode != null)
         {
             var text = FindChildText(labelNode);
             if (text != null) return Message.Raw(text);
         }
 
+        if (Control == null) return null;
         var childText = FindChildText(Control);
         return childText != null ? Message.Raw(childText) : null;
     }

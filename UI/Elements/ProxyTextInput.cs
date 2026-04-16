@@ -9,6 +9,7 @@ public class ProxyTextInput : ProxyElement
 
     public override Message? GetLabel()
     {
+        if (Control == null) return OverrideLabel != null ? Message.Raw(OverrideLabel) : null;
         return Message.Raw(OverrideLabel ?? FindSiblingLabel(Control) ?? CleanNodeName(Control.Name));
     }
 

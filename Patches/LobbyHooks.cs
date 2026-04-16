@@ -105,7 +105,7 @@ public static class LobbyHooks
 
         SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOBBY_JOINED", new
         {
-            player = MultiplayerHelper.GetPlayerName(playerId, lobby.NetService.Platform)
+            player = MultiplayerHelper.GetPlayerName(playerId, lobby?.NetService.Platform)
         }));
     }
 
@@ -115,16 +115,16 @@ public static class LobbyHooks
         if (!IsMultiplayer(lobby))
             return;
 
-        if (playerId == lobby.NetService.NetId)
+        if (playerId == lobby?.NetService.NetId)
             return;
 
-        var status = lobby.IsPlayerReady(playerId)
+        var status = lobby?.IsPlayerReady(playerId) == true
             ? Ui("DAILY_RUN.READY")
             : Ui("DAILY_RUN.NOT_READY");
 
         SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOAD_LOBBY_CHANGED", new
         {
-            player = MultiplayerHelper.GetPlayerName(playerId, lobby.NetService.Platform),
+            player = MultiplayerHelper.GetPlayerName(playerId, lobby?.NetService.Platform),
             status,
         }));
     }
@@ -137,7 +137,7 @@ public static class LobbyHooks
 
         SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOBBY_LEFT", new
         {
-            player = MultiplayerHelper.GetPlayerName(playerId, lobby.NetService.Platform)
+            player = MultiplayerHelper.GetPlayerName(playerId, lobby?.NetService.Platform)
         }));
     }
 

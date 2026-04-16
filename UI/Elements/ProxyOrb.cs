@@ -20,7 +20,8 @@ public class ProxyOrb : ProxyElement
         if (model == null)
         {
             var tip = OrbModel.EmptySlotHoverTipHoverTip;
-            return Message.Raw(tip.Title);
+            var title = tip.Title;
+            return title != null ? Message.Raw(title) : null;
         }
         return Message.Raw(model.Title.GetFormattedText());
     }

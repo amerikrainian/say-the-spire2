@@ -18,7 +18,7 @@ public class ProxyEventOptionButton : ProxyElement
     public override Message? GetLabel()
     {
         var option = Button?.Option;
-        if (option == null) return Message.Raw(CleanNodeName(Control.Name));
+        if (option == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
 
         var title = option.Title?.GetFormattedText();
         if (!string.IsNullOrEmpty(title))
@@ -28,7 +28,7 @@ public class ProxyEventOptionButton : ProxyElement
         if (!string.IsNullOrEmpty(desc))
             return Message.Raw(StripBbcode(desc));
 
-        return Message.Raw(CleanNodeName(Control.Name));
+        return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
     }
 
     public override string? GetTypeKey() => "button";

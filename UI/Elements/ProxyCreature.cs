@@ -34,7 +34,7 @@ public class ProxyCreature : ProxyElement
     {
         if (Control is NCreature direct)
             return direct;
-        Node? current = Control.GetParent();
+        Node? current = Control?.GetParent();
         while (current != null)
         {
             if (current is NCreature creature)
@@ -49,7 +49,7 @@ public class ProxyCreature : ProxyElement
     public override Message? GetLabel()
     {
         var entity = GetEntity();
-        if (entity == null) return Message.Raw(CleanNodeName(Control.Name));
+        if (entity == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
         return Message.Raw(MultiplayerHelper.GetCreatureName(entity));
     }
 

@@ -53,13 +53,13 @@ public class ProxyTopBar : ProxyElement
                 TopBarType.Room => GetRoomLabel(),
                 TopBarType.Floor => GetFloorLabel(),
                 TopBarType.Boss => GetBossLabel(),
-                _ => CleanNodeName(Control.Name)
+                _ => Control != null ? CleanNodeName(Control.Name) : null
             };
             return text != null ? SayTheSpire2.Localization.Message.Raw(text) : null;
         }
         catch
         {
-            return SayTheSpire2.Localization.Message.Raw(CleanNodeName(Control.Name));
+            return Control != null ? SayTheSpire2.Localization.Message.Raw(CleanNodeName(Control.Name)) : null;
         }
     }
 

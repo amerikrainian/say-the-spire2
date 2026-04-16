@@ -17,7 +17,8 @@ public class ProxyMapPoint : ProxyElement
     public override Message? GetLabel()
     {
         var mp = MapPointNode;
-        if (mp?.Point == null) return Message.Raw(CleanNodeName(Control.Name));
+        if (mp == null || mp.Point == null)
+            return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
         var text = MapScreen.Current?.DescribePoint(mp.Point, includeChoicePrefix: false)
             ?? MapNode.GetPointDisplayName(mp.Point);
         return Message.Raw(text);

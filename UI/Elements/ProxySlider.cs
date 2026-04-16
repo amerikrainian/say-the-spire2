@@ -16,6 +16,7 @@ public class ProxySlider : ProxyElement
 
     public override Message? GetLabel()
     {
+        if (Control == null) return OverrideLabel != null ? Message.Raw(OverrideLabel) : null;
         var text = OverrideLabel ?? FindSiblingLabel(Control) ?? CleanNodeName(Control.Name);
         return Message.Raw(text);
     }

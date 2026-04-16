@@ -11,6 +11,7 @@ public class ProxyCheckbox : ProxyElement
 
     public override Message? GetLabel()
     {
+        if (Control == null) return null;
         var text = OverrideLabel ?? FindChildText(Control) ?? FindSiblingLabel(Control) ?? CleanNodeName(Control.Name);
         return Message.Raw(text);
     }

@@ -5,8 +5,6 @@
 * Split the unclear "Card Pile" event into individual card events.
 * Events in settings are now grouped into categories for easier navigation.
 
-
-
 ## V0.4.0
 * Significantly refactored the code to allow more of the mod's text to be localized. This should allow most, if not all, text to be localized for real this time. I suspect some strings may be still missing though, please report any that are.
 * Added better logging for some errors that may occur in rare circumstances (failed Harmony patches to game methods, etc.) If game updates change anything this should make catching it easier.

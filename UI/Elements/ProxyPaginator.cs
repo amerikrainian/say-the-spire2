@@ -10,6 +10,7 @@ public class ProxyPaginator : ProxyElement
 
     public override Message? GetLabel()
     {
+        if (Control == null) return null;
         var text = OverrideLabel ?? FindSiblingLabel(Control) ?? CleanNodeName(Control.Name);
         return Message.Raw(text);
     }
@@ -19,7 +20,7 @@ public class ProxyPaginator : ProxyElement
     public override Message? GetStatusString()
     {
         // The paginator's %Label child shows the current option
-        var labelNode = Control.GetNodeOrNull("%Label");
+        var labelNode = Control?.GetNodeOrNull("%Label");
         if (labelNode != null)
         {
             var text = FindChildText(labelNode);
