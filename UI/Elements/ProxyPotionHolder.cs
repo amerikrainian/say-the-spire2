@@ -1,14 +1,14 @@
 using Godot;
 using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Nodes.Potions;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.Views;
 
 namespace SayTheSpire2.UI.Elements;
 
 public class ProxyPotionHolder : ProxyElement
 {
-    private PotionModel? _model;
+    private readonly PotionModel? _model;
 
     public ProxyPotionHolder(Control control) : base(control) { }
 
@@ -19,47 +19,31 @@ public class ProxyPotionHolder : ProxyElement
 
     public static ProxyPotionHolder FromModel(PotionModel model) => new(model);
 
-    private NPotionHolder? Holder => Control as NPotionHolder;
-
-    private PotionModel? GetModel()
-    {
-        if (_model != null) return _model;
-        var holder = Holder;
-        if (holder == null || !holder.HasPotion) return null;
-        return holder.Potion!.Model;
-    }
-
-    private bool IsEmpty()
-    {
-        if (_model != null) return false;
-        var holder = Holder;
-        return holder == null || !holder.HasPotion;
-    }
+    private PotionView? GetView() =>
+        _model != null ? PotionView.FromModel(_model) : PotionView.FromControl(Control);
 
     public override Message? GetLabel()
     {
-        if (IsEmpty())
-            return Message.Localized("ui", "LABELS.EMPTY_POTION_SLOT");
-
-        var model = GetModel();
-        var text = model?.Title.GetFormattedText();
-        return text != null ? Message.Raw(text) : null;
+        var view = GetView();
+        if (view == null) return null;
+        if (view.IsEmptySlot) return Message.Localized("ui", "LABELS.EMPTY_POTION_SLOT");
+        return view.Title != null ? Message.Raw(view.Title) : null;
     }
 
     public override string? GetTypeKey() => "potion";
 
     public override Message? GetTooltip()
     {
-        var model = GetModel();
-        if (model == null) return null;
-
-        var desc = model.DynamicDescription.GetFormattedText();
-        return !string.IsNullOrEmpty(desc) ? Message.Raw(StripBbcode(desc)) : null;
+        var desc = GetView()?.Description;
+        return string.IsNullOrEmpty(desc) ? null : Message.Raw(desc);
     }
 
     public override string? HandleBuffers(BufferManager buffers)
     {
-        if (IsEmpty())
+        var view = GetView();
+        if (view == null) return base.HandleBuffers(buffers);
+
+        if (view.IsEmptySlot)
         {
             var uiBuffer = buffers.GetBuffer("ui");
             if (uiBuffer != null)
@@ -74,13 +58,12 @@ public class ProxyPotionHolder : ProxyElement
             return "ui";
         }
 
-        var model = GetModel();
-        if (model == null) return base.HandleBuffers(buffers);
+        if (view.Model == null) return base.HandleBuffers(buffers);
 
         var potionBuffer = buffers.GetBuffer("potion") as PotionBuffer;
         if (potionBuffer != null)
         {
-            potionBuffer.Bind(model);
+            potionBuffer.Bind(view.Model);
             potionBuffer.Update();
             buffers.EnableBuffer("potion", true);
         }
