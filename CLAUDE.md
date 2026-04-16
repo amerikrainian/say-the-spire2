@@ -11,6 +11,8 @@ This builds the DLL, creates the PCK, and copies everything to the game's `mods/
 
 **Important:** Use `dotnet build` (Debug), NOT `dotnet build -c Release`. The post-build copy to the mods directory only runs in Debug configuration. Release builds the DLL but does not deploy it.
 
+**Verifying builds:** Warnings print asynchronously after the initial output. Always use `dotnet build 2>&1 | tail -5` to capture the final summary with the warning/error count. Never use `grep` to check for warnings — it may miss them.
+
 ## Check Logs
 Game logs are at: `%APPDATA%/SlayTheSpire2/logs/godot.log`
 All mod log lines are prefixed with `[AccessibilityMod]`.
