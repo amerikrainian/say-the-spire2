@@ -1,6 +1,11 @@
 ## V0.4.1
 * Fixed an incorrect localization string that was causing positions to be read out as "row y, column x" instead of "x, y". All positions should be  in the form column, row.
 * Fixed an issue with the hand card select screen where pressing down from the creature row would not focus the first selected card if the hand row was empty.
+* Split card discarded and card added to discard pile into separate events that now correctly announce the actual thing that happened. For example, discarding a card with Survivor's effect will read as "Strike discarded" instead of "Strike added to discard pile."
+* Split the unclear "Card Pile" event into individual card events.
+* Events in settings are now grouped into categories for easier navigation.
+
+
 
 ## V0.4.0
 * Significantly refactored the code to allow more of the mod's text to be localized. This should allow most, if not all, text to be localized for real this time. I suspect some strings may be still missing though, please report any that are.
