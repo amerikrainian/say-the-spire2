@@ -11,5 +11,6 @@ public sealed class TooltipAnnouncement : Announcement
     public TooltipAnnouncement(Message text) { _text = text; }
 
     public override string Key => "tooltip";
+    public override string Suffix => ",";
     public override Message Render() => _text;
 }

@@ -1,14 +1,40 @@
+using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.RestSite;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TooltipAnnouncement),
+    typeof(TypeAnnouncement)
+)]
 public class ProxyRestSiteButton : ProxyElement
 {
     public ProxyRestSiteButton(Control control) : base(control) { }
 
     private NRestSiteButton? Button => Control as NRestSiteButton;
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var option = Button?.Option;
+        if (option == null)
+        {
+            if (Control != null)
+                yield return new LabelAnnouncement(CleanNodeName(Control.Name));
+            yield break;
+        }
+
+        yield return new LabelAnnouncement(option.Title.GetFormattedText());
+
+        var desc = option.Description.GetFormattedText();
+        if (!string.IsNullOrEmpty(desc))
+            yield return new TooltipAnnouncement(StripBbcode(desc));
+
+        yield return new TypeAnnouncement("button");
+    }
 
     public override Message? GetLabel()
     {

@@ -6,14 +6,38 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Events;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement),
+    typeof(LockedAnnouncement),
+    typeof(TooltipAnnouncement)
+)]
 public class ProxyEventOptionButton : ProxyElement
 {
     public ProxyEventOptionButton(Control control) : base(control) { }
 
     private NEventOptionButton? Button => Control as NEventOptionButton;
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        yield return new TypeAnnouncement("button");
+
+        var option = Button?.Option;
+        if (option != null && option.IsLocked)
+            yield return new LockedAnnouncement();
+
+        var tooltip = GetTooltip();
+        if (tooltip != null)
+            yield return new TooltipAnnouncement(tooltip);
+    }
 
     public override Message? GetLabel()
     {

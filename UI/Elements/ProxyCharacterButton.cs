@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Localization;
@@ -5,14 +6,47 @@ using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Nodes.Screens.CustomRun;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(LockedAnnouncement),
+    typeof(ControlValueAnnouncement),
+    typeof(TooltipAnnouncement)
+)]
 public class ProxyCharacterButton : ProxyElement
 {
     public ProxyCharacterButton(Control control) : base(control) { }
 
     private NCharacterSelectButton? Button => Control as NCharacterSelectButton;
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        var button = Button;
+        var character = button?.Character;
+
+        if (button != null && button.IsLocked)
+            yield return new LockedAnnouncement();
+
+        if (button != null && character != null && !button.IsLocked && !button.IsRandom)
+        {
+            var status = $"{character.StartingHp} HP, {character.StartingGold} gold";
+            var remoteCount = button.RemoteSelectedPlayers.Count;
+            if (remoteCount > 0)
+                status += $", Selected by {remoteCount} other {(remoteCount == 1 ? "player" : "players")}";
+            yield return new ControlValueAnnouncement(status);
+        }
+
+        var tooltip = GetTooltip();
+        if (tooltip != null)
+            yield return new TooltipAnnouncement(tooltip);
+    }
 
     public override Message? GetLabel()
     {
