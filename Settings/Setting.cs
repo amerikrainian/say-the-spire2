@@ -1,10 +1,29 @@
+using SayTheSpire2.Localization;
+
 namespace SayTheSpire2.Settings;
 
 public abstract class Setting
 {
     public string Key { get; }
-    public string Label { get; }
     public CategorySetting? Parent { get; internal set; }
+
+    private readonly string _labelFallback;
+
+    /// <summary>
+    /// Optional localization key. When set, <see cref="Label"/> resolves from
+    /// <c>Localization/eng/ui.json</c> at read time, falling back to the raw
+    /// label string if the key is missing. Empty string means "no localization,
+    /// use raw label" (the pre-localization behavior).
+    /// </summary>
+    public string LocalizationKey { get; }
+
+    /// <summary>
+    /// Display label. Resolves the localization key if one was supplied at
+    /// construction, otherwise returns the raw label passed in.
+    /// </summary>
+    public string Label => !string.IsNullOrEmpty(LocalizationKey)
+        ? LocalizationManager.GetOrDefault("ui", LocalizationKey, _labelFallback)
+        : _labelFallback;
 
     /// <summary>
     /// Whether this setting's key contributes to its serialized dot-path.
@@ -19,10 +38,11 @@ public abstract class Setting
     /// </summary>
     public int SortPriority { get; set; }
 
-    protected Setting(string key, string label)
+    protected Setting(string key, string label, string localizationKey = "")
     {
         Key = key;
-        Label = label;
+        _labelFallback = label;
+        LocalizationKey = localizationKey;
     }
 
     public string FullPath

@@ -500,5 +500,26 @@
   "HELP.NEXT_PAGE": "Next Page",
   "HELP.CRYSTAL_SPHERE_NAV": "Navigate the grid with directional controls. Press Select to divine a cell. Use Tab Left and Tab Right to switch between Big (3x3) and Small (1x1) divination tools.",
   "HELP.CRYSTAL_SPHERE_DIVINATIONS": "Divination count is announced automatically when it changes.",
-  "HELP.HAND_SELECT_NAV": "Left and right move through cards. Up and down move between your hand and the selected row. Press Select to move a card between hand and selected."
+  "HELP.HAND_SELECT_NAV": "Left and right move through cards. Up and down move between your hand and the selected row. Press Select to move a card between hand and selected.",
+
+  "SETTINGS.ANNOUNCEMENTS_ROOT": "Announcements",
+  "SETTINGS.ANNOUNCEMENT.ENABLED": "Announce",
+  "SETTINGS.ANNOUNCEMENTS.LABEL": "Label",
+  "SETTINGS.ANNOUNCEMENTS.TYPE": "Type",
+  "SETTINGS.ANNOUNCEMENTS.SUBTYPE": "Subtype",
+  "SETTINGS.ANNOUNCEMENTS.TOOLTIP": "Tooltip",
+  "SETTINGS.ANNOUNCEMENTS.CONTROL_VALUE": "Control Value",
+  "SETTINGS.ANNOUNCEMENTS.HP": "HP",
+  "SETTINGS.ANNOUNCEMENTS.BLOCK": "Block",
+  "SETTINGS.ANNOUNCEMENTS.MONSTER_INTENTS": "Monster Intents",
+  "SETTINGS.ANNOUNCEMENTS.HOVERED_MODEL": "Hovered Model",
+  "SETTINGS.ANNOUNCEMENTS.ENERGY_COST": "Energy Cost",
+  "SETTINGS.ANNOUNCEMENTS.STAR_COST": "Star Cost",
+  "SETTINGS.ANNOUNCEMENTS.RELIC_COUNTER": "Relic Counter",
+  "SETTINGS.ANNOUNCEMENTS.RELIC_DISABLED": "Relic Disabled",
+  "SETTINGS.ANNOUNCEMENTS.LOCKED": "Locked",
+  "SETTINGS.ANNOUNCEMENTS.PRICE": "Price",
+  "SETTINGS.ANNOUNCEMENTS.SOLD_OUT": "Sold Out",
+  "SETTINGS.ANNOUNCEMENTS.SELECTED_MARKER": "Selected",
+  "SETTINGS.ANNOUNCEMENTS.SELECTION_COUNT": "Selection Count"
 }

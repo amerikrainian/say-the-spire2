@@ -10,7 +10,8 @@ public class CategorySetting : Setting
 
     public IReadOnlyList<Setting> Children => _children;
 
-    public CategorySetting(string key, string label, bool includeInPath = true) : base(key, label)
+    public CategorySetting(string key, string label, bool includeInPath = true, string localizationKey = "")
+        : base(key, label, localizationKey)
     {
         IncludeInPath = includeInPath;
     }

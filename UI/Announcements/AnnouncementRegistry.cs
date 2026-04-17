@@ -41,16 +41,22 @@ public static class AnnouncementRegistry
         }
     }
 
+    private const string EnabledLocKey = "SETTINGS.ANNOUNCEMENT.ENABLED";
+    private const string RootLocKey = "SETTINGS.ANNOUNCEMENTS_ROOT";
+
     private static void Register(Type announcementType)
     {
         var key = DeriveKey(announcementType);
         var displayName = DeriveDisplayName(announcementType);
+        var categoryLocKey = $"SETTINGS.ANNOUNCEMENTS.{key.ToUpperInvariant()}";
+
         var category = ModSettingsRegistry.EnsureCategory(
             $"announcements.{key}",
-            $"Announcements/{displayName}");
+            $"Announcements/{displayName}",
+            $"{RootLocKey}/{categoryLocKey}");
 
         if (category.GetByKey("enabled") == null)
-            category.Add(new BoolSetting("enabled", "Announce", true));
+            category.Add(new BoolSetting("enabled", "Announce", true, localizationKey: EnabledLocKey));
 
         // Optional per-announcement extras (verbose toggles, etc.)
         var method = announcementType.GetMethod("RegisterSettings",

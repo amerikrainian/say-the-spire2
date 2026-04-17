@@ -8,12 +8,16 @@ public static class ModSettingsRegistry
     /// <summary>
     /// Ensures all categories in the dot-separated path exist, creating missing ones.
     /// Label segments are slash-separated and used as fallback English display names.
-    /// Returns the leaf category.
+    /// Optionally accepts a slash-separated localizationKey string so each created
+    /// category resolves its label from ui.json. Returns the leaf category.
     /// </summary>
-    public static CategorySetting EnsureCategory(string path, string label)
+    public static CategorySetting EnsureCategory(string path, string label, string localizationKey = "")
     {
         var pathParts = path.Split('.');
         var labelParts = label.Split('/');
+        var locParts = string.IsNullOrEmpty(localizationKey)
+            ? System.Array.Empty<string>()
+            : localizationKey.Split('/');
 
         CategorySetting current = ModSettings.Root;
         for (int i = 0; i < pathParts.Length; i++)
@@ -27,7 +31,8 @@ public static class ModSettingsRegistry
             else
             {
                 var segmentLabel = i < labelParts.Length ? labelParts[i].Trim() : key;
-                var newCat = new CategorySetting(key, segmentLabel);
+                var segmentLocKey = i < locParts.Length ? locParts[i].Trim() : string.Empty;
+                var newCat = new CategorySetting(key, segmentLabel, localizationKey: segmentLocKey);
                 current.Add(newCat);
                 current = newCat;
             }

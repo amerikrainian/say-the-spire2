@@ -9,8 +9,8 @@ public class BoolSetting : Setting
 
     public event Action<bool>? Changed;
 
-    public BoolSetting(string key, string label, bool defaultValue = true)
-        : base(key, label)
+    public BoolSetting(string key, string label, bool defaultValue = true, string localizationKey = "")
+        : base(key, label, localizationKey)
     {
         Default = defaultValue;
         Value = defaultValue;
