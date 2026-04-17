@@ -9,7 +9,7 @@ namespace SayTheSpire2.UI.Announcements;
 /// </summary>
 public sealed class SelectedMarkerAnnouncement : Announcement
 {
-    public override string Key => "selected";
+    public override string Key => "selected_marker";
     public override string Suffix => ",";
 
     public override Message Render() => Message.Localized("ui", "CARD.SELECTED");

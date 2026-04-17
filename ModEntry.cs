@@ -114,6 +114,7 @@ public static class ModEntry
         // Each subsystem registers its own defaults
         Settings.FocusStringSettings.RegisterDefaults();
         Settings.EventRegistry.RegisterDefaults();
+        UI.Announcements.AnnouncementRegistry.RegisterDefaults();
 
         // Advanced settings
         var advancedCategory = new Settings.CategorySetting("advanced", "Advanced");
