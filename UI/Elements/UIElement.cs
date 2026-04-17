@@ -13,6 +13,14 @@ public abstract class UIElement
 
     public virtual bool IsVisible => true;
 
+    /// <summary>
+    /// The type whose [AnnouncementOrder] drives focus-string composition for this
+    /// element. Defaults to the element's own type. Composite proxies override this
+    /// to delegate to the type of whatever inner element they're wrapping so the
+    /// inner's ordering (including its insertion points) governs the composed output.
+    /// </summary>
+    public virtual Type AnnouncementOrderType => GetType();
+
     public abstract Message? GetLabel();
     public virtual Message? GetExtrasString() => null;
     public virtual string? GetTypeKey() => null;

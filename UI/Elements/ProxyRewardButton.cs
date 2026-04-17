@@ -13,13 +13,18 @@ using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+// [AnnouncementOrder] used only for the fallback (card/special rewards, no inner).
+// When wrapping a potion/relic the composer uses the inner's order via
+// AnnouncementOrderType below.
 [AnnouncementOrder(
-    typeof(InnerElementAnnouncement),
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement)
 )]
 public class ProxyRewardButton : ProxyElement
 {
+    public override System.Type AnnouncementOrderType =>
+        GetInnerProxy()?.GetType() ?? typeof(ProxyRewardButton);
+
     public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
         var reward = GetReward();
@@ -33,11 +38,13 @@ public class ProxyRewardButton : ProxyElement
             yield break;
         }
 
-        // Potion and relic rewards have a single inner model — delegate full focus
+        // Potion and relic rewards have a single inner model — flatten inner's
+        // announcements; composer uses inner's [AnnouncementOrder] via AnnouncementOrderType.
         var inner = GetInnerProxy();
         if (inner != null)
         {
-            yield return new InnerElementAnnouncement(inner);
+            foreach (var a in inner.GetFocusAnnouncements())
+                yield return a;
             yield break;
         }
 

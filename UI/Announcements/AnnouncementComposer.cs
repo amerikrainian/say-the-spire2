@@ -20,7 +20,7 @@ public static class AnnouncementComposer
 {
     public static Message Compose(UIElement element, IEnumerable<Announcement> announcements)
     {
-        var order = element.GetType().GetCustomAttribute<AnnouncementOrderAttribute>()?.Types
+        var order = element.AnnouncementOrderType.GetCustomAttribute<AnnouncementOrderAttribute>()?.Types
             ?? Array.Empty<Type>();
 
         // Partition into declared (keyed by type) and undeclared (kept in yield order)

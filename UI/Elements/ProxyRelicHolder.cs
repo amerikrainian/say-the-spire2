@@ -13,6 +13,12 @@ namespace SayTheSpire2.UI.Elements;
     typeof(TypeAnnouncement),
     typeof(RelicCounterAnnouncement),
     typeof(RelicDisabledAnnouncement),
+    // Shop-context insertion points — ProxyRelicHolder never yields these, but
+    // ProxyMerchantSlot does, and relic's order positions them here.
+    typeof(PriceAnnouncement),
+    typeof(SoldOutAnnouncement),
+    typeof(OnSaleAnnouncement),
+    typeof(InsufficientGoldAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 public class ProxyRelicHolder : ProxyElement

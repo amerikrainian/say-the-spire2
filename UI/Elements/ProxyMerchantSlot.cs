@@ -8,23 +8,27 @@ using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+// [AnnouncementOrder] used only for the card-removal fallback (no inner proxy).
+// When wrapping a card/relic/potion the composer uses the inner's order via
+// AnnouncementOrderType below.
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
-    typeof(InnerElementAnnouncement),
-    typeof(SoldOutAnnouncement),
     typeof(PriceAnnouncement),
-    typeof(InsufficientGoldAnnouncement),
-    typeof(OnSaleAnnouncement)
+    typeof(SoldOutAnnouncement),
+    typeof(InsufficientGoldAnnouncement)
 )]
 public class ProxyMerchantSlot : ProxyElement
 {
+    public override System.Type AnnouncementOrderType =>
+        GetInnerProxy()?.GetType() ?? typeof(ProxyMerchantSlot);
+
     public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
         var entry = GetEntry();
         if (entry == null) yield break;
 
-        // Card removal: no inner proxy, use a simple label + type
+        // Card removal: no inner proxy, yield our own label + type
         if (entry is MerchantCardRemovalEntry)
         {
             yield return new LabelAnnouncement(Message.Localized("ui", "LABELS.CARD_REMOVAL"));
@@ -40,10 +44,13 @@ public class ProxyMerchantSlot : ProxyElement
             yield break;
         }
 
-        // Standard entry: delegate full focus to the inner proxy, then append shop info
+        // Standard entry: flatten inner's announcements and append shop info.
+        // The inner's [AnnouncementOrder] (via AnnouncementOrderType) positions
+        // PriceAnnouncement / SoldOutAnnouncement / etc. at its declared insertion points.
         var inner = GetInnerProxy();
         if (inner != null)
-            yield return new InnerElementAnnouncement(inner);
+            foreach (var a in inner.GetFocusAnnouncements())
+                yield return a;
         else if (Control != null)
             yield return new LabelAnnouncement(CleanNodeName(Control.Name));
 

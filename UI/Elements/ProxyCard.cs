@@ -16,6 +16,12 @@ namespace SayTheSpire2.UI.Elements;
     typeof(StarCostAnnouncement),
     typeof(SubtypeAnnouncement),
     typeof(TypeAnnouncement),
+    // Shop-context insertion points — ProxyCard never yields these, but
+    // ProxyMerchantSlot does, and card's order positions them here.
+    typeof(PriceAnnouncement),
+    typeof(SoldOutAnnouncement),
+    typeof(OnSaleAnnouncement),
+    typeof(InsufficientGoldAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 [ModSettings("ui.card", "UI/Card")]

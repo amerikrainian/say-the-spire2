@@ -11,6 +11,12 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
+    // Shop-context insertion points — ProxyPotionHolder never yields these, but
+    // ProxyMerchantSlot does, and potion's order positions them here.
+    typeof(PriceAnnouncement),
+    typeof(SoldOutAnnouncement),
+    typeof(OnSaleAnnouncement),
+    typeof(InsufficientGoldAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 public class ProxyPotionHolder : ProxyElement
