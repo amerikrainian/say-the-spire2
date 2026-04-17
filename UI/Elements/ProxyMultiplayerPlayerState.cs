@@ -13,7 +13,11 @@ namespace SayTheSpire2.UI.Elements;
 
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
-    typeof(ControlValueAnnouncement)
+    typeof(HpAnnouncement),
+    typeof(BlockAnnouncement),
+    typeof(EnergyAnnouncement),
+    typeof(StarsAnnouncement),
+    typeof(CardsInHandAnnouncement)
 )]
 public class ProxyMultiplayerPlayerState : ProxyElement
 {
@@ -31,9 +35,23 @@ public class ProxyMultiplayerPlayerState : ProxyElement
         if (label != null)
             yield return new LabelAnnouncement(label);
 
-        var status = GetStatusString();
-        if (status != null)
-            yield return new ControlValueAnnouncement(status);
+        var player = GetPlayer();
+        if (player == null) yield break;
+
+        var creature = player.Creature;
+        yield return new HpAnnouncement(creature.CurrentHp, creature.MaxHp);
+
+        if (creature.Block > 0)
+            yield return new BlockAnnouncement(creature.Block);
+
+        var pcs = player.PlayerCombatState;
+        if (pcs != null)
+        {
+            yield return new EnergyAnnouncement(pcs.Energy, pcs.MaxEnergy);
+            if (pcs.Stars > 0)
+                yield return new StarsAnnouncement(pcs.Stars);
+            yield return new CardsInHandAnnouncement(pcs.Hand.Cards.Count);
+        }
     }
 
     private Player? GetPlayer()
