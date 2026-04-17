@@ -20,8 +20,6 @@ namespace SayTheSpire2.UI.Elements;
     // ProxyMerchantSlot does, and card's order positions them here.
     typeof(PriceAnnouncement),
     typeof(SoldOutAnnouncement),
-    typeof(OnSaleAnnouncement),
-    typeof(InsufficientGoldAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 [ModSettings("ui.card", "UI/Card")]

@@ -15,8 +15,7 @@ namespace SayTheSpire2.UI.Elements;
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
     typeof(PriceAnnouncement),
-    typeof(SoldOutAnnouncement),
-    typeof(InsufficientGoldAnnouncement)
+    typeof(SoldOutAnnouncement)
 )]
 public class ProxyMerchantSlot : ProxyElement
 {
@@ -38,15 +37,13 @@ public class ProxyMerchantSlot : ProxyElement
                 yield return new SoldOutAnnouncement();
                 yield break;
             }
-            yield return new PriceAnnouncement(entry.Cost);
-            if (!entry.EnoughGold)
-                yield return new InsufficientGoldAnnouncement();
+            yield return new PriceAnnouncement(entry.Cost, canAfford: entry.EnoughGold);
             yield break;
         }
 
         // Standard entry: flatten inner's announcements and append shop info.
         // The inner's [AnnouncementOrder] (via AnnouncementOrderType) positions
-        // PriceAnnouncement / SoldOutAnnouncement / etc. at its declared insertion points.
+        // PriceAnnouncement / SoldOutAnnouncement at its declared insertion points.
         var inner = GetInnerProxy();
         if (inner != null)
             foreach (var a in inner.GetFocusAnnouncements())
@@ -60,11 +57,8 @@ public class ProxyMerchantSlot : ProxyElement
             yield break;
         }
 
-        yield return new PriceAnnouncement(entry.Cost);
-        if (!entry.EnoughGold)
-            yield return new InsufficientGoldAnnouncement();
-        if (entry is MerchantCardEntry cardEntry && cardEntry.IsOnSale)
-            yield return new OnSaleAnnouncement();
+        var isOnSale = entry is MerchantCardEntry cardEntry && cardEntry.IsOnSale;
+        yield return new PriceAnnouncement(entry.Cost, canAfford: entry.EnoughGold, isOnSale: isOnSale);
     }
 
     private UIElement? _innerProxy;

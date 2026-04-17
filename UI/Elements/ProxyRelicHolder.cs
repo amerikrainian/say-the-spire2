@@ -17,8 +17,6 @@ namespace SayTheSpire2.UI.Elements;
     // ProxyMerchantSlot does, and relic's order positions them here.
     typeof(PriceAnnouncement),
     typeof(SoldOutAnnouncement),
-    typeof(OnSaleAnnouncement),
-    typeof(InsufficientGoldAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 public class ProxyRelicHolder : ProxyElement

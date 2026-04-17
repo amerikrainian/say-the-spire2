@@ -15,8 +15,6 @@ namespace SayTheSpire2.UI.Elements;
     // ProxyMerchantSlot does, and potion's order positions them here.
     typeof(PriceAnnouncement),
     typeof(SoldOutAnnouncement),
-    typeof(OnSaleAnnouncement),
-    typeof(InsufficientGoldAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 public class ProxyPotionHolder : ProxyElement
