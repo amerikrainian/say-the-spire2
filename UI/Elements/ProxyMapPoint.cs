@@ -9,7 +9,13 @@ using SayTheSpire2.UI.Screens;
 namespace SayTheSpire2.UI.Elements;
 
 [AnnouncementOrder(
-    typeof(LabelAnnouncement)
+    typeof(MapMarkedAnnouncement),
+    typeof(LabelAnnouncement),
+    typeof(FreeTravelAnnouncement),
+    typeof(NodeStateAnnouncement),
+    typeof(OnPathAnnouncement),
+    typeof(DivergesAnnouncement),
+    typeof(VotersAnnouncement)
 )]
 public class ProxyMapPoint : ProxyElement
 {
@@ -21,9 +27,44 @@ public class ProxyMapPoint : ProxyElement
 
     public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
-        var label = GetLabel();
-        if (label != null)
-            yield return new LabelAnnouncement(label);
+        var mp = MapPointNode;
+        if (mp == null || mp.Point == null)
+        {
+            if (Control != null)
+                yield return new LabelAnnouncement(CleanNodeName(Control.Name));
+            yield break;
+        }
+
+        var view = MapScreen.Current?.BuildPointView(mp.Point);
+        if (view == null)
+        {
+            yield return new LabelAnnouncement(MapNode.GetPointDisplayName(mp.Point));
+            yield break;
+        }
+
+        if (view.IsMarked)
+            yield return new MapMarkedAnnouncement();
+
+        yield return new LabelAnnouncement(Message.Localized("map_nav", "NAV.NODE", new
+        {
+            type = view.TypeName,
+            coordinates = view.Coordinates
+        }));
+
+        if (view.IsFreeTravel)
+            yield return new FreeTravelAnnouncement();
+
+        if (!string.IsNullOrEmpty(view.State))
+            yield return new NodeStateAnnouncement(view.State);
+
+        if (view.OnPathMarkers.Count > 0)
+            yield return new OnPathAnnouncement(view.OnPathMarkers);
+
+        if (view.DivergingMarkers.Count > 0)
+            yield return new DivergesAnnouncement(view.DivergingMarkers);
+
+        if (view.Voters.Count > 0)
+            yield return new VotersAnnouncement(view.Voters);
     }
 
     public override Message? GetLabel()

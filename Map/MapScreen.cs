@@ -119,6 +119,19 @@ public class MapScreen : Screen
             travelOrigin: _handler.CurrentNode);
     }
 
+    /// <summary>
+    /// Structured view of a point for the announcement pipeline (ProxyMapPoint's
+    /// focus-string composition). Non-focus callers should use DescribePoint.
+    /// </summary>
+    public MapNodeView? BuildPointView(MapPoint point)
+    {
+        var node = _handler.GetNode(point);
+        if (node == null)
+            return null;
+
+        return MapNodeAnnouncementFormatter.BuildView(node, _handler, travelOrigin: _handler.CurrentNode);
+    }
+
     public override bool OnActionJustPressed(InputAction action)
     {
         if (_viewer == null) return false;
