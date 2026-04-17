@@ -1,13 +1,65 @@
+using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Entities.Merchant;
 using MegaCrit.Sts2.Core.Nodes.Screens.Shops;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement),
+    typeof(InnerElementAnnouncement),
+    typeof(SoldOutAnnouncement),
+    typeof(PriceAnnouncement),
+    typeof(InsufficientGoldAnnouncement),
+    typeof(OnSaleAnnouncement)
+)]
 public class ProxyMerchantSlot : ProxyElement
 {
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var entry = GetEntry();
+        if (entry == null) yield break;
+
+        // Card removal: no inner proxy, use a simple label + type
+        if (entry is MerchantCardRemovalEntry)
+        {
+            yield return new LabelAnnouncement(Message.Localized("ui", "LABELS.CARD_REMOVAL"));
+            yield return new TypeAnnouncement("shop item");
+            if (!entry.IsStocked)
+            {
+                yield return new SoldOutAnnouncement();
+                yield break;
+            }
+            yield return new PriceAnnouncement(entry.Cost);
+            if (!entry.EnoughGold)
+                yield return new InsufficientGoldAnnouncement();
+            yield break;
+        }
+
+        // Standard entry: delegate full focus to the inner proxy, then append shop info
+        var inner = GetInnerProxy();
+        if (inner != null)
+            yield return new InnerElementAnnouncement(inner);
+        else if (Control != null)
+            yield return new LabelAnnouncement(CleanNodeName(Control.Name));
+
+        if (!entry.IsStocked)
+        {
+            yield return new SoldOutAnnouncement();
+            yield break;
+        }
+
+        yield return new PriceAnnouncement(entry.Cost);
+        if (!entry.EnoughGold)
+            yield return new InsufficientGoldAnnouncement();
+        if (entry is MerchantCardEntry cardEntry && cardEntry.IsOnSale)
+            yield return new OnSaleAnnouncement();
+    }
+
     private UIElement? _innerProxy;
     private MerchantEntry? _cachedEntry;
 

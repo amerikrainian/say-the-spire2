@@ -9,11 +9,43 @@ using MegaCrit.Sts2.Core.Nodes.Rewards;
 using MegaCrit.Sts2.Core.Rewards;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[AnnouncementOrder(
+    typeof(InnerElementAnnouncement),
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement)
+)]
 public class ProxyRewardButton : ProxyElement
 {
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var reward = GetReward();
+        if (reward == null)
+        {
+            if (Control != null)
+            {
+                var text = FindChildText(Control) ?? CleanNodeName(Control.Name);
+                yield return new LabelAnnouncement(text);
+            }
+            yield break;
+        }
+
+        // Potion and relic rewards have a single inner model — delegate full focus
+        var inner = GetInnerProxy();
+        if (inner != null)
+        {
+            yield return new InnerElementAnnouncement(inner);
+            yield break;
+        }
+
+        // Card rewards and everything else: reward description + reward-kind type
+        yield return new LabelAnnouncement(reward.Description.GetFormattedText());
+        yield return new TypeAnnouncement(GetTypeKey() ?? "button");
+    }
+
     private static readonly FieldInfo? RelicField =
         AccessTools.Field(typeof(RelicReward), "_relic");
 
