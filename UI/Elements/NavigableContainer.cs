@@ -93,6 +93,9 @@ public class NavigableContainer : ListContainer
             case CheckboxElement checkbox:
                 checkbox.Activate();
                 return true;
+            case NullableCheckboxElement nullableCheckbox:
+                nullableCheckbox.Activate();
+                return true;
             case DropdownElement dropdown:
                 var screen = new ChoiceSelectionScreen(dropdown.Setting);
                 ScreenManager.PushScreen(screen);

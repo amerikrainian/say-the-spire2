@@ -159,6 +159,12 @@ public class ModSettingsScreen : Screen
                     AddControl(button.Node, button);
                     break;
 
+                case NullableBoolSetting nullableBoolSetting:
+                    var nullableCheckbox = new NullableCheckboxElement(nullableBoolSetting);
+                    _navContainer.Add(nullableCheckbox);
+                    AddControl(nullableCheckbox.Node, nullableCheckbox);
+                    break;
+
                 case BoolSetting boolSetting:
                     var checkbox = new CheckboxElement(boolSetting);
                     _navContainer.Add(checkbox);
@@ -222,6 +228,10 @@ public class ModSettingsScreen : Screen
         else if (element is CheckboxElement cb)
         {
             ((CheckBox)control).Toggled += (_) => cb.SyncFromControl();
+        }
+        else if (element is NullableCheckboxElement ncb)
+        {
+            ((CheckBox)control).Toggled += (_) => ncb.SyncFromControl();
         }
         else if (element is SliderElement sl)
         {
