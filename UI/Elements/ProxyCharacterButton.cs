@@ -13,7 +13,9 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(LockedAnnouncement),
-    typeof(ControlValueAnnouncement),
+    typeof(StartingHpAnnouncement),
+    typeof(StartingGoldAnnouncement),
+    typeof(RemoteSelectionAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 public class ProxyCharacterButton : ProxyElement
@@ -32,15 +34,16 @@ public class ProxyCharacterButton : ProxyElement
         var character = button?.Character;
 
         if (button != null && button.IsLocked)
-            yield return new LockedAnnouncement();
-
-        if (button != null && character != null && !button.IsLocked && !button.IsRandom)
         {
-            var status = $"{character.StartingHp} HP, {character.StartingGold} gold";
+            yield return new LockedAnnouncement();
+        }
+        else if (button != null && character != null && !button.IsRandom)
+        {
+            yield return new StartingHpAnnouncement(character.StartingHp);
+            yield return new StartingGoldAnnouncement(character.StartingGold);
             var remoteCount = button.RemoteSelectedPlayers.Count;
             if (remoteCount > 0)
-                status += $", Selected by {remoteCount} other {(remoteCount == 1 ? "player" : "players")}";
-            yield return new ControlValueAnnouncement(status);
+                yield return new RemoteSelectionAnnouncement(remoteCount);
         }
 
         var tooltip = GetTooltip();
