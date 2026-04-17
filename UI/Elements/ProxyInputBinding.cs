@@ -13,7 +13,9 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
-    typeof(ControlValueAnnouncement)
+    typeof(KeyboardBindingAnnouncement),
+    typeof(ControllerBindingAnnouncement),
+    typeof(BindingExclusivityAnnouncement)
 )]
 public class ProxyInputBinding : ProxyElement
 {
@@ -25,9 +27,25 @@ public class ProxyInputBinding : ProxyElement
 
         yield return new TypeAnnouncement("keybind");
 
-        var status = GetStatusString();
-        if (status != null)
-            yield return new ControlValueAnnouncement(status);
+        var entry = Control as NInputSettingsEntry;
+        var inputName = entry?.InputName;
+        bool isKeyboardRemappable = inputName != null && NInputManager.remappableKeyboardInputs.Contains(inputName);
+        bool isControllerRemappable = inputName != null && NInputManager.remappableControllerInputs.Contains(inputName);
+
+        if (isKeyboardRemappable)
+        {
+            var keyLabel = Control?.GetNodeOrNull("%KeyBindingInputLabel");
+            var text = keyLabel != null ? FindChildText(keyLabel) : null;
+            yield return new KeyboardBindingAnnouncement(text);
+        }
+
+        if (isControllerRemappable)
+            yield return new ControllerBindingAnnouncement(GetControllerBindingName());
+
+        if (isKeyboardRemappable && !isControllerRemappable)
+            yield return new BindingExclusivityAnnouncement(isKeyboardOnly: true);
+        else if (!isKeyboardRemappable && isControllerRemappable)
+            yield return new BindingExclusivityAnnouncement(isKeyboardOnly: false);
     }
 
     private static readonly FieldInfo ControllerInputMapField =
