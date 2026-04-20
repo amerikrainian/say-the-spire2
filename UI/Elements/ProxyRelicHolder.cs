@@ -7,6 +7,7 @@ using MegaCrit.Sts2.Core.Nodes.Relics;
 using MegaCrit.Sts2.Core.Nodes.Screens.TreasureRoomRelic;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.Multiplayer;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -53,15 +54,27 @@ public class ProxyRelicHolder : ProxyElement
         var model = GetModel();
         if (model == null) return null;
 
-        var parts = new System.Collections.Generic.List<string>();
+        var parts = new List<Message>();
 
         if (model.ShowCounter && model.DisplayAmount != 0)
-            parts.Add(Message.Localized("ui", "RELIC.COUNTER", new { amount = model.DisplayAmount }).Resolve());
+            parts.Add(Message.Localized("ui", "RELIC.COUNTER", new { amount = model.DisplayAmount }));
 
         if (model.Status == RelicStatus.Disabled)
-            parts.Add(LocalizationManager.GetOrDefault("ui", "RELIC.DISABLED", "Disabled"));
+            parts.Add(Message.Localized("ui", "RELIC.DISABLED"));
 
-        return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
+        if (Control is NTreasureRoomRelicHolder treasureHolder)
+        {
+            var voterNames = MultiplayerHelper.GetPlayerNames(treasureHolder.VoteContainer?.Players);
+            if (voterNames.Count > 0)
+            {
+                parts.Add(Message.Localized("ui", "EVENT.VOTED_FOR_BY", new
+                {
+                    players = string.Join(", ", voterNames)
+                }));
+            }
+        }
+
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : null;
     }
 
     public override Message? GetTooltip()

@@ -4,6 +4,8 @@ using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Multiplayer.Game;
 using MegaCrit.Sts2.Core.Platform;
 using MegaCrit.Sts2.Core.Runs;
+using System.Collections.Generic;
+using SayTheSpire2.Localization;
 
 namespace SayTheSpire2.Multiplayer;
 
@@ -49,6 +51,20 @@ public static class MultiplayerHelper
         {
             if (creature.IsPlayer && creature.Player != null && !RunManager.Instance.IsSinglePlayerOrFakeMultiplayer)
                 return GetPlayerName(creature.Player.NetId, platform);
+
+            if (creature.PetOwner != null && !RunManager.Instance.IsSinglePlayerOrFakeMultiplayer)
+            {
+                var creatureName = creature.Name;
+                if (LocalContext.IsMe(creature.PetOwner))
+                    return creatureName;
+
+                var ownerName = GetPlayerName(creature.PetOwner.NetId, platform);
+                return Message.Localized("ui", "MULTIPLAYER.CREATURE_WITH_OWNER", new
+                {
+                    creature = creatureName,
+                    owner = ownerName
+                }).Resolve();
+            }
         }
         catch (System.Exception e) { MegaCrit.Sts2.Core.Logging.Log.Info($"[AccessibilityMod] GetCreatureName multiplayer check failed: {e.Message}"); }
 
@@ -63,6 +79,30 @@ public static class MultiplayerHelper
         return player.Creature != null
             ? GetCreatureName(player.Creature, platform)
             : GetPlayerName(player.NetId, platform);
+    }
+
+    /// <summary>
+    /// Get display names for a sequence of players, skipping any names that fail to resolve.
+    /// </summary>
+    public static List<string> GetPlayerNames(IEnumerable<Player>? players, PlatformType? platform = null)
+    {
+        var names = new List<string>();
+        if (players == null)
+            return names;
+
+        foreach (var player in players)
+        {
+            try
+            {
+                names.Add(GetPlayerName(player.NetId, platform));
+            }
+            catch (System.Exception e)
+            {
+                MegaCrit.Sts2.Core.Logging.Log.Info($"[AccessibilityMod] GetPlayerNames failed for {player.NetId}: {e.Message}");
+            }
+        }
+
+        return names;
     }
 
     /// <summary>

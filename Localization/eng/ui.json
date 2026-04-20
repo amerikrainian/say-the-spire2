@@ -277,6 +277,7 @@
   "EVENT.MAP_VOTE_SKIP_LOCAL": "Skipped",
   "EVENT.MAP_TRAVEL": "Traveling to {node}",
   "EVENT.VOTED_FOR_BY": "voted for by {players}",
+  "MULTIPLAYER.CREATURE_WITH_OWNER": "{creature}, {owner}",
   "EVENT.ORB_CHANNELED": "Channeled {orb}",
   "EVENT.ORB_EVOKED": "Evoked {orb}",
   "EVENT.POTION_OBTAINED": "{potion} obtained",

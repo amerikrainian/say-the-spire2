@@ -43,6 +43,9 @@ public static class ProxyFactory
         if (control is LineEdit)
             return new ProxyTextInput(control);
 
+        if (control is NCardTypeTickbox or NCardCostTickbox)
+            return new ProxyCheckbox(control);
+
         if (control is NTickbox)
             return new ProxyCheckbox(control);
 

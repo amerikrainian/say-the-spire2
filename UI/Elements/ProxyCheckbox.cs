@@ -1,5 +1,6 @@
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
+using MegaCrit.Sts2.Core.Nodes.Screens.CardLibrary;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
 
@@ -20,28 +21,63 @@ public class ProxyCheckbox : ProxyElement
 
     public override Message? GetStatusString()
     {
-        if (Control is NTickbox tickbox)
+        bool? isChecked = Control switch
         {
-            var key = tickbox.IsTicked ? "CHECKBOX.CHECKED" : "CHECKBOX.UNCHECKED";
-            var text = LocalizationManager.Get("ui", key);
-            return text != null ? Message.Raw(text) : null;
-        }
-        return null;
+            NTickbox tickbox => tickbox.IsTicked,
+            NCardTypeTickbox tickbox => tickbox.IsTicked,
+            NCardCostTickbox tickbox => tickbox.IsTicked,
+            _ => null
+        };
+
+        if (!isChecked.HasValue)
+            return null;
+
+        return Message.Localized("ui", isChecked.Value ? "CHECKBOX.CHECKED" : "CHECKBOX.UNCHECKED");
     }
 
     protected override void OnFocus()
     {
         if (Control is NTickbox tickbox)
             tickbox.Toggled += OnToggled;
+        else if (Control is NCardTypeTickbox cardTypeTickbox)
+            cardTypeTickbox.Toggled += OnCardTypeToggled;
+        else if (Control is NCardCostTickbox costTickbox)
+            costTickbox.Released += OnReleased;
     }
 
     protected override void OnUnfocus()
     {
         if (Control is NTickbox tickbox)
             tickbox.Toggled -= OnToggled;
+        else if (Control is NCardTypeTickbox cardTypeTickbox)
+            cardTypeTickbox.Toggled -= OnCardTypeToggled;
+        else if (Control is NCardCostTickbox costTickbox)
+            costTickbox.Released -= OnReleased;
     }
 
     private void OnToggled(NTickbox tickbox)
+    {
+        OutputStatus();
+    }
+
+    private void OnCardTypeToggled(NCardTypeTickbox tickbox)
+    {
+        OutputStatus();
+    }
+
+    private void OnReleased(MegaCrit.Sts2.Core.Nodes.GodotExtensions.NClickableControl control)
+    {
+        var tree = Control?.GetTree();
+        if (tree != null)
+        {
+            tree.CreateTimer(0).Timeout += OutputStatus;
+            return;
+        }
+
+        OutputStatus();
+    }
+
+    private void OutputStatus()
     {
         var status = GetStatusString();
         if (status != null)

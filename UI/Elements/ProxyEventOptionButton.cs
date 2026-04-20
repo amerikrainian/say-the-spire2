@@ -6,6 +6,7 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Events;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.Multiplayer;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -38,7 +39,21 @@ public class ProxyEventOptionButton : ProxyElement
         var option = Button?.Option;
         if (option == null) return null;
 
-        return option.IsLocked ? Message.Localized("ui", "LABELS.LOCKED") : null;
+        var parts = new List<Message>();
+
+        if (option.IsLocked)
+            parts.Add(Message.Localized("ui", "LABELS.LOCKED"));
+
+        var voterNames = MultiplayerHelper.GetPlayerNames(Button?.VoteContainer?.Players);
+        if (voterNames.Count > 0)
+        {
+            parts.Add(Message.Localized("ui", "EVENT.VOTED_FOR_BY", new
+            {
+                players = string.Join(", ", voterNames)
+            }));
+        }
+
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : null;
     }
 
     public override Message? GetTooltip()

@@ -579,6 +579,8 @@ public class CardLibraryGameScreen : GameScreen
         return control switch
         {
             NCardPoolFilter pool => pool.IsSelected,
+            NCardTypeTickbox tickbox => tickbox.IsTicked,
+            NCardCostTickbox tickbox => tickbox.IsTicked,
             NTickbox tickbox => tickbox.IsTicked,
             _ => null
         };

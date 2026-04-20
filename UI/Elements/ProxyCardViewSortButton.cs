@@ -1,6 +1,7 @@
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using SayTheSpire2.Localization;
+using SayTheSpire2.Speech;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -30,5 +31,24 @@ public class ProxyCardViewSortButton : ProxyElement
             return null;
 
         return Message.Localized("ui", button.IsDescending ? "SORT.DESCENDING" : "SORT.ASCENDING");
+    }
+
+    protected override void OnFocus()
+    {
+        if (Control is NCardViewSortButton button)
+            button.Released += OnReleased;
+    }
+
+    protected override void OnUnfocus()
+    {
+        if (Control is NCardViewSortButton button)
+            button.Released -= OnReleased;
+    }
+
+    private void OnReleased(MegaCrit.Sts2.Core.Nodes.GodotExtensions.NClickableControl control)
+    {
+        var status = GetStatusString();
+        if (status != null)
+            SpeechManager.Output(status);
     }
 }

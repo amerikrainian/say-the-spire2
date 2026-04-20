@@ -151,14 +151,14 @@ public static class MapNodeAnnouncementFormatter
         if (players == null || players.Count == 0)
             return null;
 
-        var voters = new List<string>();
+        var voters = new List<MegaCrit.Sts2.Core.Entities.Players.Player>();
         foreach (var player in players)
         {
             try
             {
                 var vote = RunManager.Instance.MapSelectionSynchronizer.GetVote(player);
                 if (vote?.coord.Equals(node.Point.coord) == true)
-                    voters.Add(MultiplayerHelper.GetPlayerName(player));
+                    voters.Add(player);
             }
             catch (System.Exception e)
             {
@@ -166,10 +166,12 @@ public static class MapNodeAnnouncementFormatter
             }
         }
 
-        return voters.Count > 0
+        var voterNames = MultiplayerHelper.GetPlayerNames(voters);
+
+        return voterNames.Count > 0
             ? Message.Localized("ui", "EVENT.VOTED_FOR_BY", new
             {
-                players = string.Join(", ", voters)
+                players = string.Join(", ", voterNames)
             }).Resolve()
             : null;
     }
