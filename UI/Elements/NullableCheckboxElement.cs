@@ -13,13 +13,13 @@ namespace SayTheSpire2.UI.Elements;
 /// toggle writes an explicit value. The "inherit" state is never visible in
 /// the UI — users get back to it via the category-level reset button.
 /// </summary>
-[AnnouncementOrder(
-    typeof(LabelAnnouncement),
-    typeof(TypeAnnouncement),
-    typeof(ControlValueAnnouncement)
-)]
 public class NullableCheckboxElement : UIElement
 {
+    // Delegate focus-string composition to CheckboxElement's [AnnouncementOrder]
+    // and settings path. Nullable variants are an implementation detail for the
+    // per-element override UI — to the end user, this is just a checkbox.
+    public override System.Type AnnouncementOrderType => typeof(CheckboxElement);
+
     private readonly CheckBox _control;
     private readonly NullableBoolSetting _setting;
 
