@@ -11,6 +11,6 @@ public sealed class CardsInHandAnnouncement : Announcement
 
     public override string Key => "cards_in_hand";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "RESOURCE.CARDS_IN_HAND", new { count = _count });
 }

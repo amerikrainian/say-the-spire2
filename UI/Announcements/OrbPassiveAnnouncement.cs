@@ -11,6 +11,6 @@ public sealed class OrbPassiveAnnouncement : Announcement
 
     public override string Key => "orb_passive";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "ORB.PASSIVE", new { value = _value });
 }

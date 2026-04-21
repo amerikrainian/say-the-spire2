@@ -10,5 +10,5 @@ public sealed class FreeTravelAnnouncement : Announcement
 {
     public override string Key => "free_travel";
     public override string Suffix => ",";
-    public override Message Render() => Message.Localized("map_nav", "NAV.FREE_TRAVEL");
+    public override Message Render(AnnouncementContext ctx) => Message.Localized("map_nav", "NAV.FREE_TRAVEL");
 }

@@ -15,7 +15,7 @@ public sealed class VotersAnnouncement : Announcement
 
     public override string Key => "voters";
     public override string Suffix => ",";
-    public override Message Render()
+    public override Message Render(AnnouncementContext ctx)
     {
         if (_voters.Count == 0) return Message.Empty;
         return Message.Localized("ui", "EVENT.VOTED_FOR_BY", new

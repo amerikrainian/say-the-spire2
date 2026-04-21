@@ -11,6 +11,6 @@ public sealed class BlockAnnouncement : Announcement
 
     public override string Key => "block";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "RESOURCE.BLOCK", new { amount = _amount });
 }

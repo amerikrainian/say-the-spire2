@@ -15,7 +15,7 @@ public sealed class KeyboardBindingAnnouncement : Announcement
     public override string Key => "keyboard_binding";
     public override string Suffix => ",";
 
-    public override Message Render()
+    public override Message Render(AnnouncementContext ctx)
     {
         return string.IsNullOrEmpty(_keyName)
             ? Message.Localized("ui", "BINDING.KEYBOARD_UNBOUND")

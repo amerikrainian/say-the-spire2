@@ -7,5 +7,5 @@ public sealed class MapMarkedAnnouncement : Announcement
 {
     public override string Key => "map_marked";
     public override string Suffix => ",";
-    public override Message Render() => Message.Localized("map_nav", "MARKERS.MARKED");
+    public override Message Render(AnnouncementContext ctx) => Message.Localized("map_nav", "MARKERS.MARKED");
 }

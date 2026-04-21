@@ -16,7 +16,7 @@ public sealed class HoveredModelAnnouncement : Announcement
     public override string Key => "hovered_model";
     public override string Suffix => ",";
 
-    public override Message Render()
+    public override Message Render(AnnouncementContext ctx)
     {
         if (string.IsNullOrEmpty(_summary)) return Message.Empty;
         var prefix = LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent");

@@ -16,6 +16,6 @@ public sealed class HpAnnouncement : Announcement
 
     public override string Key => "hp";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "RESOURCE.HP", new { current = _current, max = _max });
 }

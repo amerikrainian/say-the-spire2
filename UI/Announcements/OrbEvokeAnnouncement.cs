@@ -11,6 +11,6 @@ public sealed class OrbEvokeAnnouncement : Announcement
 
     public override string Key => "orb_evoke";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "ORB.EVOKE", new { value = _value });
 }

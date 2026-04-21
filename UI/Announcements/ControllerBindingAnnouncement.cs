@@ -15,7 +15,7 @@ public sealed class ControllerBindingAnnouncement : Announcement
     public override string Key => "controller_binding";
     public override string Suffix => ",";
 
-    public override Message Render()
+    public override Message Render(AnnouncementContext ctx)
     {
         return string.IsNullOrEmpty(_buttonName)
             ? Message.Localized("ui", "BINDING.CONTROLLER_UNBOUND")

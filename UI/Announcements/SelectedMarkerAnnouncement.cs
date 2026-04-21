@@ -12,5 +12,5 @@ public sealed class SelectedMarkerAnnouncement : Announcement
     public override string Key => "selected_marker";
     public override string Suffix => ",";
 
-    public override Message Render() => Message.Localized("ui", "CARD.SELECTED");
+    public override Message Render(AnnouncementContext ctx) => Message.Localized("ui", "CARD.SELECTED");
 }

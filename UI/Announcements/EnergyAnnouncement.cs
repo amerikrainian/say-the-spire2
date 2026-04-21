@@ -16,6 +16,6 @@ public sealed class EnergyAnnouncement : Announcement
 
     public override string Key => "energy";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "RESOURCE.ENERGY", new { current = _current, max = _max });
 }

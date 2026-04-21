@@ -11,6 +11,6 @@ public sealed class StarsAnnouncement : Announcement
 
     public override string Key => "stars";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "RESOURCE.STARS", new { amount = _amount });
 }

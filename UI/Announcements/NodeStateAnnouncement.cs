@@ -15,5 +15,5 @@ public sealed class NodeStateAnnouncement : Announcement
 
     public override string Key => "node_state";
     public override string Suffix => ",";
-    public override Message Render() => Message.Raw(_state);
+    public override Message Render(AnnouncementContext ctx) => Message.Raw(_state);
 }

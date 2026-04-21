@@ -16,6 +16,6 @@ public sealed class SelectionCountAnnouncement : Announcement
     public override string Key => "selection_count";
     public override string Suffix => ",";
 
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "CARD.COUNT_SELECTED", new { count = _count });
 }

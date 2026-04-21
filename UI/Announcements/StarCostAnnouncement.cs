@@ -22,7 +22,7 @@ public sealed class StarCostAnnouncement : Announcement
     public override string Key => "star_cost";
     public override string Suffix => ",";
 
-    public override Message Render()
+    public override Message Render(AnnouncementContext ctx)
     {
         if (_isX)
             return _verbose

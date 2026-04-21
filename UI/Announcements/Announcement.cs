@@ -16,8 +16,12 @@ public abstract class Announcement
     /// </summary>
     public abstract string Key { get; }
 
-    /// <summary>The announcement's rendered text as a Message.</summary>
-    public abstract Message Render();
+    /// <summary>
+    /// The announcement's rendered text as a Message. The context gives access
+    /// to per-element-resolved setting values (verbose toggles, thresholds, etc.)
+    /// — announcements that don't declare custom settings can ignore the param.
+    /// </summary>
+    public abstract Message Render(AnnouncementContext ctx);
 
     /// <summary>
     /// Punctuation appended to this announcement's rendered text before the

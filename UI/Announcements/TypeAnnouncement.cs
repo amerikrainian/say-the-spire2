@@ -13,6 +13,6 @@ public sealed class TypeAnnouncement : Announcement
     public TypeAnnouncement(string typeKey) { _typeKey = typeKey; }
 
     public override string Key => "type";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", $"TYPES.{_typeKey.ToUpperInvariant()}");
 }

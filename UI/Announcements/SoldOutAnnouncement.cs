@@ -8,6 +8,6 @@ public sealed class SoldOutAnnouncement : Announcement
     public override string Key => "sold_out";
     public override string Suffix => ",";
 
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "LABELS.SOLD_OUT");
 }

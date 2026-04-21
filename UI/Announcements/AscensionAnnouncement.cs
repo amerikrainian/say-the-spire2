@@ -15,6 +15,6 @@ public sealed class AscensionAnnouncement : Announcement
 
     public override string Key => "ascension";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "RUN_HISTORY.ASCENSION", new { value = _value });
 }

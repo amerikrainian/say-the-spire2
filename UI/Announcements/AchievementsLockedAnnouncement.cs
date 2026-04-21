@@ -10,6 +10,6 @@ public sealed class AchievementsLockedAnnouncement : Announcement
 {
     public override string Key => "achievements_locked";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "RUN_HISTORY.ACHIEVEMENTS_LOCKED");
 }

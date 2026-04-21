@@ -16,7 +16,7 @@ public sealed class RemoteSelectionAnnouncement : Announcement
     public override string Key => "remote_selection";
     public override string Suffix => ",";
 
-    public override Message Render()
+    public override Message Render(AnnouncementContext ctx)
     {
         if (_count <= 0) return Message.Empty;
         return _count == 1

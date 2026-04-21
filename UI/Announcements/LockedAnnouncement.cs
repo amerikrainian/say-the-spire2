@@ -11,6 +11,6 @@ public sealed class LockedAnnouncement : Announcement
     public override string Key => "locked";
     public override string Suffix => ",";
 
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "LABELS.LOCKED");
 }

@@ -21,6 +21,7 @@ public static class AnnouncementComposer
 {
     public static Message Compose(UIElement element, IEnumerable<Announcement> announcements)
     {
+        var ctx = new AnnouncementContext(element);
         var order = element.AnnouncementOrderType.GetCustomAttribute<AnnouncementOrderAttribute>()?.Types
             ?? Array.Empty<Type>();
 
@@ -49,8 +50,8 @@ public static class AnnouncementComposer
         var rendered = new List<(string Text, string Suffix)>();
         foreach (var a in sorted)
         {
-            if (!IsEnabled(element, a.Key)) continue;
-            var text = a.Render()?.Resolve();
+            if (!ctx.ResolveBool(a.Key, "enabled", true)) continue;
+            var text = a.Render(ctx)?.Resolve();
             if (!string.IsNullOrEmpty(text))
                 rendered.Add((text, a.Suffix));
         }
@@ -71,23 +72,5 @@ public static class AnnouncementComposer
         }
 
         return Message.Raw(sb.ToString());
-    }
-
-    /// <summary>
-    /// Whether the announcement should be emitted for this element. Checks the
-    /// per-element override (NullableBoolSetting) first; falls back to the global
-    /// enabled flag. Returns true if neither is registered (covers announcements
-    /// added after startup or test environments without a populated settings tree).
-    /// </summary>
-    private static bool IsEnabled(UIElement element, string announcementKey)
-    {
-        var elementKey = AnnouncementRegistry.DeriveElementKey(element.AnnouncementOrderType);
-        var overrideSetting = ModSettings.GetSetting<NullableBoolSetting>(
-            $"ui.{elementKey}.announcements.{announcementKey}.enabled");
-        if (overrideSetting != null)
-            return overrideSetting.Resolved;
-
-        var global = ModSettings.GetSetting<BoolSetting>($"announcements.{announcementKey}.enabled");
-        return global?.Value ?? true;
     }
 }

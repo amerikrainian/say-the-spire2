@@ -22,7 +22,7 @@ public sealed class MonsterIntentsAnnouncement : Announcement
     public override string Key => "monster_intents";
     public override string Suffix => ",";
 
-    public override Message Render()
+    public override Message Render(AnnouncementContext ctx)
     {
         if (_intents.Count == 0) return Message.Empty;
 

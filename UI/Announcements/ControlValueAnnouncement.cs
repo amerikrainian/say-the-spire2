@@ -17,5 +17,5 @@ public sealed class ControlValueAnnouncement : Announcement
     public override string Key => "control_value";
     public override string Suffix => ",";
 
-    public override Message Render() => _value;
+    public override Message Render(AnnouncementContext ctx) => _value;
 }

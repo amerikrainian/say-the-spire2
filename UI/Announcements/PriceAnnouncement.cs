@@ -25,7 +25,7 @@ public sealed class PriceAnnouncement : Announcement
     public override string Key => "price";
     public override string Suffix => ",";
 
-    public override Message Render()
+    public override Message Render(AnnouncementContext ctx)
     {
         var parts = new List<Message>
         {

@@ -11,6 +11,6 @@ public sealed class RelicDisabledAnnouncement : Announcement
     public override string Key => "relic_disabled";
     public override string Suffix => ",";
 
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "RELIC.DISABLED");
 }

@@ -11,6 +11,6 @@ public sealed class StartingHpAnnouncement : Announcement
 
     public override string Key => "starting_hp";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "CHARACTER.STARTING_HP", new { amount = _amount });
 }

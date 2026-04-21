@@ -17,7 +17,7 @@ public sealed class BindingExclusivityAnnouncement : Announcement
     public override string Key => "binding_exclusivity";
     public override string Suffix => ",";
 
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         _isKeyboardOnly
             ? Message.Localized("ui", "BINDING.KEYBOARD_ONLY")
             : Message.Localized("ui", "BINDING.CONTROLLER_ONLY");

@@ -11,6 +11,6 @@ public sealed class StartingGoldAnnouncement : Announcement
 
     public override string Key => "starting_gold";
     public override string Suffix => ",";
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "CHARACTER.STARTING_GOLD", new { amount = _amount });
 }

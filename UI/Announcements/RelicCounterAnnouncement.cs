@@ -15,6 +15,6 @@ public sealed class RelicCounterAnnouncement : Announcement
     public override string Key => "relic_counter";
     public override string Suffix => ",";
 
-    public override Message Render() =>
+    public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", "RELIC.COUNTER", new { amount = _amount });
 }
