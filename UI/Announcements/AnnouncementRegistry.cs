@@ -111,14 +111,39 @@ public static class AnnouncementRegistry
                 $"UI/{elementDisplay}/Announcements/{announcementDisplay}",
                 $"/SETTINGS.ELEMENTS.{elementKey.ToUpperInvariant()}/{RootLocKey}/{announcementCategoryLocKey}");
 
-            if (announcementCategory.GetByKey("enabled") != null) continue;
+            // Mirror every setting declared on the global announcement category
+            // as a per-element Nullable* override. Covers Bool, Int, String, Choice
+            // — any setting type an announcement's RegisterSettings might declare.
+            var globalCategory = ModSettings.GetSetting<CategorySetting>($"announcements.{announcementKey}");
+            if (globalCategory == null) continue;
 
-            var fallback = ModSettings.GetSetting<BoolSetting>($"announcements.{announcementKey}.enabled");
-            if (fallback == null) continue;
+            foreach (var globalChild in globalCategory.Children)
+            {
+                if (announcementCategory.GetByKey(globalChild.Key) != null)
+                    continue;
 
-            announcementCategory.Add(new NullableBoolSetting(
-                "enabled", "Announce", fallback, localizationKey: EnabledLocKey));
+                var overrideSetting = CreateOverride(globalChild);
+                if (overrideSetting != null)
+                    announcementCategory.Add(overrideSetting);
+            }
         }
+    }
+
+    /// <summary>
+    /// Produces the Nullable* override setting that inherits from the given
+    /// global setting. Returns null for setting types we don't mirror (e.g.,
+    /// BindingSetting, CategorySetting — not relevant to announcement overrides).
+    /// </summary>
+    private static Setting? CreateOverride(Setting global)
+    {
+        return global switch
+        {
+            BoolSetting b => new NullableBoolSetting(b.Key, b.Label, b, localizationKey: b.LocalizationKey),
+            IntSetting i => new NullableIntSetting(i.Key, i.Label, i, localizationKey: i.LocalizationKey),
+            StringSetting s => new NullableStringSetting(s.Key, s.Label, s, localizationKey: s.LocalizationKey),
+            ChoiceSetting c => new NullableChoiceSetting(c.Key, c.Label, c, localizationKey: c.LocalizationKey),
+            _ => null,
+        };
     }
 
     /// <summary>Converts e.g. <c>MonsterIntentsAnnouncement</c> to <c>monster_intents</c>.</summary>
