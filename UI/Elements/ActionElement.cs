@@ -8,7 +8,7 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
-    typeof(ControlValueAnnouncement),
+    typeof(StatusAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 public class ActionElement : UIElement
@@ -50,7 +50,7 @@ public class ActionElement : UIElement
 
         var status = _status?.Invoke();
         if (!string.IsNullOrEmpty(status))
-            yield return new ControlValueAnnouncement(status);
+            yield return new StatusAnnouncement(status);
 
         var tooltip = _tooltip?.Invoke();
         if (!string.IsNullOrEmpty(tooltip))

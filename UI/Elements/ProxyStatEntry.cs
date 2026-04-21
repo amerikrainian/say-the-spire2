@@ -8,7 +8,7 @@ namespace SayTheSpire2.UI.Elements;
 
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
-    typeof(ControlValueAnnouncement)
+    typeof(StatusAnnouncement)
 )]
 public class ProxyStatEntry : ProxyElement
 {
@@ -22,7 +22,7 @@ public class ProxyStatEntry : ProxyElement
 
         var values = GetValues();
         if (values.Count > 0)
-            yield return new ControlValueAnnouncement(string.Join(", ", values));
+            yield return new StatusAnnouncement(string.Join(", ", values));
     }
 
     public override Message? GetLabel()

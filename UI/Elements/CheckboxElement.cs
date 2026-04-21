@@ -16,7 +16,7 @@ public class CheckboxElement : UIElement
     {
         yield return new LabelAnnouncement(_setting.Label);
         yield return new TypeAnnouncement("checkbox");
-        yield return new ControlValueAnnouncement(
+        yield return new StatusAnnouncement(
             _setting.Get()
                 ? Message.Localized("ui", "CHECKBOX.CHECKED")
                 : Message.Localized("ui", "CHECKBOX.UNCHECKED"));

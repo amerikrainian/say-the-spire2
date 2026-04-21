@@ -50,7 +50,7 @@ public class NullableTextInputElement : UIElement
         yield return new TypeAnnouncement("textbox");
         var resolved = _setting.Resolved;
         if (!string.IsNullOrEmpty(resolved))
-            yield return new ControlValueAnnouncement(resolved);
+            yield return new StatusAnnouncement(resolved);
     }
 
     public override Message? GetLabel() => Message.Raw(_setting.Label);

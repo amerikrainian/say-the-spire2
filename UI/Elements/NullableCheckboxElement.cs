@@ -44,7 +44,7 @@ public class NullableCheckboxElement : UIElement
     {
         yield return new LabelAnnouncement(_setting.Label);
         yield return new TypeAnnouncement("checkbox");
-        yield return new ControlValueAnnouncement(
+        yield return new StatusAnnouncement(
             _setting.Resolved
                 ? Message.Localized("ui", "CHECKBOX.CHECKED")
                 : Message.Localized("ui", "CHECKBOX.UNCHECKED"));

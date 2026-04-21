@@ -10,7 +10,7 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
-    typeof(ControlValueAnnouncement)
+    typeof(StatusAnnouncement)
 )]
 public class ProxyCheckbox : ProxyElement
 {
@@ -26,7 +26,7 @@ public class ProxyCheckbox : ProxyElement
 
         var status = GetStatusString();
         if (status != null)
-            yield return new ControlValueAnnouncement(status);
+            yield return new StatusAnnouncement(status);
     }
 
     public override Message? GetLabel()

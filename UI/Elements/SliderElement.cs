@@ -16,7 +16,7 @@ public class SliderElement : UIElement
     {
         yield return new LabelAnnouncement(_setting.Label);
         yield return new TypeAnnouncement("slider");
-        yield return new ControlValueAnnouncement(_setting.Get().ToString());
+        yield return new StatusAnnouncement(_setting.Get().ToString());
     }
 
     private readonly HSlider _control;

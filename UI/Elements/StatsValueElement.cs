@@ -8,7 +8,7 @@ namespace SayTheSpire2.UI.Elements;
 
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
-    typeof(ControlValueAnnouncement)
+    typeof(StatusAnnouncement)
 )]
 public sealed class StatsValueElement : UIElement
 {
@@ -26,7 +26,7 @@ public sealed class StatsValueElement : UIElement
         {
             if (_valueIndex >= values.Count)
                 _valueIndex = values.Count - 1;
-            yield return new ControlValueAnnouncement(values[_valueIndex]);
+            yield return new StatusAnnouncement(values[_valueIndex]);
         }
     }
 

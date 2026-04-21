@@ -40,7 +40,7 @@ public class NullableDropdownElement : UIElement
         yield return new LabelAnnouncement(_setting.Label);
         yield return new TypeAnnouncement("dropdown");
         var selected = _setting.GetSelectedChoice();
-        yield return new ControlValueAnnouncement(selected?.Label ?? _setting.Resolved);
+        yield return new StatusAnnouncement(selected?.Label ?? _setting.Resolved);
     }
 
     public override Message? GetLabel() => Message.Raw(_setting.Label);

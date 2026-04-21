@@ -16,7 +16,7 @@ public class DropdownElement : UIElement
         yield return new LabelAnnouncement(_setting.Label);
         yield return new TypeAnnouncement("dropdown");
         var selected = _setting.GetSelected();
-        yield return new ControlValueAnnouncement(selected?.Label ?? _setting.Get());
+        yield return new StatusAnnouncement(selected?.Label ?? _setting.Get());
     }
 
     private readonly Button _control;

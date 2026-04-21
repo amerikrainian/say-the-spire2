@@ -9,7 +9,7 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
-    typeof(ControlValueAnnouncement),
+    typeof(StatusAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 public class ProxyCardPoolFilter : ProxyElement
@@ -26,7 +26,7 @@ public class ProxyCardPoolFilter : ProxyElement
 
         var status = GetStatusString();
         if (status != null)
-            yield return new ControlValueAnnouncement(status);
+            yield return new StatusAnnouncement(status);
 
         var tooltip = GetTooltip();
         if (tooltip != null)

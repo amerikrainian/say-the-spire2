@@ -50,7 +50,7 @@ public class NullableSliderElement : UIElement
     {
         yield return new LabelAnnouncement(_setting.Label);
         yield return new TypeAnnouncement("slider");
-        yield return new ControlValueAnnouncement(_setting.Resolved.ToString());
+        yield return new StatusAnnouncement(_setting.Resolved.ToString());
     }
 
     public override Message? GetLabel() => Message.Raw(_setting.Label);
