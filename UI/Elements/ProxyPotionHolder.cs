@@ -11,6 +11,9 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
+    // Compendium/lab insertion point — ProxyPotionLabHolder yields Status
+    // (locked / undiscovered). Regular potion-holder instances don't yield it.
+    typeof(StatusAnnouncement),
     // Shop-context insertion points — ProxyPotionHolder never yields these, but
     // ProxyMerchantSlot does, and potion's order positions them here.
     typeof(PriceAnnouncement),

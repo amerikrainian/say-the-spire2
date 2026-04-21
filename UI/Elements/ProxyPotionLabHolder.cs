@@ -12,14 +12,11 @@ using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
-[AnnouncementOrder(
-    typeof(LabelAnnouncement),
-    typeof(TypeAnnouncement),
-    typeof(StatusAnnouncement),
-    typeof(TooltipAnnouncement)
-)]
 public class ProxyPotionLabHolder : ProxyElement
 {
+    // User-perceives this as a potion; share settings / [AnnouncementOrder] with ProxyPotionHolder.
+    public override System.Type AnnouncementOrderType => typeof(ProxyPotionHolder);
+
     public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
         var label = GetLabel();

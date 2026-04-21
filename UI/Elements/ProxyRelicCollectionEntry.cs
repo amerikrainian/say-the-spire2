@@ -9,14 +9,11 @@ using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
-[AnnouncementOrder(
-    typeof(LabelAnnouncement),
-    typeof(TypeAnnouncement),
-    typeof(StatusAnnouncement),
-    typeof(TooltipAnnouncement)
-)]
 public class ProxyRelicCollectionEntry : ProxyElement
 {
+    // User-perceives this as a relic; share settings / [AnnouncementOrder] with ProxyRelicHolder.
+    public override System.Type AnnouncementOrderType => typeof(ProxyRelicHolder);
+
     public ProxyRelicCollectionEntry(Control control) : base(control) { }
 
     private NRelicCollectionEntry? Entry => Control as NRelicCollectionEntry;
