@@ -14,12 +14,11 @@ using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
-[AnnouncementOrder(
-    typeof(LabelAnnouncement),
-    typeof(TooltipAnnouncement)
-)]
 public class ProxyTopBar : ProxyElement
 {
+    // User-perceives this as a button; share settings / [AnnouncementOrder] with ProxyButton.
+    public override System.Type AnnouncementOrderType => typeof(ProxyButton);
+
     public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
         var label = GetLabel();
