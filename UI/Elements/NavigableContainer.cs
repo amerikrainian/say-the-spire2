@@ -20,9 +20,11 @@ public class NavigableContainer : ListContainer
                 return MoveRelative(-1);
             case "ui_left":
                 if (FocusedChild is SliderElement slLeft) { slLeft.Decrement(); return true; }
+                if (FocusedChild is NullableSliderElement nslLeft) { nslLeft.Decrement(); return true; }
                 return false;
             case "ui_right":
                 if (FocusedChild is SliderElement slRight) { slRight.Increment(); return true; }
+                if (FocusedChild is NullableSliderElement nslRight) { nslRight.Increment(); return true; }
                 return false;
             case "ui_accept":
             case "ui_select":

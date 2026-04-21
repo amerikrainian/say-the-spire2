@@ -178,6 +178,24 @@ public class ModSettingsScreen : Screen
                     AddControl(nullableCheckbox.Node, nullableCheckbox);
                     break;
 
+                case NullableIntSetting nullableIntSetting:
+                    var nullableSlider = new NullableSliderElement(nullableIntSetting);
+                    _navContainer.Add(nullableSlider);
+                    AddControl(nullableSlider.Node, nullableSlider);
+                    break;
+
+                case NullableStringSetting nullableStringSetting:
+                    var nullableTextInput = new NullableTextInputElement(nullableStringSetting);
+                    _navContainer.Add(nullableTextInput);
+                    AddControl(nullableTextInput.Node, nullableTextInput);
+                    break;
+
+                case NullableChoiceSetting nullableChoiceSetting:
+                    var nullableDropdown = new NullableDropdownElement(nullableChoiceSetting);
+                    _navContainer.Add(nullableDropdown);
+                    AddControl(nullableDropdown.Node, nullableDropdown);
+                    break;
+
                 case BoolSetting boolSetting:
                     var checkbox = new CheckboxElement(boolSetting);
                     _navContainer.Add(checkbox);
@@ -261,6 +279,23 @@ public class ModSettingsScreen : Screen
         else if (element is NullableCheckboxElement ncb)
         {
             ((CheckBox)control).Toggled += (_) => ncb.SyncFromControl();
+        }
+        else if (element is NullableSliderElement nsl)
+        {
+            ((HSlider)control).ValueChanged += (_) => nsl.SyncFromControl();
+        }
+        else if (element is NullableTextInputElement nti)
+        {
+            ((LineEdit)control).TextChanged += (_) => nti.SyncFromControl();
+        }
+        else if (element is NullableDropdownElement ndd)
+        {
+            ((BaseButton)control).Pressed += () =>
+            {
+                // Open a choice-selection screen keyed off the nullable's fallback options.
+                // SetExplicit is called via ResolvedChanged in NullableDropdownElement.
+                // TODO: implement NullableChoiceSelectionScreen if users need it.
+            };
         }
         else if (element is SliderElement sl)
         {
