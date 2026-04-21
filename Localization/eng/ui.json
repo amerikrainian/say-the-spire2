@@ -333,6 +333,8 @@
 
   "ORB.STATUS": "Passive {passive}, Evoke {evoke}",
   "ORB.BUFFER_STATUS": "Passive: {passive}, Evoke: {evoke}",
+  "ORB.PASSIVE": "Passive {value}",
+  "ORB.EVOKE": "Evoke {value}",
 
   "TIMELINE.LOCKED": "locked",
   "TIMELINE.REVEALED": "revealed",
@@ -538,6 +540,8 @@
   "SETTINGS.ANNOUNCEMENTS.KEYBOARD_BINDING": "Keyboard Binding",
   "SETTINGS.ANNOUNCEMENTS.CONTROLLER_BINDING": "Controller Binding",
   "SETTINGS.ANNOUNCEMENTS.BINDING_EXCLUSIVITY": "Binding Exclusivity",
+  "SETTINGS.ANNOUNCEMENTS.ORB_PASSIVE": "Orb Passive",
+  "SETTINGS.ANNOUNCEMENTS.ORB_EVOKE": "Orb Evoke",
   "BINDING.KEYBOARD_BOUND": "keyboard {key}",
   "BINDING.KEYBOARD_UNBOUND": "keyboard unbound",
   "BINDING.CONTROLLER_BOUND": "controller {button}",

@@ -13,7 +13,9 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
-    typeof(ControlValueAnnouncement)
+    typeof(OrbPassiveAnnouncement),
+    typeof(OrbEvokeAnnouncement),
+    typeof(TooltipAnnouncement)
 )]
 public class ProxyOrb : ProxyElement
 {
@@ -29,9 +31,19 @@ public class ProxyOrb : ProxyElement
 
         yield return new TypeAnnouncement("orb");
 
-        var status = GetStatusString();
-        if (status != null)
-            yield return new ControlValueAnnouncement(status);
+        var model = Orb?.Model;
+        if (model != null)
+        {
+            yield return new OrbPassiveAnnouncement((int)model.PassiveVal);
+            yield return new OrbEvokeAnnouncement((int)model.EvokeVal);
+        }
+        else
+        {
+            var tip = OrbModel.EmptySlotHoverTipHoverTip;
+            var desc = tip.Description;
+            if (!string.IsNullOrEmpty(desc))
+                yield return new TooltipAnnouncement(StripBbcode(desc));
+        }
     }
 
     public override Message? GetLabel()
