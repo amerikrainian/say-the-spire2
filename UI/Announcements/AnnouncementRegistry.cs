@@ -95,7 +95,7 @@ public static class AnnouncementRegistry
         if (orderAttr == null) return;
 
         var elementKey = DeriveElementKey(elementType);
-        var elementDisplay = DeriveDisplayName(StripSuffix(StripSuffix(elementType.Name, "Element"), "Proxy", prefixInstead: true));
+        var elementDisplay = DeriveElementDisplayName(elementType);
 
         // The per-element "Announcements" subcategory that contains all the
         // announcement overrides — we tag it with HasResetAction so the
@@ -209,6 +209,35 @@ public static class AnnouncementRegistry
         if (attr != null)
             return attr.Key;
         return ToSnakeCase(StripSuffix(StripSuffix(elementType.Name, "Element"), "Proxy", prefixInstead: true));
+    }
+
+    /// <summary>
+    /// Picks the display name for the per-element settings category. When the
+    /// class carries <see cref="ElementSettingsKeyAttribute"/> we derive the
+    /// label from the key (e.g. "potion" → "Potion", "shop_item" → "Shop
+    /// Item") so it matches what the user is actually configuring, instead of
+    /// the class name (which would read as "Potion Holder", "Merchant Slot").
+    /// </summary>
+    private static string DeriveElementDisplayName(Type elementType)
+    {
+        var attr = elementType.GetCustomAttribute<ElementSettingsKeyAttribute>();
+        if (attr != null)
+            return SnakeToTitleCase(attr.Key);
+        return DeriveDisplayName(StripSuffix(StripSuffix(elementType.Name, "Element"), "Proxy", prefixInstead: true));
+    }
+
+    private static string SnakeToTitleCase(string snake)
+    {
+        var parts = snake.Split('_');
+        var sb = new StringBuilder(snake.Length + parts.Length);
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (parts[i].Length == 0) continue;
+            if (sb.Length > 0) sb.Append(' ');
+            sb.Append(char.ToUpperInvariant(parts[i][0]));
+            sb.Append(parts[i].AsSpan(1));
+        }
+        return sb.ToString();
     }
 
     private static string DeriveDisplayName(string pascalCase)

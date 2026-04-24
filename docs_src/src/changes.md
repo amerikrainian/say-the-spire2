@@ -16,7 +16,6 @@
 * The "Announce Intent Before HP" setting for creatures is gone — use Move Up on the Monster Intents row under UI/Creature/Announcements instead.
 * The per-element "Announce Position / Type / Subtype / Tooltip" toggles that used to live directly under UI/<element> have been folded into the per-element Announcements tree with the new override model.
 * Settings trees for similar button-like, slider-like, potion-like, and relic-like controls have been collapsed so related elements share one settings category instead of fragmenting across many near-duplicates.
-* The "Hovered Model" announcement has been renamed to Player Intents for clarity.
 
 ## V0.4.1
 * Fixed an incorrect localization string that was causing positions to be read out as "row y, column x" instead of "x, y". All positions should be  in the form column, row.
