@@ -22,8 +22,9 @@ public static class AnnouncementComposer
     public static Message Compose(UIElement element, IEnumerable<Announcement> announcements)
     {
         var ctx = new AnnouncementContext(element);
-        var order = element.AnnouncementOrderType.GetCustomAttribute<AnnouncementOrderAttribute>()?.Types
+        var attrOrder = element.AnnouncementOrderType.GetCustomAttribute<AnnouncementOrderAttribute>()?.Types
             ?? Array.Empty<Type>();
+        var order = ResolveUserOrder(ctx.ElementKey, attrOrder);
 
         // Partition into declared (keyed by type) and undeclared (kept in yield order)
         var declared = new Dictionary<Type, Announcement>();
@@ -72,5 +73,42 @@ public static class AnnouncementComposer
         }
 
         return Message.Raw(sb.ToString());
+    }
+
+    /// <summary>
+    /// Applies the user-stored announcement order (e.g. from
+    /// <c>ui.{element}.announcements.order</c>) on top of the type's attribute
+    /// order. User-listed keys come first in their stored order; any types
+    /// from the attribute not listed by the user are appended in attribute
+    /// order. PositionAnnouncement is always included (auto-injected).
+    /// </summary>
+    private static Type[] ResolveUserOrder(string elementKey, Type[] attrOrder)
+    {
+        var orderSetting = ModSettings.GetSetting<StringSetting>($"ui.{elementKey}.announcements.order");
+        if (orderSetting == null || string.IsNullOrWhiteSpace(orderSetting.Value))
+            return attrOrder;
+
+        // Key → Type map from attribute order plus PositionAnnouncement.
+        var keyToType = new Dictionary<string, Type>();
+        foreach (var t in attrOrder)
+            keyToType[AnnouncementRegistry.DeriveAnnouncementKey(t)] = t;
+        keyToType[AnnouncementRegistry.DeriveAnnouncementKey(typeof(PositionAnnouncement))] = typeof(PositionAnnouncement);
+
+        var result = new List<Type>(keyToType.Count);
+        var seen = new HashSet<Type>();
+        foreach (var rawKey in orderSetting.Value.Split(','))
+        {
+            var key = rawKey.Trim();
+            if (!string.IsNullOrEmpty(key) && keyToType.TryGetValue(key, out var t) && seen.Add(t))
+                result.Add(t);
+        }
+        // Fill in anything the user's list didn't cover — e.g. a new announcement
+        // type added by a mod update after the user last saved their order.
+        foreach (var t in attrOrder)
+            if (seen.Add(t)) result.Add(t);
+        if (seen.Add(typeof(PositionAnnouncement)))
+            result.Add(typeof(PositionAnnouncement));
+
+        return result.ToArray();
     }
 }

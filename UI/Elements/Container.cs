@@ -47,6 +47,17 @@ public abstract class Container : UIElement
     public int IndexOf(UIElement child) => _children.IndexOf(child);
 
     /// <summary>
+    /// Swap two children's positions in this container. No-op for invalid indices.
+    /// </summary>
+    public void Swap(int a, int b)
+    {
+        if (a == b) return;
+        if (a < 0 || a >= _children.Count) return;
+        if (b < 0 || b >= _children.Count) return;
+        (_children[a], _children[b]) = (_children[b], _children[a]);
+    }
+
+    /// <summary>
     /// Returns a formatted position string for the child element, or null if not applicable.
     /// </summary>
     public override void Update()

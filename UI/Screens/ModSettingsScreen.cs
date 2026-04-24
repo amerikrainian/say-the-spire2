@@ -14,6 +14,8 @@ public class ModSettingsScreen : Screen
     private readonly PanelContainer _root;
     private readonly VBoxContainer _itemList;
     private readonly NavigableContainer _navContainer;
+    private readonly System.Collections.Generic.Dictionary<RowContainer, CategorySetting> _rowCategories = new();
+    private readonly System.Collections.Generic.Dictionary<RowContainer, HBoxContainer> _rowNodes = new();
 
     public override string? ScreenName => _category.Label;
 
@@ -108,8 +110,9 @@ public class ModSettingsScreen : Screen
         if (GodotObject.IsInstanceValid(_root))
             _root.Visible = true;
 
-        if (_navContainer.FocusIndex >= 0)
-            _navContainer.SetFocusIndex(_navContainer.FocusIndex);
+        var remembered = _navContainer.FocusedChild;
+        if (remembered != null)
+            _navContainer.SetFocusTo(remembered);
         else
             _navContainer.FocusFirst();
     }
@@ -159,17 +162,24 @@ public class ModSettingsScreen : Screen
 
         foreach (var setting in _category.Children.OrderBy(s => s.SortPriority).ThenBy(s => s.Label))
         {
+            if (setting.Hidden) continue;
+
             switch (setting)
             {
                 case CategorySetting cat:
-                    var button = new ButtonElement(cat.Label);
-                    button.OnActivated = () =>
+                    if (_category.HasResetAction)
+                        AddReorderableCategoryRow(cat);
+                    else
                     {
-                        var subScreen = new ModSettingsScreen(cat);
-                        ScreenManager.PushScreen(subScreen);
-                    };
-                    _navContainer.Add(button);
-                    AddControl(button.Node, button);
+                        var button = new ButtonElement(cat.Label);
+                        button.OnActivated = () =>
+                        {
+                            var subScreen = new ModSettingsScreen(cat);
+                            ScreenManager.PushScreen(subScreen);
+                        };
+                        _navContainer.Add(button);
+                        AddControl(button.Node, button);
+                    }
                     break;
 
                 case NullableBoolSetting nullableBoolSetting:
@@ -253,6 +263,105 @@ public class ModSettingsScreen : Screen
             return $"{action.Label}: (none)";
         var names = string.Join(", ", bindings.Select(b => b.DisplayName));
         return $"{action.Label}: {names}";
+    }
+
+    /// <summary>
+    /// Builds a three-button row (Configure / Move Up / Move Down) for an
+    /// announcement-override category. Move buttons are wired but are no-ops
+    /// until persistence for user reordering is implemented.
+    /// </summary>
+    private void AddReorderableCategoryRow(CategorySetting cat)
+    {
+        var row = new RowContainer
+        {
+            // Announced on entry: e.g. "Label horizontal bar, Configure, button, 1 of 3"
+            ContainerLabel = Message.Localized("ui", "SETTINGS.HORIZONTAL_BAR_LABEL", new { label = cat.Label }).Resolve(),
+            AnnounceName = true,
+            AnnouncePosition = true,
+        };
+        var hbox = new HBoxContainer();
+        hbox.AddThemeConstantOverride("separation", 8);
+
+        var configureLabel = LocalizationManager.GetOrDefault("ui", "SETTINGS.CONFIGURE", "Configure");
+        var configure = new ButtonElement(configureLabel);
+        configure.OnActivated = () =>
+        {
+            var subScreen = new ModSettingsScreen(cat);
+            ScreenManager.PushScreen(subScreen);
+        };
+        row.Add(configure);
+        AddRowChild(hbox, configure, row);
+
+        var moveUp = new ButtonElement(LocalizationManager.GetOrDefault("ui", "SETTINGS.MOVE_UP", "Move Up"));
+        moveUp.OnActivated = () => MoveRow(row, hbox, -1);
+        row.Add(moveUp);
+        AddRowChild(hbox, moveUp, row);
+
+        var moveDown = new ButtonElement(LocalizationManager.GetOrDefault("ui", "SETTINGS.MOVE_DOWN", "Move Down"));
+        moveDown.OnActivated = () => MoveRow(row, hbox, 1);
+        row.Add(moveDown);
+        AddRowChild(hbox, moveDown, row);
+
+        _itemList.AddChild(hbox);
+        _navContainer.Add(row);
+        _rowCategories[row] = cat;
+        _rowNodes[row] = hbox;
+    }
+
+    /// <summary>
+    /// Swap this row with its adjacent row-sibling in the given direction.
+    /// Updates the NavigableContainer order, swaps SortPriority so re-entry
+    /// shows the new order, moves the Godot HBox nodes in the VBox, and
+    /// rewrites the persisted order string consumed by AnnouncementComposer.
+    /// Focus stays on the activated move button so repeated presses chain.
+    /// </summary>
+    private void MoveRow(RowContainer row, HBoxContainer hbox, int direction)
+    {
+        int index = _navContainer.IndexOf(row);
+        int neighbourIndex = -1;
+        for (int i = index + direction; i >= 0 && i < _navContainer.Children.Count; i += direction)
+        {
+            if (_navContainer.Children[i] is RowContainer) { neighbourIndex = i; break; }
+        }
+        if (neighbourIndex < 0) return; // at the boundary
+
+        var neighbour = (RowContainer)_navContainer.Children[neighbourIndex];
+
+        _navContainer.Swap(index, neighbourIndex);
+
+        if (_rowNodes.TryGetValue(neighbour, out var neighbourHbox))
+        {
+            int hboxPos = hbox.GetIndex();
+            int neighbourPos = neighbourHbox.GetIndex();
+            _itemList.MoveChild(hbox, neighbourPos);
+            _itemList.MoveChild(neighbourHbox, hboxPos);
+        }
+
+        PersistAnnouncementOrder();
+    }
+
+    private void PersistAnnouncementOrder()
+    {
+        var orderSetting = _category.Get<StringSetting>("order");
+        if (orderSetting == null) return;
+
+        var keys = new System.Collections.Generic.List<string>();
+        foreach (var child in _navContainer.Children)
+        {
+            if (child is RowContainer r && _rowCategories.TryGetValue(r, out var cat))
+                keys.Add(cat.Key);
+        }
+        orderSetting.Set(string.Join(",", keys));
+    }
+
+    private void AddRowChild(HBoxContainer hbox, ButtonElement button, RowContainer row)
+    {
+        var control = (Control)button.Node;
+        control.FocusMode = Control.FocusModeEnum.All;
+        hbox.AddChild(control);
+
+        control.FocusEntered += () => _navContainer.SetFocusTo(button);
+        ((BaseButton)control).Pressed += () => button.Activate();
     }
 
     private void AddControl(Node node, UIElement element)

@@ -5,10 +5,16 @@ namespace SayTheSpire2.UI.Elements;
 
 public class NavigableContainer : ListContainer
 {
-    private int _focusIndex = -1;
+    private UIElement? _focusedChild;
 
+    /// <summary>
+    /// The element currently focused in this container, or null if focus is
+    /// unset or the remembered element is no longer a child. Tracked by
+    /// reference so mutations to <see cref="Children"/> (reorder / insert /
+    /// remove) don't shift focus to a different element.
+    /// </summary>
     public UIElement? FocusedChild =>
-        _focusIndex >= 0 && _focusIndex < Children.Count ? Children[_focusIndex] : null;
+        _focusedChild != null && IndexOf(_focusedChild) >= 0 ? _focusedChild : null;
 
     public bool HandleAction(InputAction action)
     {
@@ -19,10 +25,12 @@ public class NavigableContainer : ListContainer
             case "ui_up":
                 return MoveRelative(-1);
             case "ui_left":
+                if (FocusedChild is RowContainer rowLeft) return rowLeft.MoveRelative(-1);
                 if (FocusedChild is SliderElement slLeft) { slLeft.Decrement(); return true; }
                 if (FocusedChild is NullableSliderElement nslLeft) { nslLeft.Decrement(); return true; }
                 return false;
             case "ui_right":
+                if (FocusedChild is RowContainer rowRight) return rowRight.MoveRelative(1);
                 if (FocusedChild is SliderElement slRight) { slRight.Increment(); return true; }
                 if (FocusedChild is NullableSliderElement nslRight) { nslRight.Increment(); return true; }
                 return false;
@@ -40,7 +48,7 @@ public class NavigableContainer : ListContainer
         {
             if (Children[i].IsVisible)
             {
-                SetFocus(i);
+                SetFocus(Children[i]);
                 return;
             }
         }
@@ -50,7 +58,7 @@ public class NavigableContainer : ListContainer
     {
         if (Children.Count == 0) return false;
 
-        int index = _focusIndex;
+        int index = _focusedChild != null ? IndexOf(_focusedChild) : -1;
 
         while (true)
         {
@@ -60,26 +68,45 @@ public class NavigableContainer : ListContainer
 
             if (Children[index].IsVisible)
             {
-                SetFocus(index);
+                SetFocus(Children[index]);
                 return true;
             }
         }
     }
 
+    /// <summary>
+    /// Focus the given element. Accepts either a direct child or a leaf inside
+    /// a <see cref="RowContainer"/> child; falls back to <see cref="FocusFirst"/>
+    /// when the element isn't reachable — e.g., after a rebuild that dropped it.
+    /// </summary>
     public void SetFocusTo(UIElement element)
     {
-        var index = IndexOf(element);
-        if (index >= 0)
-            SetFocus(index);
+        if (element.Parent is RowContainer row && IndexOf(row) >= 0 && row.IsVisible)
+        {
+            _focusedChild = row;
+            row.SetFocusTo(element);
+            return;
+        }
+
+        if (IndexOf(element) >= 0 && element.IsVisible)
+            SetFocus(element);
+        else
+            FocusFirst();
     }
 
-    private void SetFocus(int index)
+    private void SetFocus(UIElement element)
     {
-        if (_focusIndex >= 0 && _focusIndex < Children.Count)
-            Children[_focusIndex].Unfocus();
+        if (_focusedChild != null && _focusedChild != element && IndexOf(_focusedChild) >= 0)
+            _focusedChild.Unfocus();
 
-        _focusIndex = index;
-        UIManager.SetFocusedElement(Children[index]);
+        _focusedChild = element;
+
+        // A row wraps several focusable children — push focus inside so the
+        // announced element is the actual leaf (button/etc.), not the row.
+        if (element is RowContainer row)
+            row.FocusCurrent();
+        else
+            UIManager.SetFocusedElement(element);
     }
 
     private bool ActivateFocused()
@@ -89,6 +116,8 @@ public class NavigableContainer : ListContainer
 
         switch (child)
         {
+            case RowContainer row:
+                return row.ActivateFocused();
             case ButtonElement button:
                 button.Activate();
                 return true;
@@ -107,18 +136,5 @@ public class NavigableContainer : ListContainer
             default:
                 return false;
         }
-    }
-
-    public int FocusIndex => _focusIndex;
-
-    public void SetFocusIndex(int index)
-    {
-        if (index < 0 || index >= Children.Count || !Children[index].IsVisible)
-        {
-            FocusFirst();
-            return;
-        }
-
-        SetFocus(index);
     }
 }

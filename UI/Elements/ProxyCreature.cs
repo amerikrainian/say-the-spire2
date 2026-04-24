@@ -14,6 +14,9 @@ namespace SayTheSpire2.UI.Elements;
     typeof(TypeAnnouncement),
     typeof(HpAnnouncement),
     typeof(BlockAnnouncement),
+    typeof(EnergyAnnouncement),
+    typeof(StarsAnnouncement),
+    typeof(CardsInHandAnnouncement),
     typeof(MonsterIntentsAnnouncement),
     typeof(PlayerIntentsAnnouncement)
 )]
@@ -45,11 +48,23 @@ public class ProxyCreature : ProxyElement
         {
             yield return new MonsterIntentsAnnouncement(view.MonsterIntents);
         }
-        else if (view.IsPlayer && view.PlayerHoveredModel != null)
+        else if (view.IsPlayer)
         {
-            var summary = CreatureIntentFormatter.HoveredModelSummary(view.PlayerHoveredModel);
-            if (!string.IsNullOrEmpty(summary))
-                yield return new PlayerIntentsAnnouncement(summary);
+            var pcs = view.PlayerCombatState;
+            if (pcs != null)
+            {
+                yield return new EnergyAnnouncement(pcs.Energy, pcs.MaxEnergy);
+                if (pcs.Stars > 0)
+                    yield return new StarsAnnouncement(pcs.Stars);
+                yield return new CardsInHandAnnouncement(pcs.Hand.Cards.Count);
+            }
+
+            if (view.PlayerHoveredModel != null)
+            {
+                var summary = CreatureIntentFormatter.HoveredModelSummary(view.PlayerHoveredModel);
+                if (!string.IsNullOrEmpty(summary))
+                    yield return new PlayerIntentsAnnouncement(summary);
+            }
         }
     }
 

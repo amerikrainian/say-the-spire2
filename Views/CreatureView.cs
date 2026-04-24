@@ -48,6 +48,12 @@ public class CreatureView
     public MonsterModel? Monster => Entity.Monster;
 
     /// <summary>
+    /// The player's current combat state (energy, stars, hand). Null for
+    /// non-players, or when the player isn't in combat.
+    /// </summary>
+    public PlayerCombatState? PlayerCombatState => IsPlayer ? Player?.PlayerCombatState : null;
+
+    /// <summary>
     /// The monster's current intents (what it will do next turn). Empty for non-monsters
     /// or monsters without a queued move.
     /// </summary>

@@ -38,6 +38,13 @@ public abstract class Setting
     /// </summary>
     public int SortPriority { get; set; }
 
+    /// <summary>
+    /// When true, the settings screen skips this setting while building controls.
+    /// Used for persisted state the user manipulates indirectly (e.g., the
+    /// announcement-order string updated via Move Up / Move Down row buttons).
+    /// </summary>
+    public bool Hidden { get; set; }
+
     protected Setting(string key, string label, string localizationKey = "")
     {
         Key = key;

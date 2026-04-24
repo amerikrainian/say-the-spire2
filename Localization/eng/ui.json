@@ -553,5 +553,9 @@
   "CHARACTER.REMOTE_SELECTION_SINGLE": "Selected by 1 other player",
   "CHARACTER.REMOTE_SELECTION_PLURAL": "Selected by {count} other players",
   "SETTINGS.RESET_TO_DEFAULTS": "Reset to defaults",
-  "SETTINGS.RESET_DONE": "Reset to defaults"
+  "SETTINGS.RESET_DONE": "Reset to defaults",
+  "SETTINGS.MOVE_UP": "Move Up",
+  "SETTINGS.MOVE_DOWN": "Move Down",
+  "SETTINGS.CONFIGURE": "Configure",
+  "SETTINGS.HORIZONTAL_BAR_LABEL": "{label} horizontal bar"
 }

@@ -105,6 +105,24 @@ public static class AnnouncementRegistry
         // [AnnouncementOrder] but every element needs an override entry for it.
         var announcementTypes = orderAttr.Types.Append(typeof(PositionAnnouncement)).Distinct().ToList();
 
+        // Hidden user-order setting — comma-separated announcement keys in
+        // whatever order the user has picked. Default matches the attribute
+        // order; AnnouncementComposer consults it, falling back to the
+        // attribute when an announcement key isn't listed (e.g., we added a
+        // new announcement type since the user last saved).
+        //
+        // When the value changes (either via Move Up / Move Down buttons or
+        // via disk load on startup), mirror it onto each sibling category's
+        // SortPriority so the settings screen renders in the user's order.
+        var orderSetting = announcementsParent.GetByKey("order") as StringSetting;
+        if (orderSetting == null)
+        {
+            var defaultOrder = string.Join(",", announcementTypes.Select(DeriveAnnouncementKey));
+            orderSetting = new StringSetting("order", "Announcement Order", defaultOrder) { Hidden = true };
+            announcementsParent.Add(orderSetting);
+        }
+        orderSetting.Changed += newOrder => ApplyOrderToSortPriorities(announcementsParent, newOrder);
+
         for (int i = 0; i < announcementTypes.Count; i++)
         {
             var announcementType = announcementTypes[i];
@@ -133,6 +151,24 @@ public static class AnnouncementRegistry
                 if (overrideSetting != null)
                     announcementCategory.Add(overrideSetting);
             }
+        }
+    }
+
+    /// <summary>
+    /// Rewrites <see cref="Setting.SortPriority"/> on each CategorySetting
+    /// child of the announcements parent to match its position in the
+    /// comma-separated order. Categories not listed keep their current priority.
+    /// </summary>
+    private static void ApplyOrderToSortPriorities(CategorySetting announcementsParent, string orderCsv)
+    {
+        if (string.IsNullOrWhiteSpace(orderCsv)) return;
+
+        var keys = orderCsv.Split(',');
+        for (int i = 0; i < keys.Length; i++)
+        {
+            var key = keys[i].Trim();
+            if (announcementsParent.GetByKey(key) is CategorySetting cat)
+                cat.SortPriority = i;
         }
     }
 
