@@ -47,6 +47,7 @@
   "BUFFERS.RELIC": "遗物",
   "BUFFERS.POTION": "药水",
   "BUFFERS.ORB": "充能球",
+  "BUFFERS.UPGRADE": "升级",
   "BUFFERS.NO_BUFFERS": "没有可用缓冲区",
   "BUFFERS.NO_BUFFER_SELECTED": "未选择缓冲区",
   "BUFFERS.EMPTY": "{buffer}: 空",

@@ -82,6 +82,7 @@ public class CardLibraryGameScreen : GameScreen
     private readonly ListContainer _displayRow = NewRow(Ui("CARD_LIBRARY.ROWS.DISPLAY"));
     private readonly CardLibraryGridContainer _cardGridContainer;
     private readonly Dictionary<ulong, bool> _toggleStates = new();
+    private readonly Dictionary<Control, System.Action> _focusHandlers = new();
     private string? _stateToken;
     private bool _suppressOpeningCardFocus;
 
@@ -116,6 +117,7 @@ public class CardLibraryGameScreen : GameScreen
     public override void OnPop()
     {
         base.OnPop();
+        DisconnectFocusSignals();
         _root.Clear();
         _connectedControls.Clear();
         _elementCache.Clear();
@@ -317,8 +319,11 @@ public class CardLibraryGameScreen : GameScreen
         if (!_connectedControls.Add(control.GetInstanceId()))
             return;
 
-        control.FocusEntered += () =>
+        System.Action handler = () =>
         {
+            if (!GodotObject.IsInstanceValid(_screen) || !_screen.IsAncestorOf(control))
+                return;
+
             if (ShouldSuppressOpeningCardFocus(control))
                 return;
 
@@ -327,6 +332,22 @@ public class CardLibraryGameScreen : GameScreen
 
             UIManager.SetFocusedControl(control, element);
         };
+
+        _focusHandlers[control] = handler;
+        control.FocusEntered += handler;
+    }
+
+    private void DisconnectFocusSignals()
+    {
+        foreach (var pair in _focusHandlers)
+        {
+            if (!GodotObject.IsInstanceValid(pair.Key))
+                continue;
+
+            pair.Key.FocusEntered -= pair.Value;
+        }
+
+        _focusHandlers.Clear();
     }
 
     private void AnnounceFocusedControlIfNeeded()

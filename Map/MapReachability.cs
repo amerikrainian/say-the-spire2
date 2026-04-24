@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Map;
@@ -19,6 +20,9 @@ public static class MapReachability
     private static readonly System.Reflection.MethodInfo? ShouldAllowFreeTravelMethod =
         AccessTools.Method(typeof(AbstractModel), "ShouldAllowFreeTravel");
 
+    private static readonly MethodInfo? IterateHookListenersMethod =
+        AccessTools.Method(typeof(RunState), "IterateHookListeners");
+
     public static MapReachabilityContext CreateContext(RunState? runState)
     {
         if (runState == null)
@@ -29,10 +33,13 @@ public static class MapReachability
 
         try
         {
-            if (ShouldAllowFreeTravelMethod == null)
+            if (ShouldAllowFreeTravelMethod == null || IterateHookListenersMethod == null)
                 return default;
 
-            foreach (AbstractModel listener in runState.IterateHookListeners(null))
+            if (IterateHookListenersMethod.Invoke(runState, new object?[] { null }) is not IEnumerable<AbstractModel> listeners)
+                return default;
+
+            foreach (AbstractModel listener in listeners)
             {
                 if (ShouldAllowFreeTravelMethod.Invoke(listener, null) is not true)
                     continue;
@@ -177,8 +184,9 @@ public static class MapReachability
         {
             return instance.GetType().GetProperty(propertyName)?.GetValue(instance) is int value ? value : null;
         }
-        catch
+        catch (System.Exception e)
         {
+            Log.Info($"[AccessibilityMod] MapReachability: failed to read {propertyName}: {e.Message}");
             return null;
         }
     }

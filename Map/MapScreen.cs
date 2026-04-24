@@ -40,13 +40,13 @@ public class MapScreen : Screen
 
     public override void OnPush()
     {
-        Current = this;
-
         if (!_handler.Build())
         {
             Log.Error("[AccessibilityMod] MapScreen: Failed to build map graph");
             return;
         }
+
+        Current = this;
 
         _viewer = new TreeMapViewer(_handler);
 

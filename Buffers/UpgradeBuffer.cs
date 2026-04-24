@@ -2,6 +2,7 @@ using System;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
+using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Localization;
 namespace SayTheSpire2.Buffers;
 
@@ -76,7 +77,8 @@ public class UpgradeBuffer : Buffer
             return;
         }
 
-        if (model.CardScope == null)
+        var cardScope = model.CardScope;
+        if (cardScope == null || cardScope is NullRunState)
         {
             try
             {
@@ -95,7 +97,7 @@ public class UpgradeBuffer : Buffer
 
         try
         {
-            var clone = model.CardScope.CloneCard(model);
+            var clone = cardScope.CloneCard(model);
             clone.UpgradeInternal();
 
             Add(clone.Title);

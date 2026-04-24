@@ -43,6 +43,7 @@
   "BUFFERS.RELIC": "Relic",
   "BUFFERS.POTION": "Potion",
   "BUFFERS.ORB": "Orb",
+  "BUFFERS.UPGRADE": "Upgrade",
   "BUFFERS.NO_BUFFERS": "No buffers available",
   "BUFFERS.NO_BUFFER_SELECTED": "No buffer selected",
   "BUFFERS.EMPTY": "{buffer}: empty",
