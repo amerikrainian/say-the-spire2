@@ -1,8 +1,14 @@
 using SayTheSpire2.Localization;
+using SayTheSpire2.Settings;
 
 namespace SayTheSpire2.UI.Announcements;
 
-/// <summary>A player's current / max energy.</summary>
+/// <summary>
+/// A player's current / max energy pool. Honors a "verbose" setting
+/// (default true) that cascades per-element / global:
+/// - Verbose: "3/3 energy"
+/// - Compact: "3/3"
+/// </summary>
 public sealed class EnergyAnnouncement : Announcement
 {
     private readonly int _current;
@@ -16,6 +22,17 @@ public sealed class EnergyAnnouncement : Announcement
 
     public override string Key => "energy";
     public override string Suffix => ",";
-    public override Message Render(AnnouncementContext ctx) =>
-        Message.Localized("ui", "RESOURCE.ENERGY", new { current = _current, max = _max });
+
+    public static void RegisterSettings(CategorySetting category)
+    {
+        category.Add(new BoolSetting("verbose", "Verbose", true, localizationKey: "SETTINGS.VERBOSE"));
+    }
+
+    public override Message Render(AnnouncementContext ctx)
+    {
+        var verbose = ctx.ResolveBool(Key, "verbose", true);
+        return verbose
+            ? Message.Localized("ui", "RESOURCE.ENERGY", new { current = _current, max = _max })
+            : Message.Localized("ui", "RESOURCE.ENERGY_COMPACT", new { current = _current, max = _max });
+    }
 }

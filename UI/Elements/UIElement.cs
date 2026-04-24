@@ -99,6 +99,14 @@ public abstract class UIElement
     {
         var announcements = new List<Announcement>(GetFocusAnnouncements());
         CollectAnnouncements?.Invoke(announcements);
+
+        if (Parent is { AnnouncePosition: true } parent)
+        {
+            var pos = parent.GetPositionString(this);
+            if (pos != null)
+                announcements.Add(new PositionAnnouncement(pos));
+        }
+
         return AnnouncementComposer.Compose(this, announcements);
     }
 

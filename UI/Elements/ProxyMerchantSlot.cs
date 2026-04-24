@@ -15,8 +15,7 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
-    typeof(PriceAnnouncement),
-    typeof(SoldOutAnnouncement)
+    typeof(PriceAnnouncement)
 )]
 public class ProxyMerchantSlot : ProxyElement
 {
@@ -35,7 +34,7 @@ public class ProxyMerchantSlot : ProxyElement
             yield return new TypeAnnouncement("shop_item");
             if (!entry.IsStocked)
             {
-                yield return new SoldOutAnnouncement();
+                yield return PriceAnnouncement.SoldOut();
                 yield break;
             }
             yield return new PriceAnnouncement(entry.Cost, canAfford: entry.EnoughGold);
@@ -44,7 +43,7 @@ public class ProxyMerchantSlot : ProxyElement
 
         // Standard entry: flatten inner's announcements and append shop info.
         // The inner's [AnnouncementOrder] (via AnnouncementOrderType) positions
-        // PriceAnnouncement / SoldOutAnnouncement at its declared insertion points.
+        // PriceAnnouncement at its declared insertion point.
         var inner = GetInnerProxy();
         if (inner != null)
             foreach (var a in inner.GetFocusAnnouncements())
@@ -54,7 +53,7 @@ public class ProxyMerchantSlot : ProxyElement
 
         if (!entry.IsStocked)
         {
-            yield return new SoldOutAnnouncement();
+            yield return PriceAnnouncement.SoldOut();
             yield break;
         }
 

@@ -17,10 +17,9 @@ namespace SayTheSpire2.UI.Elements;
     // Compendium insertion point — ProxyRelicCollectionEntry yields Status
     // (locked / undiscovered). Regular relic-holder instances don't yield it.
     typeof(StatusAnnouncement),
-    // Shop-context insertion points — ProxyRelicHolder never yields these, but
-    // ProxyMerchantSlot does, and relic's order positions them here.
+    // Shop-context insertion point — ProxyRelicHolder never yields this, but
+    // ProxyMerchantSlot does, and relic's order positions it here.
     typeof(PriceAnnouncement),
-    typeof(SoldOutAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 public class ProxyRelicHolder : ProxyElement

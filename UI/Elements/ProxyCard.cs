@@ -13,27 +13,19 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(EnergyCostAnnouncement),
-    typeof(StarCostAnnouncement),
     typeof(SubtypeAnnouncement),
     typeof(TypeAnnouncement),
-    // Shop-context insertion points — ProxyCard never yields these, but
-    // ProxyMerchantSlot does, and card's order positions them here.
+    // Shop-context insertion point — ProxyCard never yields this, but
+    // ProxyMerchantSlot does, and card's order positions it here.
     typeof(PriceAnnouncement),
-    typeof(SoldOutAnnouncement),
     // Grid-selection insertion points — injected via CollectAnnouncements in
     // CardGridSelectionGameScreen when a card is part of the active selection.
     typeof(SelectedMarkerAnnouncement),
     typeof(SelectionCountAnnouncement),
     typeof(TooltipAnnouncement)
 )]
-[ModSettings("ui.card", "UI/Card")]
 public class ProxyCard : ProxyElement
 {
-    public static void RegisterSettings(CategorySetting category)
-    {
-        category.Add(new BoolSetting("verbose_costs", "Verbose Costs", true));
-    }
-
     public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
         var view = GetView();
@@ -53,23 +45,23 @@ public class ProxyCard : ProxyElement
             : view.Title;
         yield return new LabelAnnouncement(labelText);
 
-        bool verbose = ModSettings.GetValue<bool>("ui.card.verbose_costs");
-
-        // Energy cost (skipped entirely if the card has no energy cost concept)
-        var energyCost = view.EnergyCost;
-        if (energyCost != null)
+        // Energy + star cost (skipped when the card has neither)
+        int? energyCost = null;
+        bool energyIsX = false;
+        var energy = view.EnergyCost;
+        if (energy != null)
         {
-            if (energyCost.CostsX)
-                yield return new EnergyCostAnnouncement(0, isX: true, verbose);
-            else
-                yield return new EnergyCostAnnouncement(energyCost.GetWithModifiers(CostModifiers.All), isX: false, verbose);
+            if (energy.CostsX) { energyCost = 0; energyIsX = true; }
+            else energyCost = energy.GetWithModifiers(CostModifiers.All);
         }
 
-        // Star cost
-        if (view.HasStarCostX)
-            yield return new StarCostAnnouncement(0, isX: true, verbose);
-        else if (view.CurrentStarCost >= 0)
-            yield return new StarCostAnnouncement(view.StarCostWithModifiers, isX: false, verbose);
+        int? starCost = null;
+        bool starIsX = false;
+        if (view.HasStarCostX) { starCost = 0; starIsX = true; }
+        else if (view.CurrentStarCost >= 0) starCost = view.StarCostWithModifiers;
+
+        if (energyCost.HasValue || starCost.HasValue)
+            yield return new EnergyCostAnnouncement(energyCost, energyIsX, starCost, starIsX);
 
         // Subtype + type
         yield return new SubtypeAnnouncement(view.TypeKey);
@@ -117,7 +109,7 @@ public class ProxyCard : ProxyElement
         if (view == null) return null;
 
         var parts = new List<string>();
-        bool verbose = ModSettings.GetValue<bool>("ui.card.verbose_costs");
+        bool verbose = ModSettings.GetValue<bool>("announcements.energy_cost.verbose");
 
         var energyCost = view.EnergyCost;
         if (energyCost != null)

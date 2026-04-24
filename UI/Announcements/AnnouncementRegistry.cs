@@ -100,8 +100,14 @@ public static class AnnouncementRegistry
             $"/SETTINGS.ELEMENTS.{elementKey.ToUpperInvariant()}/{RootLocKey}");
         announcementsParent.HasResetAction = true;
 
-        foreach (var announcementType in orderAttr.Types.Distinct())
+        // PositionAnnouncement is injected universally by UIElement.GetFocusMessage
+        // for any element that has a parent container — it's not part of any
+        // [AnnouncementOrder] but every element needs an override entry for it.
+        var announcementTypes = orderAttr.Types.Append(typeof(PositionAnnouncement)).Distinct().ToList();
+
+        for (int i = 0; i < announcementTypes.Count; i++)
         {
+            var announcementType = announcementTypes[i];
             var announcementKey = DeriveAnnouncementKey(announcementType);
             var announcementDisplay = DeriveDisplayName(StripSuffix(announcementType.Name, "Announcement"));
             var announcementCategoryLocKey = $"SETTINGS.ANNOUNCEMENTS.{announcementKey.ToUpperInvariant()}";
@@ -110,6 +116,7 @@ public static class AnnouncementRegistry
                 $"ui.{elementKey}.announcements.{announcementKey}",
                 $"UI/{elementDisplay}/Announcements/{announcementDisplay}",
                 $"/SETTINGS.ELEMENTS.{elementKey.ToUpperInvariant()}/{RootLocKey}/{announcementCategoryLocKey}");
+            announcementCategory.SortPriority = i;
 
             // Mirror every setting declared on the global announcement category
             // as a per-element Nullable* override. Covers Bool, Int, String, Choice

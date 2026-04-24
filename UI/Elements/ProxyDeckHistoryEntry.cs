@@ -17,7 +17,6 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
     typeof(EnergyCostAnnouncement),
-    typeof(StarCostAnnouncement),
     typeof(SubtypeAnnouncement),
     typeof(TypeAnnouncement),
     typeof(TooltipAnnouncement)
@@ -49,25 +48,25 @@ public class ProxyDeckHistoryEntry : ProxyElement
         if (label != null)
             yield return new LabelAnnouncement(label);
 
-        bool verbose = ModSettings.GetValue<bool>("ui.card.verbose_costs");
-
+        int? energyCost = null;
+        bool energyIsX = false;
         if (model.EnergyCost != null)
         {
-            if (model.EnergyCost.CostsX)
-                yield return new EnergyCostAnnouncement(0, isX: true, verbose);
-            else
-                yield return new EnergyCostAnnouncement(model.EnergyCost.GetWithModifiers(CostModifiers.All), isX: false, verbose);
+            if (model.EnergyCost.CostsX) { energyCost = 0; energyIsX = true; }
+            else energyCost = model.EnergyCost.GetWithModifiers(CostModifiers.All);
         }
 
-        if (model.HasStarCostX)
-            yield return new StarCostAnnouncement(0, isX: true, verbose);
+        int? starCost = null;
+        bool starIsX = false;
+        if (model.HasStarCostX) { starCost = 0; starIsX = true; }
         else if (model.CurrentStarCost >= 0)
         {
-            int starCost;
             try { starCost = model.GetStarCostWithModifiers(); }
             catch (System.Exception e) { Log.Info($"[AccessibilityMod] GetStarCostWithModifiers failed: {e.Message}"); starCost = model.CurrentStarCost; }
-            yield return new StarCostAnnouncement(starCost, isX: false, verbose);
         }
+
+        if (energyCost.HasValue || starCost.HasValue)
+            yield return new EnergyCostAnnouncement(energyCost, energyIsX, starCost, starIsX);
 
         yield return new SubtypeAnnouncement(model.Type.ToString().ToLowerInvariant());
         yield return new TypeAnnouncement("card");

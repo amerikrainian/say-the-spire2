@@ -15,7 +15,7 @@ namespace SayTheSpire2.UI.Elements;
     typeof(HpAnnouncement),
     typeof(BlockAnnouncement),
     typeof(MonsterIntentsAnnouncement),
-    typeof(HoveredModelAnnouncement)
+    typeof(PlayerIntentsAnnouncement)
 )]
 [ModSettings("ui.creature", "UI/Creature")]
 public class ProxyCreature : ProxyElement
@@ -49,7 +49,7 @@ public class ProxyCreature : ProxyElement
         {
             var summary = CreatureIntentFormatter.HoveredModelSummary(view.PlayerHoveredModel);
             if (!string.IsNullOrEmpty(summary))
-                yield return new HoveredModelAnnouncement(summary);
+                yield return new PlayerIntentsAnnouncement(summary);
         }
     }
 

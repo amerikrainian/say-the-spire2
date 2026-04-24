@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using SayTheSpire2.Localization;
-using SayTheSpire2.Settings;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI;
@@ -33,22 +32,11 @@ public class FocusContext
                 parts.Add(Message.Raw(container.ContainerLabel));
         }
 
-        // Append the element's own focus message
+        // Append the element's own focus message (includes position, injected
+        // via GetFocusMessage when Parent.AnnouncePosition is true).
         var focusMessage = element.GetFocusMessage();
         if (focusMessage != null && !focusMessage.IsEmpty)
             parts.Add(focusMessage);
-
-        // Append position from immediate parent container
-        if (element.Parent is { AnnouncePosition: true } parent)
-        {
-            var tk = element.GetTypeKey();
-            if (string.IsNullOrEmpty(tk) || FocusStringSettings.ShouldAnnouncePosition(tk))
-            {
-                var posMsg = parent.GetPositionString(element);
-                if (posMsg != null)
-                    parts.Add(posMsg);
-            }
-        }
 
         if (parts.Count == 0)
             return null;

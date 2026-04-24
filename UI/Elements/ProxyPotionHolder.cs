@@ -15,10 +15,9 @@ namespace SayTheSpire2.UI.Elements;
     // Compendium/lab insertion point — ProxyPotionLabHolder yields Status
     // (locked / undiscovered). Regular potion-holder instances don't yield it.
     typeof(StatusAnnouncement),
-    // Shop-context insertion points — ProxyPotionHolder never yields these, but
-    // ProxyMerchantSlot does, and potion's order positions them here.
+    // Shop-context insertion point — ProxyPotionHolder never yields this, but
+    // ProxyMerchantSlot does, and potion's order positions it here.
     typeof(PriceAnnouncement),
-    typeof(SoldOutAnnouncement),
     typeof(TooltipAnnouncement)
 )]
 public class ProxyPotionHolder : ProxyElement

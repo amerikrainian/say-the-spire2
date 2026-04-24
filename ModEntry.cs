@@ -108,11 +108,9 @@ public static class ModEntry
             Godot.OS.GetUserDataDir(), "mods", "SayTheSpire2");
 
         // Register UI element settings
-        Settings.ModSettingsRegistry.Register(typeof(UI.Elements.ProxyCard));
         Settings.ModSettingsRegistry.Register(typeof(UI.Elements.ProxyCreature));
 
         // Each subsystem registers its own defaults
-        Settings.FocusStringSettings.RegisterDefaults();
         Settings.EventRegistry.RegisterDefaults();
         UI.Announcements.AnnouncementRegistry.RegisterDefaults();
 
