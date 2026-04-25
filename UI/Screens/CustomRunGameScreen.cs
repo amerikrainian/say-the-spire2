@@ -62,7 +62,7 @@ public class CustomRunGameScreen : GameScreen
     private readonly ListContainer _ascensionRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.ASCENSION"), announcePosition: false);
     private readonly ListContainer _modifierRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.MODIFIERS"));
 
-    public override string? ScreenName => new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText();
+    public override Message? ScreenName => Message.Raw(new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText());
     public override IEnumerable<string> AlwaysEnabledBuffers =>
         _isMultiplayer ? new[] { "lobby" } : Array.Empty<string>();
 
@@ -259,7 +259,7 @@ public class CustomRunGameScreen : GameScreen
         _lastFocusedControl = focusedControl;
         var title = AscensionHelper.GetTitle(current).GetFormattedText();
         var description = AscensionHelper.GetDescription(current).GetFormattedText();
-        SpeechManager.Output(Message.Raw($"{Ui("CUSTOM_RUN.ASCENSION", new { value = current })}: {title}. {description}"));
+        SpeechManager.Output(Message.Localized("ui", "CHARACTER.ASCENSION_DETAIL", new { level = current, title, description }));
         _stateToken = null;
     }
 
@@ -536,7 +536,7 @@ public class CustomRunGameScreen : GameScreen
             _root.Add(row);
     }
 
-    private string? GetAscensionStatus()
+    private Message? GetAscensionStatus()
     {
         if (_ascensionPanel == null)
             return null;
@@ -544,7 +544,9 @@ public class CustomRunGameScreen : GameScreen
         var value = _ascensionPanel.Ascension;
         var title = AscensionHelper.GetTitle(value).GetFormattedText();
         var description = AscensionHelper.GetDescription(value).GetFormattedText();
-        return string.IsNullOrWhiteSpace(description) ? title : $"{title}. {description}";
+        return string.IsNullOrWhiteSpace(description)
+            ? Message.Raw(title)
+            : Message.Join(". ", Message.Raw(title), Message.Raw(description));
     }
 
     private UIElement GetOrCreate(Control control, Func<UIElement> factory)
@@ -557,11 +559,11 @@ public class CustomRunGameScreen : GameScreen
         return created;
     }
 
-    private string Ui(string key, object? data = null)
+    private Message Ui(string key, object? data = null)
     {
         return data == null
-            ? LocalizationManager.GetOrDefault("ui", key, key)
-            : Message.Localized("ui", key, data).Resolve();
+            ? Message.Localized("ui", key)
+            : Message.Localized("ui", key, data);
     }
 
     private static string UiStatic(string key)

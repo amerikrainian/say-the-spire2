@@ -20,7 +20,7 @@ public class PotionLabGameScreen : GameScreen
     private readonly Dictionary<Control, ProxyPotionLabHolder> _proxyCache = new();
     private string? _stateToken;
 
-    public override string? ScreenName => Ui("POTION_LAB.SCREEN_NAME");
+    public override Message? ScreenName => Message.Localized("ui", "POTION_LAB.SCREEN_NAME");
 
     public PotionLabGameScreen(NPotionLab screen)
     {

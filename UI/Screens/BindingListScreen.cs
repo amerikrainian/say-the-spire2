@@ -14,7 +14,7 @@ public class BindingListScreen : Screen
     private readonly VBoxContainer _itemList;
     private NavigableContainer _navContainer;
 
-    public override string? ScreenName => _setting.Action.Label;
+    public override Message? ScreenName => Message.Raw(_setting.Action.Label);
 
     public BindingListScreen(BindingSetting setting)
     {

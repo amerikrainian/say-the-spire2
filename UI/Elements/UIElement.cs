@@ -125,7 +125,4 @@ public abstract class UIElement
     /// rarely focused directly.
     /// </summary>
     public abstract IEnumerable<Announcement> GetFocusAnnouncements();
-
-    /// <summary>Back-compat: resolve the focus message to a string.</summary>
-    public string GetFocusString() => GetFocusMessage().Resolve();
 }

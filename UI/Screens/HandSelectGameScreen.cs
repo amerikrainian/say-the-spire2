@@ -35,7 +35,7 @@ public class HandSelectGameScreen : GameScreen
     // Track which selected holders we've connected focus signals to
     private readonly HashSet<NCardHolder> _connectedSelectedHolders = new();
 
-    public override string? ScreenName => _containerLabel;
+    public override Message? ScreenName => Message.Raw(_containerLabel);
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {

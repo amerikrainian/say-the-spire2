@@ -68,7 +68,7 @@ public class PlayerBuffer : Buffer
             Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }).Resolve());
 
         if (pcs != null)
-            Add(ResourceHelper.GetResourceString(pcs));
+            Add(ResourceHelper.GetResourceMessage(pcs).Resolve());
 
         Add(Message.Localized("ui", "RESOURCE.GOLD", new { amount = player.Gold }).Resolve());
 

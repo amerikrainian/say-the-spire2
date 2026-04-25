@@ -49,15 +49,15 @@ public static class MapNodeAnnouncementFormatter
     /// MapScreen.DescribePoint) honor the same settings and user-specified
     /// order as the focus path.
     /// </summary>
-    public static string DescribeNode(MapNode node, MapHandler handler, IReadOnlyList<MapNode>? rowNodes = null,
+    public static Message DescribeNode(MapNode node, MapHandler handler, IReadOnlyList<MapNode>? rowNodes = null,
         bool includeChoicePrefix = false, MapNode? travelOrigin = null,
         MapReachabilityContext? travelContext = null, MapReachabilityContext? nodeContext = null)
     {
         var view = BuildView(node, handler, rowNodes, travelOrigin, travelContext, nodeContext);
-        var text = UI.Elements.ProxyMapPoint.ComposeFromView(view);
+        var message = UI.Elements.ProxyMapPoint.ComposeFromView(view);
         if (includeChoicePrefix && view.IsChoice)
-            text = $"{GetChoiceText()}, {text}";
-        return text;
+            message = Message.Join(", ", Message.Localized("map_nav", "NAV.CHOICE"), message);
+        return message;
     }
 
     public static List<MapNode> GetDefaultRowNodes(MapNode node)

@@ -44,7 +44,7 @@ public class DailyRunLoadGameScreen : GameScreen
     private NClickableControl? _unreadyButton;
     private NClickableControl? _backButton;
 
-    public override string? ScreenName => Ui("DAILY_RUN.SCREEN_NAME");
+    public override Message? ScreenName => Ui("DAILY_RUN.SCREEN_NAME");
 
     public DailyRunLoadGameScreen(NDailyRunLoadScreen screen)
     {
@@ -121,7 +121,7 @@ public class DailyRunLoadGameScreen : GameScreen
         if (lobby != null && playerId == lobby.NetService.NetId)
             return;
 
-        var status = Lobby?.IsPlayerReady(playerId) == true ? Ui("DAILY_RUN.READY") : Ui("DAILY_RUN.NOT_READY");
+        var status = (Lobby?.IsPlayerReady(playerId) == true ? Ui("DAILY_RUN.READY") : Ui("DAILY_RUN.NOT_READY")).Resolve();
         SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOAD_LOBBY_CHANGED", new
         {
             player = GetPlayerName(playerId),
@@ -179,8 +179,8 @@ public class DailyRunLoadGameScreen : GameScreen
             isVisible: () => _leaderboard?.Visible == true));
 
         RegisterFocusable(_scoreWarning, new ActionElement(
-            () => new LocString("main_menu_ui", "DAILY_RUN_MENU.NO_UPLOAD_HOVERTIP.title").GetFormattedText(),
-            tooltip: () => new LocString("main_menu_ui", "DAILY_RUN_MENU.NO_UPLOAD_HOVERTIP.description").GetFormattedText(),
+            () => Message.Raw(new LocString("main_menu_ui", "DAILY_RUN_MENU.NO_UPLOAD_HOVERTIP.title").GetFormattedText()),
+            tooltip: () => Message.Raw(new LocString("main_menu_ui", "DAILY_RUN_MENU.NO_UPLOAD_HOVERTIP.description").GetFormattedText()),
             isVisible: () => _scoreWarning?.Visible == true));
 
         RegisterFocusable(_embarkButton, new ActionElement(
@@ -328,26 +328,27 @@ public class DailyRunLoadGameScreen : GameScreen
         return Lobby?.NetService.Type is NetGameType.Host or NetGameType.Client;
     }
 
-    private string GetCharacterLabel()
+    private Message GetCharacterLabel()
     {
         var player = GetLocalSerializablePlayer();
-        return player?.CharacterId?.ToString() ?? Ui("DAILY_RUN.CHARACTER");
+        var id = player?.CharacterId?.ToString();
+        return string.IsNullOrEmpty(id) ? Ui("DAILY_RUN.CHARACTER") : Message.Raw(id);
     }
 
-    private string? GetCharacterStatus()
+    private Message? GetCharacterStatus()
     {
         var lobby = Lobby;
         var player = GetLocalSerializablePlayer();
         if (lobby == null || player == null)
             return null;
 
-        var parts = new List<string>();
+        var parts = new List<Message>();
         if (IsMultiplayer())
-            parts.Add(GetPlayerName(player.NetId));
+            parts.Add(Message.Raw(GetPlayerName(player.NetId)));
         parts.Add(Ui("DAILY_RUN.ASCENSION", new { value = lobby.Run.Ascension }));
         if (lobby.IsPlayerReady(player.NetId))
             parts.Add(Ui("DAILY_RUN.READY"));
-        return string.Join(", ", parts);
+        return Message.Join(", ", parts.ToArray());
     }
 
     private SerializablePlayer? GetLocalSerializablePlayer()
@@ -356,17 +357,17 @@ public class DailyRunLoadGameScreen : GameScreen
         return lobby?.Run.Players.FirstOrDefault(p => p.NetId == lobby.NetService.NetId);
     }
 
-    private string? GetDateText()
+    private Message? GetDateText()
     {
-        return _dateLabel?.Text;
+        return Message.MaybeRaw(_dateLabel?.Text);
     }
 
-    private string? GetModifierText(int index)
+    private Message? GetModifierText(int index)
     {
         if (index < 0 || index >= _modifierControls.Count)
             return null;
         var description = _modifierControls[index].GetNodeOrNull<RichTextLabel>("Description");
-        return description == null ? null : ProxyElement.StripBbcode(description.Text);
+        return description == null ? null : Message.Raw(ProxyElement.StripBbcode(description.Text));
     }
 
     private bool GetModifierVisible(int index)
@@ -374,13 +375,13 @@ public class DailyRunLoadGameScreen : GameScreen
         return index >= 0 && index < _modifierControls.Count && _modifierControls[index].Visible;
     }
 
-    private string? GetLeaderboardStatus()
+    private Message? GetLeaderboardStatus()
     {
         if (_leaderboard == null)
             return null;
 
         var dayLabel = _leaderboard.GetNodeOrNull<Label>("%DateLabel")?.Text;
-        return string.IsNullOrWhiteSpace(dayLabel) ? null : dayLabel.Trim();
+        return string.IsNullOrWhiteSpace(dayLabel) ? null : Message.Raw(dayLabel.Trim());
     }
 
     private void OpenLeaderboard()
@@ -405,7 +406,7 @@ public class DailyRunLoadGameScreen : GameScreen
             _backButton?.IsEnabled ?? false,
             _scoreWarning?.Visible ?? false,
             _modifierControls.Count,
-            string.Join("|", _modifierControls.Select(control => control.Visible ? GetModifierText(_modifierControls.IndexOf(control)) : "")));
+            string.Join("|", _modifierControls.Select(control => control.Visible ? GetModifierText(_modifierControls.IndexOf(control))?.Resolve() ?? "" : "")));
     }
 
     private static void AddIfVisible(List<Control> controls, Control? control)
@@ -414,13 +415,10 @@ public class DailyRunLoadGameScreen : GameScreen
             controls.Add(control);
     }
 
-    private static string Ui(string key)
-    {
-        return LocalizationManager.GetOrDefault("ui", key, key);
-    }
+    private static Message Ui(string key) => Message.Localized("ui", key);
 
-    private static string Ui(string key, object vars)
+    private static Message Ui(string key, object vars)
     {
-        return Message.Localized("ui", key, vars).Resolve();
+        return Message.Localized("ui", key, vars);
     }
 }

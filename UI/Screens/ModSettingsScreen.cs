@@ -17,7 +17,7 @@ public class ModSettingsScreen : Screen
     private readonly System.Collections.Generic.Dictionary<RowContainer, CategorySetting> _rowCategories = new();
     private readonly System.Collections.Generic.Dictionary<RowContainer, HBoxContainer> _rowNodes = new();
 
-    public override string? ScreenName => _category.Label;
+    public override Message? ScreenName => Message.Raw(_category.Label);
 
     public ModSettingsScreen(CategorySetting category)
     {

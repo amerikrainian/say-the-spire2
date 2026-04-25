@@ -85,7 +85,7 @@ public class CardLibraryGameScreen : GameScreen
     private string? _stateToken;
     private bool _suppressOpeningCardFocus;
 
-    public override string? ScreenName => Ui("CARD_LIBRARY.SCREEN_NAME");
+    public override Message? ScreenName => Message.Localized("ui", "CARD_LIBRARY.SCREEN_NAME");
 
     public CardLibraryGameScreen(NCardLibrary screen)
     {
@@ -145,7 +145,7 @@ public class CardLibraryGameScreen : GameScreen
         if (!focusedWasRegistered || !focusedStillRegistered || focusedBeforeRebuild != focusedAfterRebuild || focusedAfterRebuild is NGridCardHolder)
             AnnounceFocusedControlIfNeeded();
         if (sideEffects.Count > 0)
-            SpeechManager.Output(Message.Raw(string.Join(". ", sideEffects)));
+            SpeechManager.Output(Message.Join(". ", sideEffects.ToArray()));
     }
 
     public override bool OnActionJustPressed(InputAction action)
@@ -596,9 +596,9 @@ public class CardLibraryGameScreen : GameScreen
         return Ui("CARD_LIBRARY.CARDS");
     }
 
-    private List<string> GetToggleSideEffectAnnouncements(Control? sourceControl)
+    private List<Message> GetToggleSideEffectAnnouncements(Control? sourceControl)
     {
-        var changes = new List<string>();
+        var changes = new List<Message>();
 
         foreach (var control in GetTrackedToggleControls())
         {
@@ -618,10 +618,9 @@ public class CardLibraryGameScreen : GameScreen
             if (current.Value)
                 continue;
 
-            var label = GetElement(control)?.GetLabel()?.Resolve();
-            var uncheckedText = LocalizationManager.Get("ui", "CHECKBOX.UNCHECKED");
-            if (!string.IsNullOrWhiteSpace(label) && !string.IsNullOrWhiteSpace(uncheckedText))
-                changes.Add($"{label}, {uncheckedText}");
+            var label = GetElement(control)?.GetLabel();
+            if (label is { IsEmpty: false })
+                changes.Add(Message.Join(", ", label, Message.Localized("ui", "CHECKBOX.UNCHECKED")));
         }
 
         return changes;

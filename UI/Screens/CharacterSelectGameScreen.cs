@@ -26,7 +26,7 @@ public class CharacterSelectGameScreen : GameScreen
     private bool _isMultiplayer;
     private bool _lastLocalReady;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.CHARACTER_SELECT", "Character Select");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.CHARACTER_SELECT");
     public override System.Collections.Generic.IEnumerable<string> AlwaysEnabledBuffers =>
         _isMultiplayer ? new[] { "lobby" } : System.Array.Empty<string>();
 

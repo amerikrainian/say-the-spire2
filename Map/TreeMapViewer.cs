@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using MegaCrit.Sts2.Core.Map;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Settings;
@@ -34,7 +33,7 @@ public class TreeMapViewer : MapViewer
         RefreshSiblings();
     }
 
-    public override string? JumpToNode(MapNode node)
+    public override Message? JumpToNode(MapNode node)
     {
         SetStartNode(node);
         return MapNodeAnnouncementFormatter.DescribeNode(node, Handler, _rowNodes,
@@ -42,18 +41,18 @@ public class TreeMapViewer : MapViewer
             travelContext: GetChoiceContext(), nodeContext: _currentContext);
     }
 
-    public override string? MoveForward()
+    public override Message? MoveForward()
     {
         if (Current == null) return null;
 
         var forwardNodes = GetForwardNodes(Current, _currentContext);
         if (forwardNodes.Count == 0)
-            return LocalizationManager.Get("map_nav", "NAV.NO_FORWARD");
+            return Message.Localized("map_nav", "NAV.NO_FORWARD");
 
         // Always move to leftmost child by column
         var nextNode = forwardNodes[0];
         if (!MapReachability.TryAdvance(Current, nextNode, Handler, _currentContext, out var nextContext))
-            return LocalizationManager.Get("map_nav", "NAV.NO_FORWARD");
+            return Message.Localized("map_nav", "NAV.NO_FORWARD");
 
         var edge = Current.ForwardEdges.FirstOrDefault(e => e.To == nextNode) ?? new MapEdge(Current, nextNode);
         _pathStack.Push(edge);
@@ -67,11 +66,11 @@ public class TreeMapViewer : MapViewer
 
         var announcement = AnnounceCurrentNode();
         if (_rowNodes.Count > 1)
-            announcement = GetChoiceText() + ", " + announcement;
+            announcement = Message.Join(", ", ChoiceMessage(), announcement);
         return announcement;
     }
 
-    public override string? MoveBackward()
+    public override Message? MoveBackward()
     {
         if (Current == null) return null;
 
@@ -91,7 +90,7 @@ public class TreeMapViewer : MapViewer
         // No path stack — try to go to a parent
         var parents = Current.BackwardEdges;
         if (parents.Count == 0)
-            return LocalizationManager.Get("map_nav", "NAV.NO_BACKWARD");
+            return Message.Localized("map_nav", "NAV.NO_BACKWARD");
 
         // Prefer traveled parent
         var parent = parents.FirstOrDefault(e => e.From.State == MapPointState.Traveled)
@@ -107,7 +106,7 @@ public class TreeMapViewer : MapViewer
         return AnnounceBackwardNode();
     }
 
-    public override string? NextBranch()
+    public override Message? NextBranch()
     {
         if (Current == null) return null;
         if (_rowNodes.Count <= 1 || _rowIndex >= _rowNodes.Count - 1)
@@ -126,7 +125,7 @@ public class TreeMapViewer : MapViewer
         return AnnounceCurrentNode();
     }
 
-    public override string? PreviousBranch()
+    public override Message? PreviousBranch()
     {
         if (Current == null) return null;
         if (_rowNodes.Count <= 1 || _rowIndex <= 0)
@@ -179,23 +178,23 @@ public class TreeMapViewer : MapViewer
         if (_rowIndex < 0) _rowIndex = 0;
     }
 
-    public string AnnounceCurrentNode()
+    public Message AnnounceCurrentNode()
     {
         return MapNodeAnnouncementFormatter.DescribeNode(Current!, Handler, _rowNodes,
             travelOrigin: GetChoiceOrigin(), travelContext: GetChoiceContext(), nodeContext: _currentContext);
     }
 
-    private string AnnounceBackwardNode()
+    private Message AnnounceBackwardNode()
     {
         var announcement = AnnounceCurrentNode();
         if (_rowNodes.Count > 1)
-            announcement = GetChoiceText() + ", " + announcement;
+            announcement = Message.Join(", ", ChoiceMessage(), announcement);
         return announcement;
     }
 
-    private string AutoAdvanceForward()
+    private Message AutoAdvanceForward()
     {
-        var sb = new StringBuilder();
+        var parts = new List<Message>();
 
         // Current is already set by MoveForward, RefreshSiblings already called.
         // Algorithm: if node has siblings (parent had >1 child) it's a choice — stop.
@@ -205,17 +204,14 @@ public class TreeMapViewer : MapViewer
             if (_rowNodes.Count > 1)
             {
                 // Choice row — announce choice + this node, then stop
-                if (sb.Length > 0) sb.Append(", ");
-                sb.Append(GetChoiceText());
-                sb.Append(", ");
-                sb.Append(MapNodeAnnouncementFormatter.DescribeNode(Current!, Handler, _rowNodes,
+                parts.Add(ChoiceMessage());
+                parts.Add(MapNodeAnnouncementFormatter.DescribeNode(Current!, Handler, _rowNodes,
                     travelOrigin: GetChoiceOrigin(), travelContext: GetChoiceContext(), nodeContext: _currentContext));
                 break;
             }
 
             // Not a choice — add to path
-            if (sb.Length > 0) sb.Append(", ");
-            sb.Append(Current!.GetDisplayName());
+            parts.Add(Message.Raw(Current!.GetDisplayName()));
 
             // Try to advance
             var forwardNodes = GetForwardNodes(Current!, _currentContext);
@@ -234,12 +230,11 @@ public class TreeMapViewer : MapViewer
             RefreshSiblings();
         }
 
-        return sb.ToString();
+        return Message.Join(", ", parts.ToArray());
     }
 
-    private string AutoAdvanceBackward()
+    private Message AutoAdvanceBackward()
     {
-        var sb = new StringBuilder();
         var visited = new List<MapNode> { Current! };
 
         while (true)
@@ -282,33 +277,25 @@ public class TreeMapViewer : MapViewer
 
         RefreshSiblings();
 
+        var parts = new List<Message>();
+
         // All intermediate nodes get short names (if verbose)
         if (VerboseBackward)
         {
             for (int i = 0; i < visited.Count - 1; i++)
-            {
-                if (sb.Length > 0) sb.Append(", ");
-                sb.Append(visited[i].GetDisplayName());
-            }
+                parts.Add(Message.Raw(visited[i].GetDisplayName()));
         }
 
         // Final node gets full announcement; prefix with "choice" if it's a choice node
-        if (sb.Length > 0) sb.Append(", ");
         if (_rowNodes.Count > 1)
-        {
-            sb.Append(GetChoiceText());
-            sb.Append(", ");
-        }
-        sb.Append(MapNodeAnnouncementFormatter.DescribeNode(visited[^1], Handler, _rowNodes,
+            parts.Add(ChoiceMessage());
+        parts.Add(MapNodeAnnouncementFormatter.DescribeNode(visited[^1], Handler, _rowNodes,
             travelOrigin: GetChoiceOrigin(), travelContext: GetChoiceContext(), nodeContext: _currentContext));
 
-        return sb.ToString();
+        return Message.Join(", ", parts.ToArray());
     }
 
-    private static string GetChoiceText()
-    {
-        return LocalizationManager.Get("map_nav", "NAV.CHOICE") ?? "choice";
-    }
+    private static Message ChoiceMessage() => Message.Localized("map_nav", "NAV.CHOICE");
 
     private List<MapNode> GetForwardNodes(MapNode node, MapReachabilityContext context)
     {

@@ -88,7 +88,7 @@ public class ProxyMultiplayerPlayerState : ProxyElement
         var pcs = player.PlayerCombatState;
         if (pcs != null)
         {
-            parts.Add(Message.Raw(ResourceHelper.GetResourceString(pcs)));
+            parts.Add(ResourceHelper.GetResourceMessage(pcs));
             parts.Add(Message.Localized("ui", "RESOURCE.CARDS_IN_HAND", new { count = pcs.Hand.Cards.Count }));
         }
 

@@ -61,10 +61,9 @@ public class ProxyRunHistoryMapPoint : ProxyElement
             return null;
 
         var room = entry.Rooms.LastOrDefault();
-        var text = room == null
+        return room == null
             ? Ui("RUN_HISTORY.FLOOR", new { floor = control.FloorNum })
             : Ui("RUN_HISTORY.FLOOR_WITH_ROOM", new { floor = control.FloorNum, room = room.RoomType });
-        return Message.Raw(text);
     }
 
     public override string? GetTypeKey() => "button";
@@ -73,14 +72,13 @@ public class ProxyRunHistoryMapPoint : ProxyElement
     {
         var questIcon = QuestIconField?.GetValue(EntryControl) as Control;
         if (questIcon?.Visible == true)
-            return Message.Raw(Ui("RUN_HISTORY.QUEST_COMPLETED"));
+            return Ui("RUN_HISTORY.QUEST_COMPLETED");
         return null;
     }
 
     public override Message? GetTooltip()
     {
-        var text = BuildSummary(includeRoomModel: true);
-        return text != null ? Message.Raw(text) : null;
+        return BuildSummary(includeRoomModel: true);
     }
 
     public override string? HandleBuffers(BufferManager buffers)
@@ -91,45 +89,41 @@ public class ProxyRunHistoryMapPoint : ProxyElement
 
         uiBuffer.Clear();
 
-        var label = GetLabel()?.Resolve();
-        if (!string.IsNullOrWhiteSpace(label))
-            uiBuffer.Add(label);
+        var label = GetLabel();
+        if (label is { IsEmpty: false }) uiBuffer.Add(label.Resolve());
 
-        var status = GetStatusString()?.Resolve();
-        if (!string.IsNullOrWhiteSpace(status))
-            uiBuffer.Add(status);
+        var status = GetStatusString();
+        if (status is { IsEmpty: false }) uiBuffer.Add(status.Resolve());
 
-        var tooltip = GetTooltip()?.Resolve();
-        if (!string.IsNullOrWhiteSpace(tooltip))
-            uiBuffer.Add(tooltip);
+        var tooltip = GetTooltip();
+        if (tooltip is { IsEmpty: false }) uiBuffer.Add(tooltip.Resolve());
 
-        var details = GetExpandedDetailItems();
-        foreach (var detail in details)
-            uiBuffer.Add(detail);
+        foreach (var detail in GetExpandedDetailItems())
+            uiBuffer.Add(detail.Resolve());
 
         buffers.EnableBuffer("ui", true);
         return "ui";
     }
 
-    public string? GetExpandedDetails()
+    public Message? GetExpandedDetails()
     {
         var sections = GetExpandedDetailItems();
-        return sections.Count > 0 ? string.Join(". ", sections) : null;
+        return sections.Count > 0 ? Message.Join(". ", sections.ToArray()) : null;
     }
 
-    private List<string> GetExpandedDetailItems()
+    private List<Message> GetExpandedDetailItems()
     {
         var control = EntryControl;
         var entry = EntryField?.GetValue(control) as MapPointHistoryEntry;
         var player = Player;
         if (control == null || entry == null || player == null)
-            return new List<string>();
+            return new List<Message>();
 
         var playerEntry = entry.PlayerStats.FirstOrDefault(stat => stat.PlayerId == player.Id);
         if (playerEntry == null)
-            return new List<string>();
+            return new List<Message>();
 
-        var sections = new List<string>();
+        var sections = new List<Message>();
         sections.AddRange(BuildActionDetails(playerEntry));
         sections.AddRange(BuildRewardDetails(playerEntry));
         sections.AddRange(BuildSkippedDetails(playerEntry));
@@ -137,7 +131,7 @@ public class ProxyRunHistoryMapPoint : ProxyElement
         return sections;
     }
 
-    private string? BuildSummary(bool includeRoomModel)
+    private Message? BuildSummary(bool includeRoomModel)
     {
         var control = EntryControl;
         var entry = EntryField?.GetValue(control) as MapPointHistoryEntry;
@@ -149,13 +143,13 @@ public class ProxyRunHistoryMapPoint : ProxyElement
         if (playerEntry == null)
             return null;
 
-        var parts = new List<string>();
+        var parts = new List<Message>();
         var room = entry.Rooms.LastOrDefault();
         if (includeRoomModel && room?.ModelId != null)
         {
             var roomTitle = GetRoomModelTitle(room);
             if (!string.IsNullOrWhiteSpace(roomTitle))
-                parts.Add(roomTitle);
+                parts.Add(Message.Raw(roomTitle));
         }
 
         parts.Add(Ui("RUN_HISTORY.HP", new { current = playerEntry.CurrentHp, max = playerEntry.MaxHp }));
@@ -174,7 +168,7 @@ public class ProxyRunHistoryMapPoint : ProxyElement
         if (playerEntry.GoldGained > 0)
             parts.Add(Ui("RUN_HISTORY.GOLD_GAINED", new { amount = playerEntry.GoldGained }));
 
-        return string.Join(", ", parts.Where(part => !string.IsNullOrWhiteSpace(part)));
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : null;
     }
 
     private static string? GetRoomModelTitle(MapPointRoomHistoryEntry room)
@@ -196,9 +190,9 @@ public class ProxyRunHistoryMapPoint : ProxyElement
         return null;
     }
 
-    private static List<string> BuildActionDetails(PlayerMapPointHistoryEntry playerEntry)
+    private static List<Message> BuildActionDetails(PlayerMapPointHistoryEntry playerEntry)
     {
-        var actions = new List<string>();
+        var actions = new List<Message>();
 
         foreach (var ancient in playerEntry.AncientChoices.Where(choice => choice.WasChosen))
             actions.Add(Ui("RUN_HISTORY.CHOSE", new { value = FormatLocString(ancient.Title) }));
@@ -226,12 +220,12 @@ public class ProxyRunHistoryMapPoint : ProxyElement
         if (playerEntry.GoldStolen > 0)
             actions.Add(Ui("RUN_HISTORY.GOLD_STOLEN", new { amount = playerEntry.GoldStolen }));
 
-        return actions.Where(value => !string.IsNullOrWhiteSpace(value)).ToList();
+        return actions;
     }
 
-    private static List<string> BuildRewardDetails(PlayerMapPointHistoryEntry playerEntry)
+    private static List<Message> BuildRewardDetails(PlayerMapPointHistoryEntry playerEntry)
     {
-        var rewards = new List<string>();
+        var rewards = new List<Message>();
         var pickedCardTitles = playerEntry.CardChoices
             .Where(choice => choice.wasPicked)
             .Select(choice => CardModel.FromSerializable(choice.Card).Title)
@@ -293,12 +287,12 @@ public class ProxyRunHistoryMapPoint : ProxyElement
                 final = CardModel.FromSerializable(transformation.FinalCard).Title
             }));
 
-        return rewards.Where(value => !string.IsNullOrWhiteSpace(value)).ToList();
+        return rewards;
     }
 
-    private static List<string> BuildSkippedDetails(PlayerMapPointHistoryEntry playerEntry)
+    private static List<Message> BuildSkippedDetails(PlayerMapPointHistoryEntry playerEntry)
     {
-        var skipped = new List<string>();
+        var skipped = new List<Message>();
 
         foreach (var choice in playerEntry.CardChoices.Where(choice => !choice.wasPicked))
             skipped.Add(Ui("RUN_HISTORY.SKIPPED_CARD", new { value = CardModel.FromSerializable(choice.Card).Title }));
@@ -307,7 +301,7 @@ public class ProxyRunHistoryMapPoint : ProxyElement
         foreach (var potion in playerEntry.PotionChoices.Where(choice => !choice.wasPicked))
             skipped.Add(Ui("RUN_HISTORY.SKIPPED_POTION", new { value = FormatValue(SaveUtil.PotionOrDeprecated(potion.choice).Title) }));
 
-        return skipped.Where(value => !string.IsNullOrWhiteSpace(value)).ToList();
+        return skipped;
     }
 
     private static string FormatEventChoice(EventOptionHistoryEntry eventChoice)
@@ -337,13 +331,6 @@ public class ProxyRunHistoryMapPoint : ProxyElement
         };
     }
 
-    private static string Ui(string key, object vars)
-    {
-        return Message.Localized("ui", key, vars).Resolve();
-    }
-
-    private static string Ui(string key)
-    {
-        return LocalizationManager.GetOrDefault("ui", key, key);
-    }
+    private static Message Ui(string key, object vars) => Message.Localized("ui", key, vars);
+    private static Message Ui(string key) => Message.Localized("ui", key);
 }

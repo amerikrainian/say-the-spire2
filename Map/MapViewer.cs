@@ -1,3 +1,5 @@
+using SayTheSpire2.Localization;
+
 namespace SayTheSpire2.Map;
 
 public abstract class MapViewer
@@ -16,26 +18,26 @@ public abstract class MapViewer
     /// <summary>
     /// Move forward (toward boss). Returns announcement text.
     /// </summary>
-    public abstract string? MoveForward();
+    public abstract Message? MoveForward();
 
     /// <summary>
     /// Move backward (toward start). Returns announcement text.
     /// </summary>
-    public abstract string? MoveBackward();
+    public abstract Message? MoveBackward();
 
     /// <summary>
     /// Cycle to the next branch at a choice point. Returns announcement text.
     /// </summary>
-    public abstract string? NextBranch();
+    public abstract Message? NextBranch();
 
     /// <summary>
     /// Cycle to the previous branch at a choice point. Returns announcement text.
     /// </summary>
-    public abstract string? PreviousBranch();
+    public abstract Message? PreviousBranch();
 
     /// <summary>
     /// Move the viewer cursor directly onto a specific node and return the
     /// standard node announcement for that position.
     /// </summary>
-    public abstract string? JumpToNode(MapNode node);
+    public abstract Message? JumpToNode(MapNode node);
 }

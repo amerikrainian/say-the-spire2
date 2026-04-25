@@ -92,9 +92,9 @@ public class ProxyMapPoint : ProxyElement
     /// just like focus-path readings. Uses an ephemeral Control-less proxy as
     /// the composer's context source.
     /// </summary>
-    public static string ComposeFromView(MapNodeView view)
+    public static Message ComposeFromView(MapNodeView view)
     {
-        return AnnouncementComposer.Compose(new ProxyMapPoint(), BuildAnnouncements(view)).Resolve();
+        return AnnouncementComposer.Compose(new ProxyMapPoint(), BuildAnnouncements(view));
     }
 
     public override Message? GetLabel()
@@ -102,9 +102,8 @@ public class ProxyMapPoint : ProxyElement
         var mp = MapPointNode;
         if (mp == null || mp.Point == null)
             return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
-        var text = MapScreen.Current?.DescribePoint(mp.Point, includeChoicePrefix: false)
-            ?? MapNode.GetPointDisplayName(mp.Point);
-        return Message.Raw(text);
+        return MapScreen.Current?.DescribePoint(mp.Point, includeChoicePrefix: false)
+            ?? Message.Raw(MapNode.GetPointDisplayName(mp.Point));
     }
 
     public override string? GetTypeKey() => null;

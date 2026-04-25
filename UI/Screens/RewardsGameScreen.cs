@@ -24,7 +24,7 @@ public class RewardsGameScreen : Screen
     private readonly HashSet<ulong> _connectedControls = new();
     private string? _stateToken;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.REWARDS", "Rewards");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.REWARDS");
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {

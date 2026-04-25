@@ -17,7 +17,7 @@ public class CompendiumMenuScreen : GameScreen
     };
     private readonly System.Collections.Generic.List<NClickableControl> _buttons = new();
 
-    public override string? ScreenName => Ui("COMPENDIUM.SCREEN_NAME");
+    public override Message? ScreenName => Message.Localized("ui", "COMPENDIUM.SCREEN_NAME");
 
     public CompendiumMenuScreen(NCompendiumSubmenu screen)
     {

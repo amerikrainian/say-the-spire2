@@ -14,7 +14,7 @@ public class ModMenuScreen : Screen
     private readonly PanelContainer _root;
     private readonly NavigableContainer _navContainer;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.MOD_MENU", "Mod Menu");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.MOD_MENU");
 
     public ModMenuScreen()
     {

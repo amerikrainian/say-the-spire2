@@ -253,16 +253,16 @@ public class CombatScreen : Screen
         if (creature == null)
             return;
 
-        var parts = new List<string>
+        var parts = new List<Message>
         {
-            Multiplayer.MultiplayerHelper.GetCreatureName(creature),
-            creature.CurrentHp.ToString()
+            Message.Raw(Multiplayer.MultiplayerHelper.GetCreatureName(creature)),
+            Message.Raw(creature.CurrentHp.ToString()),
         };
 
         if (creature.Block > 0)
-            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }).Resolve());
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }));
 
-        SpeechManager.Output(Message.Raw(string.Join(", ", parts)));
+        SpeechManager.Output(Message.Join(", ", parts.ToArray()));
     }
 
     private void AnnounceCombatantIntent(int index)
@@ -317,7 +317,7 @@ public class CombatScreen : Screen
         var player = GetLocalPlayer();
         var combatState = player?.PlayerCombatState;
         if (combatState == null) return;
-        SpeechManager.Output(Message.Raw(ResourceHelper.GetResourceString(combatState)));
+        SpeechManager.Output(ResourceHelper.GetResourceMessage(combatState));
     }
 
     private void AnnouncePowers()

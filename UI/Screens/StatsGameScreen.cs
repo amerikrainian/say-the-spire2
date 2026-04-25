@@ -22,7 +22,7 @@ public class StatsGameScreen : GameScreen
     private readonly Dictionary<Control, StatsValueElement> _elementCache = new();
     private string? _stateToken;
 
-    public override string? ScreenName => Ui("STATS.SCREEN_NAME");
+    public override Message? ScreenName => Message.Localized("ui", "STATS.SCREEN_NAME");
 
     public StatsGameScreen(NStatsScreen screen)
     {

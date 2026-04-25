@@ -26,7 +26,7 @@ public class CardGridSelectionGameScreen : GameScreen
 
     private HashSet<CardModel>? _selectedCards;
 
-    public override string? ScreenName => _containerLabel;
+    public override Message? ScreenName => Message.Raw(_containerLabel);
 
     public CardGridSelectionGameScreen(NCardGridSelectionScreen screen)
     {

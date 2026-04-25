@@ -3,6 +3,7 @@ using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using SayTheSpire2.Help;
 using SayTheSpire2.Input;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -13,7 +14,7 @@ public abstract class Screen
     private readonly Dictionary<string, ClaimInfo> _claimedActions = new();
     private bool _claimAll;
 
-    public virtual string? ScreenName => null;
+    public virtual Message? ScreenName => null;
 
     /// <summary>
     /// Buffer keys that should remain enabled while this screen is in the stack.

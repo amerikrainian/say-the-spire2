@@ -61,6 +61,12 @@ public class Message
         return new Message(text, null, null, null);
     }
 
+    /// <summary>Null-safe <see cref="Raw(string)"/>: returns null when <paramref name="text"/> is null.</summary>
+    public static Message? MaybeRaw(string? text)
+    {
+        return text == null ? null : new Message(text, null, null, null);
+    }
+
     /// <summary>Create a message from raw text with variable substitution (anonymous object).</summary>
     public static Message Raw(string text, object vars)
     {

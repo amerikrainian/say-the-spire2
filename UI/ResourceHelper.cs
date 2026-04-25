@@ -10,12 +10,14 @@ namespace SayTheSpire2.UI;
 /// </summary>
 public static class ResourceHelper
 {
-    public static string GetResourceString(PlayerCombatState pcs)
+    public static Message GetResourceMessage(PlayerCombatState pcs)
     {
-        var parts = new List<string>();
-        parts.Add(Message.Localized("ui", "RESOURCE.ENERGY", new { current = pcs.Energy, max = pcs.MaxEnergy }).Resolve());
+        var parts = new List<Message>
+        {
+            Message.Localized("ui", "RESOURCE.ENERGY", new { current = pcs.Energy, max = pcs.MaxEnergy }),
+        };
         if (pcs.Stars > 0)
-            parts.Add(Message.Localized("ui", "RESOURCE.STARS", new { amount = pcs.Stars }).Resolve());
-        return string.Join(", ", parts);
+            parts.Add(Message.Localized("ui", "RESOURCE.STARS", new { amount = pcs.Stars }));
+        return Message.Join(", ", parts.ToArray());
     }
 }

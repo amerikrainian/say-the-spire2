@@ -15,7 +15,7 @@ public class GameOverScreen : GameScreen
 {
     public static GameOverScreen? Current { get; private set; }
 
-    public override string? ScreenName => null; // Announced via banner instead
+    public override Message? ScreenName => null; // Announced via banner instead
 
     private static readonly FieldInfo? ScoreField =
         AccessTools.Field(typeof(NGameOverScreen), "_score");

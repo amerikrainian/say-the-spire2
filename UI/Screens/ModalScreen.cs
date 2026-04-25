@@ -23,7 +23,7 @@ public class ModalScreen : Screen
         AnnouncePosition = true,
     };
 
-    public override string? ScreenName => null; // Modal text is announced separately by ModalHooks
+    public override Message? ScreenName => null; // Modal text is announced separately by ModalHooks
 
     public override List<HelpMessage> GetHelpMessages()
     {

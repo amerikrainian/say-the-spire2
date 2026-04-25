@@ -20,7 +20,7 @@ public class CardPileGameScreen : GameScreen
     private readonly int _cardCount;
 
 
-    public override string? ScreenName => _containerLabel;
+    public override Message? ScreenName => Message.Raw(_containerLabel);
 
     public CardPileGameScreen(NCardPileScreen screen)
     {

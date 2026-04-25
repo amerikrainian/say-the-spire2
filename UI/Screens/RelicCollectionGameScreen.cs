@@ -19,7 +19,7 @@ public class RelicCollectionGameScreen : GameScreen
     private readonly Dictionary<Control, ProxyRelicCollectionEntry> _proxyCache = new();
     private string? _stateToken;
 
-    public override string? ScreenName => Ui("RELIC_COLLECTION.SCREEN_NAME");
+    public override Message? ScreenName => Message.Localized("ui", "RELIC_COLLECTION.SCREEN_NAME");
 
     public RelicCollectionGameScreen(NRelicCollection screen)
     {

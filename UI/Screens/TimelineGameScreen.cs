@@ -19,7 +19,7 @@ public class TimelineGameScreen : GameScreen
 {
     public static TimelineGameScreen? Current { get; private set; }
 
-    public override string ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.TIMELINE", "Timeline");
+    public override Message ScreenName => Message.Localized("ui", "SCREENS.TIMELINE");
 
     private readonly NTimelineScreen _screen;
 

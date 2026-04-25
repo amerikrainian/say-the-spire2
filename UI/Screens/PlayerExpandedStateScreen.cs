@@ -20,7 +20,7 @@ public class PlayerExpandedStateScreen : Screen
     private readonly ListContainer _cardList = new() { ContainerLabel = Message.Localized("ui", "CONTAINERS.CARDS"), AnnounceName = true, AnnouncePosition = true };
     private readonly Dictionary<Control, UIElement> _elementCache = new();
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.PLAYER_DETAILS", "Player Details");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.PLAYER_DETAILS");
 
     public PlayerExpandedStateScreen(NMultiplayerPlayerExpandedState screen)
     {

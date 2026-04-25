@@ -31,7 +31,7 @@ public class RunHistoryGameScreen : GameScreen
     private readonly Dictionary<Control, ProxyRunHistoryMapPoint> _mapProxyCache = new();
     private string? _stateToken;
 
-    public override string? ScreenName => Ui("RUN_HISTORY.SCREEN_NAME");
+    public override Message? ScreenName => Ui("RUN_HISTORY.SCREEN_NAME");
 
     public RunHistoryGameScreen(NRunHistory screen)
     {
@@ -136,9 +136,9 @@ public class RunHistoryGameScreen : GameScreen
         WireFocusNeighbors();
     }
 
-    private static ListContainer NewRow(string label) => new()
+    private static ListContainer NewRow(Message label) => new()
     {
-        ContainerLabel = Message.Raw(label),
+        ContainerLabel = label,
         AnnounceName = true,
         AnnouncePosition = true,
     };
@@ -258,7 +258,7 @@ public class RunHistoryGameScreen : GameScreen
         Register(control, element);
     }
 
-    private void RegisterStatic(ListContainer container, Control? control, string label)
+    private void RegisterStatic(ListContainer container, Control? control, Message label)
     {
         if (control == null || !control.Visible)
             return;
@@ -380,24 +380,25 @@ public class RunHistoryGameScreen : GameScreen
         };
     }
 
-    private static string? GetStaticStatus(string label, Control? control)
+    private static Message? GetStaticStatus(Message label, Control? control)
     {
         var text = GetStaticText(control);
         if (string.IsNullOrWhiteSpace(text))
             return null;
 
-        var prefixedColon = $"{label}:";
+        var labelText = label.Resolve();
+        var prefixedColon = $"{labelText}:";
         if (text.StartsWith(prefixedColon))
-            return text[prefixedColon.Length..].Trim();
+            return Message.Raw(text[prefixedColon.Length..].Trim());
 
-        var prefixedComma = $"{label},";
+        var prefixedComma = $"{labelText},";
         if (text.StartsWith(prefixedComma))
-            return text[prefixedComma.Length..].Trim();
+            return Message.Raw(text[prefixedComma.Length..].Trim());
 
-        if (text == label)
+        if (text == labelText)
             return null;
 
-        return text;
+        return Message.Raw(text);
     }
 
     private bool ChangeRun(int direction)
@@ -443,8 +444,5 @@ public class RunHistoryGameScreen : GameScreen
         return true;
     }
 
-    private static string Ui(string key)
-    {
-        return LocalizationManager.GetOrDefault("ui", key, key);
-    }
+    private static Message Ui(string key) => Message.Localized("ui", key);
 }

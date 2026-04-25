@@ -11,7 +11,7 @@ namespace SayTheSpire2.UI.Screens;
 
 public class MainMenuScreen : GameScreen
 {
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.MAIN_MENU", "Main Menu");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.MAIN_MENU");
 
     protected override void BuildRegistry()
     {

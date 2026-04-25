@@ -16,7 +16,7 @@ public class HelpScreen : Screen
     private readonly Dictionary<ActionElement, DetailState> _detailStates = new();
     private bool _removing;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.HELP", "Help");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.HELP");
 
     public HelpScreen(List<HelpMessage> messages)
     {
@@ -80,7 +80,7 @@ public class HelpScreen : Screen
             switch (message)
             {
                 case TextHelpMessage text:
-                    element = new ActionElement(() => text.Text);
+                    element = new ActionElement(() => Message.MaybeRaw(text.Text));
                     break;
                 case ControlHelpMessage control:
                     element = BuildControlElement(control);
@@ -103,14 +103,14 @@ public class HelpScreen : Screen
             var keys = control.ActionKeys;
             var desc = control.Description;
             return new ActionElement(
-                () => desc,
-                status: () => HelpScreenBuilder.FormatBindings(keys) ?? LocalizationManager.GetOrDefault("ui", "HELP.UNBOUND", "unbound"));
+                () => Message.MaybeRaw(desc),
+                status: () => Message.MaybeRaw(HelpScreenBuilder.FormatBindings(keys)) ?? Message.Localized("ui", "HELP.UNBOUND"));
         }
 
         var state = new DetailState(control);
         var element = new ActionElement(
-            () => state.GetLabel(),
-            status: () => state.GetStatus());
+            () => Message.MaybeRaw(state.GetLabel()),
+            status: () => Message.MaybeRaw(state.GetStatus()));
         _detailStates[element] = state;
         return element;
     }
