@@ -121,7 +121,7 @@ public class DailyRunLoadGameScreen : GameScreen
         if (lobby != null && playerId == lobby.NetService.NetId)
             return;
 
-        var status = (Lobby?.IsPlayerReady(playerId) == true ? Ui("DAILY_RUN.READY") : Ui("DAILY_RUN.NOT_READY")).Resolve();
+        var status = Lobby?.IsPlayerReady(playerId) == true ? Ui("DAILY_RUN.READY") : Ui("DAILY_RUN.NOT_READY");
         SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOAD_LOBBY_CHANGED", new
         {
             player = GetPlayerName(playerId),

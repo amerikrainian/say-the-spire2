@@ -63,7 +63,7 @@ public class MapScreen : Screen
                     SpeechManager.Output(Message.Localized("map_nav", "NAV.CURRENT_LOCATION", new
                     {
                         type = startNode.GetDisplayName(),
-                        coordinates = startNode.GetCoordinatesString()
+                        coordinates = startNode.GetCoordinates()
                     }));
                 }
 

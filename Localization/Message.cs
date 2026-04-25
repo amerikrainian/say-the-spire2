@@ -37,11 +37,14 @@ public class Message
     private readonly string? _rawText;
     private readonly string? _table;
     private readonly string? _key;
-    private readonly Dictionary<string, string>? _vars;
+    // Template variables stored as Message so any Message values passed in
+    // resolve lazily at the parent's Resolve time. Non-Message values are
+    // wrapped in Message.Raw at construction.
+    private readonly Dictionary<string, Message>? _vars;
     private readonly List<Message>? _parts;
     private readonly string? _separator;
 
-    private Message(string? rawText, string? table, string? key, Dictionary<string, string>? vars)
+    private Message(string? rawText, string? table, string? key, Dictionary<string, Message>? vars)
     {
         _rawText = rawText;
         _table = table;
@@ -76,7 +79,7 @@ public class Message
     /// <summary>Create a message from raw text with variable substitution (dictionary).</summary>
     public static Message Raw(string text, Dictionary<string, string> vars)
     {
-        return new Message(text, null, null, vars);
+        return new Message(text, null, null, WrapStringDict(vars));
     }
 
     /// <summary>Create a message from a localization key.</summary>
@@ -94,7 +97,7 @@ public class Message
     /// <summary>Create a message from a localization key with variable substitution (dictionary).</summary>
     public static Message Localized(string table, string key, Dictionary<string, string> vars)
     {
-        return new Message(null, table, key, vars);
+        return new Message(null, table, key, WrapStringDict(vars));
     }
 
     /// <summary>Create a separator message for use between composed parts.</summary>
@@ -220,12 +223,12 @@ public class Message
         IconNames[suffix] = label;
     }
 
-    internal static string SubstituteVars(string text, Dictionary<string, string> vars)
+    internal static string SubstituteVars(string text, Dictionary<string, Message> vars)
     {
         return VariablePattern.Replace(text, match =>
         {
             var name = match.Groups[1].Value;
-            return vars.TryGetValue(name, out var value) ? value : match.Value;
+            return vars.TryGetValue(name, out var value) ? value.Resolve() : match.Value;
         });
     }
 
@@ -246,14 +249,33 @@ public class Message
         return name;
     }
 
-    private static Dictionary<string, string> ObjectToDict(object obj)
+    private static Dictionary<string, Message> ObjectToDict(object obj)
     {
-        var dict = new Dictionary<string, string>();
+        var dict = new Dictionary<string, Message>();
         foreach (var prop in obj.GetType().GetProperties())
         {
-            var val = prop.GetValue(obj);
-            dict[prop.Name] = val?.ToString() ?? "";
+            dict[prop.Name] = WrapValue(prop.GetValue(obj));
         }
         return dict;
     }
+
+    private static Dictionary<string, Message> WrapStringDict(Dictionary<string, string> vars)
+    {
+        var dict = new Dictionary<string, Message>(vars.Count);
+        foreach (var kvp in vars)
+            dict[kvp.Key] = Raw(kvp.Value);
+        return dict;
+    }
+
+    /// <summary>
+    /// Wraps a template-variable value as a Message. Message values are kept
+    /// as-is so they resolve lazily; everything else is stringified via
+    /// ToString() and wrapped in <see cref="Raw(string)"/>. Null becomes empty.
+    /// </summary>
+    private static Message WrapValue(object? val) => val switch
+    {
+        null => Empty,
+        Message m => m,
+        _ => Raw(val.ToString() ?? string.Empty),
+    };
 }

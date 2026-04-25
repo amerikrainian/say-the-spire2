@@ -83,7 +83,7 @@ public class ProxyMapPoint : ProxyElement
         // so the user can reorder or toggle them like any other announcement. Map points
         // have no mod-side Container parent, so UIElement.GetFocusMessage wouldn't inject
         // one for us.
-        yield return new PositionAnnouncement(Message.Raw(view.Coordinates));
+        yield return new PositionAnnouncement(view.Coordinates);
     }
 
     /// <summary>

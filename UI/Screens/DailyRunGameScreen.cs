@@ -122,8 +122,9 @@ public class DailyRunGameScreen : GameScreen
         if (lobby != null && player.id == lobby.NetService.NetId)
             return;
 
-        var character = player.character?.Title?.GetFormattedText() ?? Ui("DAILY_RUN.NO_CHARACTER").Resolve();
-        var ready = (player.isReady ? Ui("DAILY_RUN.READY") : Ui("DAILY_RUN.NOT_READY")).Resolve();
+        var titleText = player.character?.Title?.GetFormattedText();
+        Message character = string.IsNullOrEmpty(titleText) ? Ui("DAILY_RUN.NO_CHARACTER") : Message.Raw(titleText);
+        Message ready = player.isReady ? Ui("DAILY_RUN.READY") : Ui("DAILY_RUN.NOT_READY");
         SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOBBY_CHANGED", new
         {
             player = GetPlayerName(player.id),

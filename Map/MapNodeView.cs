@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SayTheSpire2.Localization;
 
 namespace SayTheSpire2.Map;
 
@@ -11,7 +12,7 @@ namespace SayTheSpire2.Map;
 /// </summary>
 public sealed record MapNodeView(
     string TypeName,
-    string Coordinates,
+    Message Coordinates,
     string? State,
     bool IsMarked,
     bool IsFreeTravel,

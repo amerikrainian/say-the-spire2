@@ -33,7 +33,7 @@ public static class MapNodeAnnouncementFormatter
 
         return new MapNodeView(
             TypeName: node.GetDisplayName(),
-            Coordinates: node.GetCoordinatesString(),
+            Coordinates: node.GetCoordinates(),
             State: node.GetStateString(),
             IsMarked: isMarked,
             IsFreeTravel: isFreeTravel,
@@ -194,7 +194,7 @@ public static class MapNodeAnnouncementFormatter
     {
         var name = node.GetDisplayName();
         return duplicateNames.Contains(name)
-            ? $"{name} {node.GetCoordinatesString()}"
+            ? $"{name} {node.GetCoordinates().Resolve()}"
             : name;
     }
 

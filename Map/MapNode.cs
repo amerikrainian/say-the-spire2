@@ -86,17 +86,12 @@ public class MapNode
         return null;
     }
 
-    public string GetCoordinatesString()
-    {
-        return GetCoordinatesString(Point);
-    }
+    public Message GetCoordinates() => GetCoordinates(Point);
 
     /// <summary>
-    /// Get the localized coordinate string for a MapPoint (0-based).
+    /// Get the localized coordinate message for a MapPoint (0-based).
     /// Shared by MapNode, ProxyMapPoint, and VotingHooks.
     /// </summary>
-    public static string GetCoordinatesString(MapPoint point)
-    {
-        return Message.Localized("map_nav", "NAV.COORDINATES", new { col = point.coord.col, row = point.coord.row }).Resolve();
-    }
+    public static Message GetCoordinates(MapPoint point) =>
+        Message.Localized("map_nav", "NAV.COORDINATES", new { col = point.coord.col, row = point.coord.row });
 }

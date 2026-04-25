@@ -9,9 +9,9 @@ namespace SayTheSpire2.Events;
 public class EnemyMoveEvent : GameEvent
 {
     private readonly string _creatureName;
-    private readonly string _intentSummary;
+    private readonly Message? _intentSummary;
 
-    public EnemyMoveEvent(Creature creature, string intentSummary)
+    public EnemyMoveEvent(Creature creature, Message? intentSummary)
     {
         Source = creature;
         _creatureName = MultiplayerHelper.GetCreatureName(creature);
@@ -25,7 +25,7 @@ public class EnemyMoveEvent : GameEvent
 
     public override Message? GetMessage()
     {
-        if (ModSettings.GetValue<bool>("events.enemy_move.show_intent") && !string.IsNullOrEmpty(_intentSummary))
+        if (ModSettings.GetValue<bool>("events.enemy_move.show_intent") && _intentSummary is { IsEmpty: false })
             return Message.Localized("ui", "EVENT.ENEMY_MOVE", new { creature = _creatureName, intent = _intentSummary });
         return Message.Raw(_creatureName);
     }
