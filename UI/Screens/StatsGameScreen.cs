@@ -14,7 +14,7 @@ public class StatsGameScreen : GameScreen
     private readonly NStatsScreen _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("STATS.SCREEN_NAME"),
+        ContainerLabel = Message.Localized("ui", "STATS.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };

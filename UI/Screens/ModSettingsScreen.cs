@@ -79,7 +79,7 @@ public class ModSettingsScreen : Screen
         // Navigation container
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = category.Label,
+            ContainerLabel = Message.Raw(category.Label),
             AnnounceName = true,
             AnnouncePosition = true,
         };
@@ -280,7 +280,7 @@ public class ModSettingsScreen : Screen
         var row = new RowContainer
         {
             // Announced on entry: e.g. "Label horizontal bar, Configure, button, 1 of 3"
-            ContainerLabel = Message.Localized("ui", "SETTINGS.HORIZONTAL_BAR_LABEL", new { label = cat.Label }).Resolve(),
+            ContainerLabel = Message.Localized("ui", "SETTINGS.HORIZONTAL_BAR_LABEL", new { label = cat.Label }),
             AnnounceName = true,
             AnnouncePosition = true,
         };

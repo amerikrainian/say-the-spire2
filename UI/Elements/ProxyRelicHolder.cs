@@ -75,15 +75,15 @@ public class ProxyRelicHolder : ProxyElement
         var view = GetView();
         if (view == null) return null;
 
-        var parts = new List<string>();
+        var parts = new List<Message>();
 
         if (view.ShowCounter && view.DisplayAmount != 0)
-            parts.Add(Message.Localized("ui", "RELIC.COUNTER", new { amount = view.DisplayAmount }).Resolve());
+            parts.Add(Message.Localized("ui", "RELIC.COUNTER", new { amount = view.DisplayAmount }));
 
         if (view.IsDisabled)
-            parts.Add(LocalizationManager.GetOrDefault("ui", "RELIC.DISABLED", "Disabled"));
+            parts.Add(Message.Localized("ui", "RELIC.DISABLED"));
 
-        return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : null;
     }
 
     public override Message? GetTooltip()

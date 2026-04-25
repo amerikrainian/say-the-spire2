@@ -13,7 +13,7 @@ public class PotionLabGameScreen : GameScreen
     private readonly NPotionLab _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("POTION_LAB.SCREEN_NAME"),
+        ContainerLabel = Message.Localized("ui", "POTION_LAB.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
@@ -77,7 +77,7 @@ public class PotionLabGameScreen : GameScreen
 
         var grid = new Elements.GridContainer
         {
-            ContainerLabel = GetCategoryLabel(category),
+            ContainerLabel = Message.Raw(GetCategoryLabel(category)),
             AnnounceName = true,
             AnnouncePosition = true,
         };

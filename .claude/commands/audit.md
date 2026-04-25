@@ -32,7 +32,22 @@ You are performing a comprehensive audit of the entire codebase, not just a diff
 **Message.Raw() misuse:**
 - Scan for `Message.Raw()` calls containing hardcoded English text (not game-provided). These should be `Message.Localized()`.
 - Scan for `Message.Raw(LocalizationManager.GetOrDefault(...))` — redundant pattern, should be `Message.Localized()` directly.
+- Scan for resolve-then-wrap anti-pattern: `Message.Localized(...).Resolve()` fed into `string.Join` / interpolation / `+`, then passed to `Message.Raw(...)` at the end. This collapses the pieces into a frozen string so subsequent language switches can't re-translate. Compose with `Message.Join(separator, parts)`, the `+` operator (space-joined), or `Message.Sep(", ")` between `+` ops instead.
 - Check that all Event `GetMessage()` implementations use `Message.Localized()` for format templates.
+
+**`.Resolve()` may only appear at output boundaries:**
+`.Resolve()` collapses a `Message` into a string and freezes the language. It is legal **only** at the final output boundary — right before handing text to something that can't accept a `Message`:
+- `SpeechManager.Output(...)` when the overload takes `string` (prefer the `Message` overload).
+- `buffer.Add(string)`.
+- Assigning text to a Godot `Control` (`.Text = ...`, `label.Text = ...`).
+- Building an event-template substitution variable that is a `{name}` placeholder in a `Message.Localized("...", new { name = ... })` call (template vars are `string`).
+- Writing to a log line (`Log.Info($"... {msg.Resolve()}")`).
+
+Every other `.Resolve()` is wrong and indicates a function that should have returned `Message` instead of `string`. Specifically:
+- **Scan for `return foo.Resolve()` or `return Message.Localized(...).Resolve()`** — the enclosing function should return `Message` (or `Message?`).
+- **Scan for `var x = msg.Resolve(); ... new Something(x)`** — if `Something` stores the string and hands it to another composer later, `Something` should store `Message` instead.
+- **Scan for helpers that return `string` but build their return value through `Message.*` calls** (formatters, summary producers, label helpers). These helpers should return `Message` so callers can continue composing without freezing the language. The Message pipeline's whole point is deferred composition; freezing mid-stack defeats it.
+- Refactor chain: change the helper's return type to `Message?`, remove the internal Resolve, update every caller. Callers that were stashing the string (proxy fields, event fields, announcement fields) should also switch to `Message`.
 
 **Missing localization keys:**
 - Scan for strings passed to `buffer.Add()`, `SpeechManager.Output()`, or proxy return values that contain English words but don't use localization.
@@ -43,6 +58,8 @@ You are performing a comprehensive audit of the entire codebase, not just a diff
 - UIElement `GetLabel`/`GetStatusString`/`GetTooltip`/`GetExtrasString` must return `Message?`, not `string?`.
 - Event `GetMessage()` must return `Message?`, not `string?`.
 - Container `GetPositionString()` must return `Message?`.
+- `Container.ContainerLabel` must be `Message?`, not `string?`.
+- Any `*Summary` / `*Label` / `*Description` helper that builds its result from `Message.Localized` calls must return `Message?` (not `string`).
 
 ### Code Reuse
 

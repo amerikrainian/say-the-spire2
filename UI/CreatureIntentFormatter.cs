@@ -12,14 +12,13 @@ namespace SayTheSpire2.UI;
 
 /// <summary>
 /// Formats a creature's next-action summary ("what is this creature about to do")
-/// into a speech-ready string. For monsters, this is the queued intents; for
-/// players, it's the model they're currently hovering. Lives in UI/ because
-/// player-intent formatting dispatches into proxies. Expected to be absorbed by
-/// IntentsAnnouncement during Phase 2 of the focus announcements refactor.
+/// into a composable <see cref="Message"/>. For monsters, this is the queued
+/// intents; for players, it's the model they're currently hovering. Lives in
+/// UI/ because player-intent formatting dispatches into proxies.
 /// </summary>
 public static class CreatureIntentFormatter
 {
-    public static string? Summary(CreatureView view, bool includePrefix = true)
+    public static Message? Summary(CreatureView view, bool includePrefix = true)
     {
         try
         {
@@ -35,7 +34,7 @@ public static class CreatureIntentFormatter
         return null;
     }
 
-    private static string? MonsterSummary(CreatureView view, bool includePrefix)
+    private static Message? MonsterSummary(CreatureView view, bool includePrefix)
     {
         var intents = view.MonsterIntents;
         if (intents.Count == 0) return null;
@@ -45,26 +44,26 @@ public static class CreatureIntentFormatter
                 ? $"{intent.Name} {intent.Label}"
                 : intent.Name);
 
-        var joined = string.Join(", ", summaries);
+        var joined = Message.Raw(string.Join(", ", summaries));
         return includePrefix
-            ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + joined
+            ? Message.Join(" ", Message.Localized("ui", "CREATURE.INTENT_PREFIX"), joined)
             : joined;
     }
 
-    private static string? PlayerSummary(CreatureView view, bool includePrefix)
+    private static Message? PlayerSummary(CreatureView view, bool includePrefix)
     {
         var model = view.PlayerHoveredModel;
         if (model == null) return null;
 
         var summary = HoveredModelSummary(model);
-        if (string.IsNullOrWhiteSpace(summary)) return null;
+        if (summary == null || summary.IsEmpty) return null;
 
         return includePrefix
-            ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + summary
+            ? Message.Join(" ", Message.Localized("ui", "CREATURE.INTENT_PREFIX"), summary)
             : summary;
     }
 
-    public static string? HoveredModelSummary(AbstractModel model)
+    public static Message? HoveredModelSummary(AbstractModel model)
     {
         return model switch
         {
@@ -76,49 +75,46 @@ public static class CreatureIntentFormatter
         };
     }
 
-    private static string CardSummary(CardModel card)
+    private static Message CardSummary(CardModel card)
     {
         var proxy = ProxyCard.FromModel(card);
-        var parts = new List<string>();
-        var label = proxy.GetLabel()?.Resolve();
-        var extras = proxy.GetExtrasString()?.Resolve();
+        var parts = new List<Message>();
+        var label = proxy.GetLabel();
+        var extras = proxy.GetExtrasString();
         var subtype = proxy.GetSubtypeKey();
 
-        if (!string.IsNullOrWhiteSpace(label))
-            parts.Add(label);
-        if (!string.IsNullOrWhiteSpace(extras))
-            parts.Add(extras);
+        if (label is { IsEmpty: false }) parts.Add(label);
+        if (extras is { IsEmpty: false }) parts.Add(extras);
         if (!string.IsNullOrWhiteSpace(subtype))
-            parts.Add(Message.Localized("ui", "CREATURE.SUBTYPE_CARD", new { subtype }).Resolve());
+            parts.Add(Message.Localized("ui", "CREATURE.SUBTYPE_CARD", new { subtype }));
 
-        return string.Join(", ", parts);
+        return Message.Join(", ", parts.ToArray());
     }
 
-    private static string RelicSummary(RelicModel relic)
+    private static Message RelicSummary(RelicModel relic)
     {
         var proxy = ProxyRelicHolder.FromModel(relic);
-        var parts = new List<string>();
-        var label = proxy.GetLabel()?.Resolve();
-        var status = proxy.GetStatusString()?.Resolve();
+        var parts = new List<Message>();
+        var label = proxy.GetLabel();
+        var status = proxy.GetStatusString();
 
-        if (!string.IsNullOrWhiteSpace(label))
-            parts.Add(label);
-        if (!string.IsNullOrWhiteSpace(status))
-            parts.Add(status);
+        if (label is { IsEmpty: false }) parts.Add(label);
+        if (status is { IsEmpty: false }) parts.Add(status);
 
-        return string.Join(", ", parts);
+        return Message.Join(", ", parts.ToArray());
     }
 
-    private static string PotionSummary(PotionModel potion)
+    private static Message PotionSummary(PotionModel potion)
     {
-        return ProxyPotionHolder.FromModel(potion).GetLabel()?.Resolve() ?? potion.Title.GetFormattedText();
+        return ProxyPotionHolder.FromModel(potion).GetLabel()
+            ?? Message.Raw(potion.Title.GetFormattedText());
     }
 
-    private static string PowerSummary(PowerModel power)
+    private static Message PowerSummary(PowerModel power)
     {
         var title = power.Title.GetFormattedText();
         if (power.StackType == PowerStackType.Counter && power.DisplayAmount != 0)
-            return $"{title} {power.DisplayAmount}";
-        return title;
+            return Message.Raw($"{title} {power.DisplayAmount}");
+        return Message.Raw(title);
     }
 }

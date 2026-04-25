@@ -5,6 +5,7 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using MegaCrit.Sts2.Core.Nodes.Screens;
+using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
 
 namespace SayTheSpire2.UI.Screens;
@@ -86,7 +87,7 @@ public class CardPileGameScreen : GameScreen
             }
         }
 
-        gridContainer.ContainerLabel = $"{_containerLabel} ({_cardCount})";
+        gridContainer.ContainerLabel = Message.Raw($"{_containerLabel} ({_cardCount})");
         RootElement = gridContainer;
         Log.Info($"[AccessibilityMod] CardPileGameScreen built: {gridContainer.Children.Count} cards in grid");
     }

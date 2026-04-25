@@ -23,7 +23,7 @@ public class RunHistoryGameScreen : GameScreen
     private readonly NRunHistory _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("RUN_HISTORY.SCREEN_NAME"),
+        ContainerLabel = Message.Localized("ui", "RUN_HISTORY.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
@@ -138,7 +138,7 @@ public class RunHistoryGameScreen : GameScreen
 
     private static ListContainer NewRow(string label) => new()
     {
-        ContainerLabel = label,
+        ContainerLabel = Message.Raw(label),
         AnnounceName = true,
         AnnouncePosition = true,
     };

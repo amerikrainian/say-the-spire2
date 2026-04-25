@@ -75,7 +75,7 @@ public static class CombatNavigationHooks
         {
             if (__instance.IsMonster && __instance.Monster != null && !__instance.Monster.SpawnedThisTurn)
             {
-                var intentSummary = CreatureIntentFormatter.Summary(CreatureView.FromEntity(__instance), includePrefix: false) ?? "";
+                var intentSummary = CreatureIntentFormatter.Summary(CreatureView.FromEntity(__instance), includePrefix: false)?.Resolve() ?? "";
                 EventDispatcher.Enqueue(new EnemyMoveEvent(__instance, intentSummary));
             }
         }

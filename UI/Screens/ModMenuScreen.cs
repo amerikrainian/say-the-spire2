@@ -66,7 +66,7 @@ public class ModMenuScreen : Screen
 
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.MOD_MENU", "Mod Menu"),
+            ContainerLabel = Message.Localized("ui", "CONTAINERS.MOD_MENU"),
             AnnounceName = true,
             AnnouncePosition = true,
         };

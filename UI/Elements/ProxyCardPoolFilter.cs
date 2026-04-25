@@ -32,6 +32,17 @@ public class ProxyCardPoolFilter : ProxyElement
 
     public override Message? GetLabel()
     {
+        // filter.Loc is the game-supplied localized label. Prefer it over our
+        // hardcoded OverrideLabel so compendium filters read in the game's
+        // current language (QgSama: "Ironclad / Silent / Attack Type / Skill
+        // Type" were showing in English because OverrideLabel won).
+        if (Control is NCardPoolFilter filter && filter.Loc != null)
+        {
+            var locText = filter.Loc.GetFormattedText();
+            if (!string.IsNullOrEmpty(locText))
+                return Message.Raw(locText);
+        }
+
         if (OverrideLabel != null)
             return Message.Raw(OverrideLabel);
 

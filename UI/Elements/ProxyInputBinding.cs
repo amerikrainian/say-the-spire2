@@ -99,30 +99,34 @@ public class ProxyInputBinding : ProxyElement
         bool isKeyboardRemappable = inputName != null && NInputManager.remappableKeyboardInputs.Contains(inputName);
         bool isControllerRemappable = inputName != null && NInputManager.remappableControllerInputs.Contains(inputName);
 
-        var parts = new List<string>();
+        var parts = new List<Message>();
 
         // Keyboard binding
         if (isKeyboardRemappable)
         {
             var keyLabel = Control?.GetNodeOrNull("%KeyBindingInputLabel");
             var text = keyLabel != null ? FindChildText(keyLabel) : null;
-            parts.Add(!string.IsNullOrEmpty(text) ? $"keyboard {text}" : "keyboard unbound");
+            parts.Add(!string.IsNullOrEmpty(text)
+                ? Message.Localized("ui", "BINDING.KEYBOARD_BOUND", new { key = text })
+                : Message.Localized("ui", "BINDING.KEYBOARD_UNBOUND"));
         }
 
         // Controller binding
         if (isControllerRemappable)
         {
             var controllerName = GetControllerBindingName();
-            parts.Add(controllerName != null ? $"controller {controllerName}" : "controller unbound");
+            parts.Add(controllerName != null
+                ? Message.Localized("ui", "BINDING.CONTROLLER_BOUND", new { button = controllerName })
+                : Message.Localized("ui", "BINDING.CONTROLLER_UNBOUND"));
         }
 
         // Label as keyboard-only or controller-only if applicable
         if (isKeyboardRemappable && !isControllerRemappable)
-            parts.Add("keyboard only");
+            parts.Add(Message.Localized("ui", "BINDING.KEYBOARD_ONLY"));
         else if (!isKeyboardRemappable && isControllerRemappable)
-            parts.Add("controller only");
+            parts.Add(Message.Localized("ui", "BINDING.CONTROLLER_ONLY"));
 
-        return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : null;
     }
 
     public static string GetControllerButtonName(string actionStr)

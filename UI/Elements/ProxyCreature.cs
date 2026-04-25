@@ -56,7 +56,7 @@ public class ProxyCreature : ProxyElement
             if (view.PlayerHoveredModel != null)
             {
                 var summary = CreatureIntentFormatter.HoveredModelSummary(view.PlayerHoveredModel);
-                if (!string.IsNullOrEmpty(summary))
+                if (summary is { IsEmpty: false })
                     yield return new PlayerIntentsAnnouncement(summary);
             }
         }
@@ -80,19 +80,19 @@ public class ProxyCreature : ProxyElement
         var view = GetView();
         if (view == null) return null;
 
-        var parts = new List<string>
+        var parts = new List<Message>
         {
-            Message.Localized("ui", "RESOURCE.HP", new { current = view.CurrentHp, max = view.MaxHp }).Resolve(),
+            Message.Localized("ui", "RESOURCE.HP", new { current = view.CurrentHp, max = view.MaxHp }),
         };
 
         if (view.Block > 0)
-            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = view.Block }).Resolve());
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = view.Block }));
 
         var intentSummary = CreatureIntentFormatter.Summary(view, includePrefix: true);
-        if (!string.IsNullOrEmpty(intentSummary))
+        if (intentSummary is { IsEmpty: false })
             parts.Add(intentSummary);
 
-        return Message.Raw(string.Join(", ", parts));
+        return Message.Join(", ", parts.ToArray());
     }
 
     public override string? HandleBuffers(BufferManager buffers)

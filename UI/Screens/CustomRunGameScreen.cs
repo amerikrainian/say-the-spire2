@@ -32,7 +32,7 @@ public class CustomRunGameScreen : GameScreen
     private readonly NCustomRunScreen _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText(),
+        ContainerLabel = Message.Raw(new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText()),
         AnnounceName = true,
         AnnouncePosition = false,
     };
@@ -525,7 +525,7 @@ public class CustomRunGameScreen : GameScreen
 
     private static ListContainer NewRow(string label, bool announcePosition = true) => new()
     {
-        ContainerLabel = label,
+        ContainerLabel = Message.Raw(label),
         AnnounceName = true,
         AnnouncePosition = announcePosition,
     };

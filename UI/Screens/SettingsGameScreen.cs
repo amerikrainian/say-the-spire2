@@ -69,7 +69,7 @@ public class SettingsGameScreen : GameScreen
 
             var tabContainer = new ListContainer
             {
-                ContainerLabel = tabLabel,
+                ContainerLabel = Message.Raw(tabLabel),
                 AnnounceName = true,
                 AnnouncePosition = true,
             };

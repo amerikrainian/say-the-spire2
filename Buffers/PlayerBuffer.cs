@@ -74,10 +74,10 @@ public class PlayerBuffer : Buffer
 
         if (pcs != null)
         {
-            var piles = Message.Localized("ui", "RESOURCE.DRAW_HAND_DISCARD", new { draw = pcs.DrawPile.Cards.Count, hand = pcs.Hand.Cards.Count, discard = pcs.DiscardPile.Cards.Count }).Resolve();
+            var piles = Message.Localized("ui", "RESOURCE.DRAW_HAND_DISCARD", new { draw = pcs.DrawPile.Cards.Count, hand = pcs.Hand.Cards.Count, discard = pcs.DiscardPile.Cards.Count });
             if (pcs.ExhaustPile.Cards.Count > 0)
-                piles += ", " + Message.Localized("ui", "RESOURCE.EXHAUST", new { count = pcs.ExhaustPile.Cards.Count }).Resolve();
-            Add(piles);
+                piles = Message.Join(", ", piles, Message.Localized("ui", "RESOURCE.EXHAUST", new { count = pcs.ExhaustPile.Cards.Count }));
+            Add(piles.Resolve());
         }
 
         if (creature.Powers.Count > 0)

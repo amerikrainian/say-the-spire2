@@ -9,11 +9,11 @@ public abstract class Container : UIElement
     private readonly List<UIElement> _children = new();
 
     public IReadOnlyList<UIElement> Children => _children;
-    public string? ContainerLabel { get; set; }
+    public Message? ContainerLabel { get; set; }
     public bool AnnounceName { get; set; } = true;
     public bool AnnouncePosition { get; set; } = true;
 
-    public override Message? GetLabel() => ContainerLabel != null ? Message.Raw(ContainerLabel) : null;
+    public override Message? GetLabel() => ContainerLabel;
 
     /// <summary>
     /// Containers aren't focused directly — their label is read via FocusContext

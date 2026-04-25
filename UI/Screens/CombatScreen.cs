@@ -272,10 +272,10 @@ public class CombatScreen : Screen
             return;
 
         var intent = GetCombatantIntentSummary(creature);
-        if (string.IsNullOrEmpty(intent))
+        if (intent.IsEmpty)
             return;
 
-        SpeechManager.Output(Message.Raw(intent));
+        SpeechManager.Output(intent);
     }
 
     private Creature? GetBoundCombatant(int index)
@@ -299,10 +299,10 @@ public class CombatScreen : Screen
         return combatants[index];
     }
 
-    private string? GetCombatantIntentSummary(Creature creature)
+    private Message GetCombatantIntentSummary(Creature creature)
     {
         return CreatureIntentFormatter.Summary(CreatureView.FromEntity(creature), includePrefix: false)
-            ?? LocalizationManager.GetOrDefault("ui", "SPEECH.NO_INTENT", "No intent");
+            ?? Message.Localized("ui", "SPEECH.NO_INTENT");
     }
 
     private void AnnounceBlock()

@@ -29,7 +29,7 @@ public class DailyRunLoadGameScreen : GameScreen
     private readonly NDailyRunLoadScreen _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("DAILY_RUN.SCREEN_NAME"),
+        ContainerLabel = Message.Localized("ui", "DAILY_RUN.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };

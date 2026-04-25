@@ -108,30 +108,30 @@ public class ProxyCard : ProxyElement
         var view = GetView();
         if (view == null) return null;
 
-        var parts = new List<string>();
+        var parts = new List<Message>();
         bool verbose = ModSettings.GetValue<bool>("announcements.energy_cost.verbose");
 
         var energyCost = view.EnergyCost;
         if (energyCost != null)
         {
             if (energyCost.CostsX)
-                parts.Add(verbose ? LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_ENERGY", "X energy") : "X");
+                parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_X_ENERGY") : Message.Raw("X"));
             else
             {
                 var cost = energyCost.GetWithModifiers(CostModifiers.All);
-                parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost }).Resolve() : $"{cost}");
+                parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost }) : Message.Raw($"{cost}"));
             }
         }
 
         if (view.HasStarCostX)
-            parts.Add(verbose ? LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_STARS", "X stars") : "X");
+            parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_X_STARS") : Message.Raw("X"));
         else if (view.CurrentStarCost >= 0)
         {
             var starCost = view.StarCostWithModifiers;
-            parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = starCost }).Resolve() : $"{starCost}");
+            parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = starCost }) : Message.Raw($"{starCost}"));
         }
 
-        return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : null;
     }
 
     public override Message? GetTooltip()

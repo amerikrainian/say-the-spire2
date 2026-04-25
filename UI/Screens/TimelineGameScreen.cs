@@ -191,7 +191,7 @@ public class TimelineGameScreen : GameScreen
 
             var eraContainer = new ListContainer
             {
-                ContainerLabel = eraName,
+                ContainerLabel = Message.Raw(eraName),
                 AnnounceName = true,
                 AnnouncePosition = true
             };

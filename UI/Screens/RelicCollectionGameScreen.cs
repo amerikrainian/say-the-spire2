@@ -12,7 +12,7 @@ public class RelicCollectionGameScreen : GameScreen
     private readonly NRelicCollection _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("RELIC_COLLECTION.SCREEN_NAME"),
+        ContainerLabel = Message.Localized("ui", "RELIC_COLLECTION.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
@@ -77,7 +77,7 @@ public class RelicCollectionGameScreen : GameScreen
 
         var grid = new Elements.GridContainer
         {
-            ContainerLabel = GetCategoryLabel(category),
+            ContainerLabel = Message.Raw(GetCategoryLabel(category)),
             AnnounceName = true,
             AnnouncePosition = true,
         };

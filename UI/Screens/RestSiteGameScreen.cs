@@ -66,7 +66,7 @@ public class RestSiteGameScreen : GameScreen
 
         var list = new ListContainer
         {
-            ContainerLabel = headerText,
+            ContainerLabel = Message.Raw(headerText),
             AnnounceName = true,
             AnnouncePosition = true,
         };

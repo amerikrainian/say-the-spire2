@@ -77,22 +77,22 @@ public class ProxyMultiplayerPlayerState : ProxyElement
         var player = GetPlayer();
         if (player == null) return null;
 
-        var parts = new System.Collections.Generic.List<string>();
+        var parts = new System.Collections.Generic.List<Message>();
         var creature = player.Creature;
 
-        parts.Add(Message.Localized("ui", "RESOURCE.HP", new { current = creature.CurrentHp, max = creature.MaxHp }).Resolve());
+        parts.Add(Message.Localized("ui", "RESOURCE.HP", new { current = creature.CurrentHp, max = creature.MaxHp }));
 
         if (creature.Block > 0)
-            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }).Resolve());
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }));
 
         var pcs = player.PlayerCombatState;
         if (pcs != null)
         {
-            parts.Add(ResourceHelper.GetResourceString(pcs));
-            parts.Add(Message.Localized("ui", "RESOURCE.CARDS_IN_HAND", new { count = pcs.Hand.Cards.Count }).Resolve());
+            parts.Add(Message.Raw(ResourceHelper.GetResourceString(pcs)));
+            parts.Add(Message.Localized("ui", "RESOURCE.CARDS_IN_HAND", new { count = pcs.Hand.Cards.Count }));
         }
 
-        return Message.Raw(string.Join(", ", parts));
+        return Message.Join(", ", parts.ToArray());
     }
 
     public override string? HandleBuffers(BufferManager buffers)

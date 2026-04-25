@@ -68,7 +68,7 @@ public class HelpScreen : Screen
 
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.HELP", "Help"),
+            ContainerLabel = Message.Localized("ui", "CONTAINERS.HELP"),
             AnnounceName = true,
             AnnouncePosition = true,
         };

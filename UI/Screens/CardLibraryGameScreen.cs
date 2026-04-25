@@ -69,7 +69,7 @@ public class CardLibraryGameScreen : GameScreen
     private readonly NCardLibrary _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("CARD_LIBRARY.SCREEN_NAME"),
+        ContainerLabel = Message.Raw(Ui("CARD_LIBRARY.SCREEN_NAME")),
         AnnounceName = true,
         AnnouncePosition = false,
     };
@@ -243,7 +243,7 @@ public class CardLibraryGameScreen : GameScreen
             return;
 
         _cardGridContainer.ClearCards();
-        _cardGridContainer.ContainerLabel = GetCardCountLabel();
+        _cardGridContainer.ContainerLabel = Message.Raw(GetCardCountLabel());
 
         var cardRows = GetDisplayedCardRows();
         if (cardRows.Count == 0)
@@ -508,7 +508,7 @@ public class CardLibraryGameScreen : GameScreen
         if (!IsUsable(holder))
             return null;
 
-        _cardGridContainer.ContainerLabel = GetCardCountLabel();
+        _cardGridContainer.ContainerLabel = Message.Raw(GetCardCountLabel());
 
         var existing = GetElement(holder);
         if (existing != null)
@@ -671,7 +671,7 @@ public class CardLibraryGameScreen : GameScreen
 
     private static ListContainer NewRow(string label) => new()
     {
-        ContainerLabel = label,
+        ContainerLabel = Message.Raw(label),
         AnnounceName = true,
         AnnouncePosition = true,
     };

@@ -68,7 +68,7 @@ public class ChoiceSelectionScreen : Screen
 
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = setting.Label,
+            ContainerLabel = Message.Raw(setting.Label),
             AnnounceName = true,
             AnnouncePosition = true,
         };

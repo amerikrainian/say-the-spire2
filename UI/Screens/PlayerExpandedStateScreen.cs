@@ -15,9 +15,9 @@ public class PlayerExpandedStateScreen : Screen
 
     private readonly NMultiplayerPlayerExpandedState _screen;
     private readonly ListContainer _root = new() { AnnounceName = false, AnnouncePosition = false };
-    private readonly ListContainer _relicList = new() { ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.RELICS", "Relics"), AnnounceName = true, AnnouncePosition = true };
-    private readonly ListContainer _potionList = new() { ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.POTIONS", "Potions"), AnnounceName = true, AnnouncePosition = true };
-    private readonly ListContainer _cardList = new() { ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.CARDS", "Cards"), AnnounceName = true, AnnouncePosition = true };
+    private readonly ListContainer _relicList = new() { ContainerLabel = Message.Localized("ui", "CONTAINERS.RELICS"), AnnounceName = true, AnnouncePosition = true };
+    private readonly ListContainer _potionList = new() { ContainerLabel = Message.Localized("ui", "CONTAINERS.POTIONS"), AnnounceName = true, AnnouncePosition = true };
+    private readonly ListContainer _cardList = new() { ContainerLabel = Message.Localized("ui", "CONTAINERS.CARDS"), AnnounceName = true, AnnouncePosition = true };
     private readonly Dictionary<Control, UIElement> _elementCache = new();
 
     public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.PLAYER_DETAILS", "Player Details");

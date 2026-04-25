@@ -15,7 +15,7 @@ public class DailyLeaderboardScreen : Screen
     private readonly Control? _returnFocus;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("DAILY_RUN.LEADERBOARD"),
+        ContainerLabel = Message.Localized("ui", "DAILY_RUN.LEADERBOARD"),
         AnnounceName = true,
         AnnouncePosition = false,
     };

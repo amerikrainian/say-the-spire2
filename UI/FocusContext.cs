@@ -28,8 +28,8 @@ public class FocusContext
         for (int i = divergeIndex; i < newPath.Count; i++)
         {
             var container = newPath[i];
-            if (container.AnnounceName && !string.IsNullOrEmpty(container.ContainerLabel))
-                parts.Add(Message.Raw(container.ContainerLabel));
+            if (container.AnnounceName && container.ContainerLabel is { IsEmpty: false } label)
+                parts.Add(label);
         }
 
         // Append the element's own focus message (includes position, injected

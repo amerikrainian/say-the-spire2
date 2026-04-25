@@ -16,7 +16,7 @@ public class RewardsGameScreen : Screen
     private readonly NRewardsScreen _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = LocalizationManager.GetOrDefault("ui", "SCREENS.REWARDS", "Rewards"),
+        ContainerLabel = Message.Localized("ui", "SCREENS.REWARDS"),
         AnnounceName = true,
         AnnouncePosition = true,
     };

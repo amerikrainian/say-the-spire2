@@ -66,7 +66,7 @@ public class BindingActionScreen : Screen
 
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = binding.DisplayName,
+            ContainerLabel = Message.Raw(binding.DisplayName),
             AnnounceName = true,
             AnnouncePosition = true,
         };

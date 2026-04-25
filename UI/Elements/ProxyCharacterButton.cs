@@ -82,13 +82,20 @@ public class ProxyCharacterButton : ProxyElement
 
         if (button.IsRandom) return null;
 
-        var status = $"{character.StartingHp} HP, {character.StartingGold} gold";
+        var parts = new System.Collections.Generic.List<Message>
+        {
+            Message.Localized("ui", "CHARACTER.STARTING_HP", new { amount = character.StartingHp }),
+            Message.Localized("ui", "CHARACTER.STARTING_GOLD", new { amount = character.StartingGold }),
+        };
 
         var remoteCount = button.RemoteSelectedPlayers.Count;
         if (remoteCount > 0)
-            status += $", Selected by {remoteCount} other {(remoteCount == 1 ? "player" : "players")}";
+        {
+            var remoteKey = remoteCount == 1 ? "CHARACTER.REMOTE_SELECTION_SINGLE" : "CHARACTER.REMOTE_SELECTION_PLURAL";
+            parts.Add(Message.Localized("ui", remoteKey, new { count = remoteCount }));
+        }
 
-        return Message.Raw(status);
+        return Message.Join(", ", parts.ToArray());
     }
 
     public override Message? GetTooltip()
@@ -105,23 +112,23 @@ public class ProxyCharacterButton : ProxyElement
             return !string.IsNullOrEmpty(unlockText) ? Message.Raw(unlockText) : null;
         }
 
-        var parts = new System.Collections.Generic.List<string>();
+        var parts = new System.Collections.Generic.List<Message>();
 
         if (button.IsRandom)
         {
             var desc = new LocString("characters", character.CharacterSelectDesc).GetFormattedText();
             if (!string.IsNullOrEmpty(desc))
-                parts.Add(desc);
+                parts.Add(Message.Raw(desc));
         }
 
         var ascension = GetAscensionText(button);
         if (ascension != null)
             parts.Add(ascension);
 
-        return parts.Count > 0 ? Message.Raw(string.Join(". ", parts)) : null;
+        return parts.Count > 0 ? Message.Join(". ", parts.ToArray()) : null;
     }
 
-    private static string? GetAscensionText(NCharacterSelectButton button)
+    private static Message? GetAscensionText(NCharacterSelectButton button)
     {
         Node? node = button;
         while (node != null && node is not NCharacterSelectScreen && node is not NCustomRunScreen)
@@ -137,7 +144,12 @@ public class ProxyCharacterButton : ProxyElement
             var asc = panel.Ascension;
             var title = AscensionHelper.GetTitle(asc).GetFormattedText();
             var description = AscensionHelper.GetDescription(asc).GetFormattedText();
-            return $"Ascension {asc}: {title}. {description}";
+            return Message.Localized("ui", "CHARACTER.ASCENSION_DETAIL", new
+            {
+                level = asc,
+                title,
+                description
+            });
         }
         return null;
     }

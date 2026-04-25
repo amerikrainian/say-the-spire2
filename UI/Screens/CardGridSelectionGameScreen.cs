@@ -91,7 +91,7 @@ public class CardGridSelectionGameScreen : GameScreen
             }
         }
 
-        gridContainer.ContainerLabel = $"{_containerLabel} ({gridContainer.Children.Count})";
+        gridContainer.ContainerLabel = Message.Raw($"{_containerLabel} ({gridContainer.Children.Count})");
         RootElement = gridContainer;
         Log.Info($"[AccessibilityMod] CardGridSelectionGameScreen built: {gridContainer.Children.Count} cards in grid");
     }

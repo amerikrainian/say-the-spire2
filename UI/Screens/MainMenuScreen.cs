@@ -22,7 +22,7 @@ public class MainMenuScreen : GameScreen
             return;
         }
 
-        var root = new ListContainer { ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.MAIN_MENU", "Main Menu"), AnnounceName = false };
+        var root = new ListContainer { ContainerLabel = Message.Localized("ui", "CONTAINERS.MAIN_MENU"), AnnounceName = false };
 
         var buttonsContainer = mainMenu.GetNodeOrNull("MainMenuTextButtons");
         if (buttonsContainer == null)

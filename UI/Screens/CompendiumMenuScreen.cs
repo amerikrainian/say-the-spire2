@@ -11,7 +11,7 @@ public class CompendiumMenuScreen : GameScreen
     private readonly NCompendiumSubmenu _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("COMPENDIUM.SCREEN_NAME"),
+        ContainerLabel = Message.Localized("ui", "COMPENDIUM.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
