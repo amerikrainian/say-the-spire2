@@ -68,7 +68,7 @@ internal sealed class DailyLeaderboardAdapter
         _leaderboard = leaderboard;
     }
 
-    public readonly record struct Entry(string Label, string? Status);
+    public readonly record struct Entry(Message Label, Message? Status);
 
     public int CurrentPage => (int?)CurrentPageField?.GetValue(_leaderboard) ?? 0;
 
@@ -84,7 +84,7 @@ internal sealed class DailyLeaderboardAdapter
         return label == null ? null : GetControlText(label);
     }
 
-    public string GetSummary()
+    public Message GetSummary()
     {
         if (IsLoading)
             return Ui("DAILY_RUN_LEADERBOARD.LOADING_PAGE", new { page = CurrentPage + 1 });
@@ -94,13 +94,13 @@ internal sealed class DailyLeaderboardAdapter
             return Ui("DAILY_RUN_LEADERBOARD.PAGE_NO_FRIENDS", new { page = CurrentPage + 1 });
 
         var entries = GetEntries();
-        var parts = new List<string> { Ui("DAILY_RUN_LEADERBOARD.PAGE", new { page = CurrentPage + 1 }) };
+        var parts = new List<Message> { Ui("DAILY_RUN_LEADERBOARD.PAGE", new { page = CurrentPage + 1 }) };
         if (entries.Count > 0)
             parts.Add(Ui("DAILY_RUN_LEADERBOARD.ENTRIES", new { count = entries.Count }));
         var day = GetDayLabel();
         if (!string.IsNullOrWhiteSpace(day))
-            parts.Add(day);
-        return string.Join(", ", parts);
+            parts.Add(Message.Raw(day));
+        return Message.Join(", ", parts.ToArray());
     }
 
     public IReadOnlyList<Entry> GetEntries()
@@ -122,15 +122,15 @@ internal sealed class DailyLeaderboardAdapter
             var badges = GetControlText(RowBadgesField?.GetValue(row) as Control);
             var time = GetControlText(RowTimeField?.GetValue(row) as Control);
 
-            string label;
+            Message label;
             if (!string.IsNullOrWhiteSpace(name))
-                label = string.IsNullOrWhiteSpace(rank) ? name : $"{rank}. {name}";
+                label = Message.Raw(string.IsNullOrWhiteSpace(rank) ? name : $"{rank}. {name}");
             else if (!string.IsNullOrWhiteSpace(rank))
                 label = Ui("DAILY_RUN_LEADERBOARD.RANK_ONLY", new { rank });
             else
                 label = Ui("DAILY_RUN_LEADERBOARD.ENTRY");
 
-            var statusParts = new List<string>();
+            var statusParts = new List<Message>();
             if (!string.IsNullOrWhiteSpace(score))
             {
                 statusParts.Add(Ui("DAILY_RUN_LEADERBOARD.SCORE", new { score }));
@@ -145,7 +145,7 @@ internal sealed class DailyLeaderboardAdapter
                     statusParts.Add(Ui("DAILY_RUN_LEADERBOARD.TIME", new { time }));
             }
 
-            results.Add(new Entry(label, statusParts.Count > 0 ? string.Join(", ", statusParts) : null));
+            results.Add(new Entry(label, statusParts.Count > 0 ? Message.Join(", ", statusParts.ToArray()) : null));
         }
 
         return results;
@@ -238,7 +238,7 @@ internal sealed class DailyLeaderboardAdapter
     public string GetStateToken()
     {
         var entries = GetEntries();
-        var first = entries.Count > 0 ? entries[0].Label : "";
+        var first = entries.Count > 0 ? entries[0].Label.Resolve() : "";
         return string.Join("|",
             CurrentPage,
             GetDayLabel() ?? "",
@@ -276,13 +276,6 @@ internal sealed class DailyLeaderboardAdapter
         };
     }
 
-    private static string Ui(string key, object vars)
-    {
-        return Message.Localized("ui", key, vars).Resolve();
-    }
-
-    private static string Ui(string key)
-    {
-        return LocalizationManager.GetOrDefault("ui", key, key);
-    }
+    private static Message Ui(string key, object vars) => Message.Localized("ui", key, vars);
+    private static Message Ui(string key) => Message.Localized("ui", key);
 }

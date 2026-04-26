@@ -13,7 +13,7 @@ public class ChooseACardGameScreen : GameScreen
 
     private readonly NChooseACardSelectionScreen _screen;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.CHOOSE_A_CARD", "Choose a Card");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.CHOOSE_A_CARD");
 
     public ChooseACardGameScreen(NChooseACardSelectionScreen screen)
     {

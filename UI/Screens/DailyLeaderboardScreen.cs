@@ -15,7 +15,7 @@ public class DailyLeaderboardScreen : Screen
     private readonly Control? _returnFocus;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("DAILY_RUN.LEADERBOARD"),
+        ContainerLabel = Message.Localized("ui", "DAILY_RUN.LEADERBOARD"),
         AnnounceName = true,
         AnnouncePosition = false,
     };
@@ -36,7 +36,7 @@ public class DailyLeaderboardScreen : Screen
     private bool _pendingDayFocus;
     private bool _pendingPageFocus;
 
-    public override string? ScreenName => Ui("DAILY_RUN.LEADERBOARD");
+    public override Message? ScreenName => Message.Localized("ui", "DAILY_RUN.LEADERBOARD");
 
     public DailyLeaderboardScreen(NDailyRunLeaderboard leaderboard, Control? returnFocus = null)
     {
@@ -144,7 +144,7 @@ public class DailyLeaderboardScreen : Screen
         if (!string.IsNullOrWhiteSpace(dayLabel))
         {
             var dayElement = new ActionElement(
-                () => dayLabel,
+                () => Message.Raw(dayLabel),
                 status: () => _adapter.GetEntries().Count == 0 ? _adapter.GetSummary() : null);
             _rows.Add(dayElement);
             _focusables.Add(dayElement);
@@ -224,7 +224,7 @@ public class DailyLeaderboardScreen : Screen
         _returnFocus?.CallDeferred(Control.MethodName.GrabFocus);
     }
 
-    private void AddExtraButton(string label, bool enabled, Action onActivated)
+    private void AddExtraButton(Message label, bool enabled, Action onActivated)
     {
         var button = new ActionElement(
             () => label,
@@ -320,7 +320,7 @@ public class DailyLeaderboardScreen : Screen
         }
     }
 
-    private string GetFallbackLabel()
+    private Message GetFallbackLabel()
     {
         if (_adapter.IsLoading)
             return Ui("DAILY_RUN_LEADERBOARD.LOADING_SCORES");
@@ -332,7 +332,8 @@ public class DailyLeaderboardScreen : Screen
         return Ui("DAILY_RUN.LEADERBOARD");
     }
 
-    private static string Ui(string key)
+    private static Message Ui(string key) => Message.Localized("ui", key);
+    private static string UiString(string key)
     {
         return LocalizationManager.GetOrDefault("ui", key, key);
     }

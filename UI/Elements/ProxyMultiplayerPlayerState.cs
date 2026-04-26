@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Nodes.Multiplayer;
@@ -6,9 +7,18 @@ using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Multiplayer;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(HpAnnouncement),
+    typeof(BlockAnnouncement),
+    typeof(EnergyAnnouncement),
+    typeof(StarsAnnouncement),
+    typeof(CardsInHandAnnouncement)
+)]
 public class ProxyMultiplayerPlayerState : ProxyElement
 {
     private readonly NMultiplayerPlayerState _state;
@@ -17,6 +27,31 @@ public class ProxyMultiplayerPlayerState : ProxyElement
         : base(hitbox)
     {
         _state = state;
+    }
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        var player = GetPlayer();
+        if (player == null) yield break;
+
+        var creature = player.Creature;
+        yield return new HpAnnouncement(creature.CurrentHp, creature.MaxHp);
+
+        if (creature.Block > 0)
+            yield return new BlockAnnouncement(creature.Block);
+
+        var pcs = player.PlayerCombatState;
+        if (pcs != null)
+        {
+            yield return new EnergyAnnouncement(pcs.Energy, pcs.MaxEnergy);
+            if (pcs.Stars > 0)
+                yield return new StarsAnnouncement(pcs.Stars);
+            yield return new CardsInHandAnnouncement(pcs.Hand.Cards.Count);
+        }
     }
 
     private Player? GetPlayer()
@@ -42,22 +77,22 @@ public class ProxyMultiplayerPlayerState : ProxyElement
         var player = GetPlayer();
         if (player == null) return null;
 
-        var parts = new System.Collections.Generic.List<string>();
+        var parts = new System.Collections.Generic.List<Message>();
         var creature = player.Creature;
 
-        parts.Add(Message.Localized("ui", "RESOURCE.HP", new { current = creature.CurrentHp, max = creature.MaxHp }).Resolve());
+        parts.Add(Message.Localized("ui", "RESOURCE.HP", new { current = creature.CurrentHp, max = creature.MaxHp }));
 
         if (creature.Block > 0)
-            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }).Resolve());
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }));
 
         var pcs = player.PlayerCombatState;
         if (pcs != null)
         {
-            parts.Add(ResourceHelper.GetResourceString(pcs));
-            parts.Add(Message.Localized("ui", "RESOURCE.CARDS_IN_HAND", new { count = pcs.Hand.Cards.Count }).Resolve());
+            parts.Add(ResourceHelper.GetResourceMessage(pcs));
+            parts.Add(Message.Localized("ui", "RESOURCE.CARDS_IN_HAND", new { count = pcs.Hand.Cards.Count }));
         }
 
-        return Message.Raw(string.Join(", ", parts));
+        return Message.Join(", ", parts.ToArray());
     }
 
     public override string? HandleBuffers(BufferManager buffers)

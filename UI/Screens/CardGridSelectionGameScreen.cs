@@ -26,7 +26,7 @@ public class CardGridSelectionGameScreen : GameScreen
 
     private HashSet<CardModel>? _selectedCards;
 
-    public override string? ScreenName => _containerLabel;
+    public override Message? ScreenName => Message.Raw(_containerLabel);
 
     public CardGridSelectionGameScreen(NCardGridSelectionScreen screen)
     {
@@ -76,15 +76,12 @@ public class CardGridSelectionGameScreen : GameScreen
                         {
                             var cardHolder = holder;
                             var selectedSet = _selectedCards;
-                            proxy.CollectPreExtras += extras =>
+                            proxy.CollectAnnouncements += list =>
                             {
                                 var model = cardHolder.CardModel;
                                 if (model != null && selectedSet.Contains(model))
-                                    extras.Add(Localization.Message.Localized("ui", "CARD.SELECTED"));
-                            };
-                            proxy.CollectPostExtras += extras =>
-                            {
-                                extras.Add(Localization.Message.Localized("ui", "CARD.COUNT_SELECTED", new { count = selectedSet.Count }));
+                                    list.Add(new UI.Announcements.SelectedMarkerAnnouncement());
+                                list.Add(new UI.Announcements.SelectionCountAnnouncement(selectedSet.Count));
                             };
                         }
                         gridContainer.Add(proxy, col, row);
@@ -94,7 +91,7 @@ public class CardGridSelectionGameScreen : GameScreen
             }
         }
 
-        gridContainer.ContainerLabel = $"{_containerLabel} ({gridContainer.Children.Count})";
+        gridContainer.ContainerLabel = Message.Raw($"{_containerLabel} ({gridContainer.Children.Count})");
         RootElement = gridContainer;
         Log.Info($"[AccessibilityMod] CardGridSelectionGameScreen built: {gridContainer.Children.Count} cards in grid");
     }

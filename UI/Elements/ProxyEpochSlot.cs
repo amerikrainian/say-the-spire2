@@ -1,15 +1,37 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Nodes.Screens.Timeline;
 using MegaCrit.Sts2.Core.Timeline;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
 public class ProxyEpochSlot : ProxyElement
 {
+    // User-perceives this as a button; share settings / [AnnouncementOrder] with ProxyButton.
+    public override System.Type AnnouncementOrderType => typeof(ProxyButton);
+
     public ProxyEpochSlot(Control control) : base(control) { }
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        yield return new TypeAnnouncement("button");
+
+        var status = GetStatusString();
+        if (status != null)
+            yield return new StatusAnnouncement(status);
+
+        var tooltip = GetTooltip();
+        if (tooltip != null)
+            yield return new TooltipAnnouncement(tooltip);
+    }
 
     public override Message? GetLabel()
     {

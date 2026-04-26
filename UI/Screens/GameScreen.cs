@@ -75,10 +75,10 @@ public abstract class GameScreen : Screen
         control.EmitSignal(NClickableControl.SignalName.Released, control);
     }
 
-    protected static string? GetButtonStatus(NClickableControl? control)
+    protected static Message? GetButtonStatus(NClickableControl? control)
     {
         if (control == null || control.IsEnabled)
             return null;
-        return LocalizationManager.GetOrDefault("ui", "DAILY_RUN.DISABLED", "Disabled");
+        return Message.Localized("ui", "DAILY_RUN.DISABLED");
     }
 }

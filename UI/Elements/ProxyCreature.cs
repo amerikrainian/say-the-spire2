@@ -1,93 +1,107 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Godot;
-using HarmonyLib;
-using MegaCrit.Sts2.Core.Combat;
-using MegaCrit.Sts2.Core.Context;
-using MegaCrit.Sts2.Core.Entities.Creatures;
-using MegaCrit.Sts2.Core.Entities.Powers;
-using MegaCrit.Sts2.Core.Logging;
-using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.MonsterMoves.Intents;
-using MegaCrit.Sts2.Core.Nodes.Combat;
-using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
-using SayTheSpire2.Multiplayer;
 using SayTheSpire2.Settings;
+using SayTheSpire2.UI;
+using SayTheSpire2.UI.Announcements;
+using SayTheSpire2.Views;
 
 namespace SayTheSpire2.UI.Elements;
 
-[ModSettings("ui.creature", "UI/Creature")]
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement),
+    typeof(HpAnnouncement),
+    typeof(BlockAnnouncement),
+    typeof(EnergyAnnouncement),
+    typeof(StarsAnnouncement),
+    typeof(CardsInHandAnnouncement),
+    typeof(MonsterIntentsAnnouncement),
+    typeof(PlayerIntentsAnnouncement)
+)]
 public class ProxyCreature : ProxyElement
 {
-    public static void RegisterSettings(CategorySetting category)
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
-        category.Add(new BoolSetting("intent_first", "Announce Intent Before HP", false));
+        var view = GetView();
+        if (view == null)
+        {
+            if (Control != null)
+                yield return new LabelAnnouncement(CleanNodeName(Control.Name));
+            yield break;
+        }
+
+        yield return new LabelAnnouncement(view.Name);
+        yield return new TypeAnnouncement("creature");
+        yield return new HpAnnouncement(view.CurrentHp, view.MaxHp);
+        if (view.Block > 0)
+            yield return new BlockAnnouncement(view.Block);
+
+        if (view.IsMonster)
+        {
+            yield return new MonsterIntentsAnnouncement(view.MonsterIntents);
+        }
+        else if (view.IsPlayer)
+        {
+            var pcs = view.PlayerCombatState;
+            if (pcs != null)
+            {
+                yield return new EnergyAnnouncement(pcs.Energy, pcs.MaxEnergy);
+                if (pcs.Stars > 0)
+                    yield return new StarsAnnouncement(pcs.Stars);
+                yield return new CardsInHandAnnouncement(pcs.Hand.Cards.Count);
+            }
+
+            if (view.PlayerHoveredModel != null)
+            {
+                var summary = CreatureIntentFormatter.HoveredModelSummary(view.PlayerHoveredModel);
+                if (summary is { IsEmpty: false })
+                    yield return new PlayerIntentsAnnouncement(summary);
+            }
+        }
     }
 
     public ProxyCreature(Control control) : base(control) { }
 
-    private NCreature? FindCreature()
-    {
-        if (Control is NCreature direct)
-            return direct;
-        Node? current = Control?.GetParent();
-        while (current != null)
-        {
-            if (current is NCreature creature)
-                return creature;
-            current = current.GetParent();
-        }
-        return null;
-    }
-
-    private Creature? GetEntity() => FindCreature()?.Entity;
+    private CreatureView? GetView() => CreatureView.FromControl(Control);
 
     public override Message? GetLabel()
     {
-        var entity = GetEntity();
-        if (entity == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
-        return Message.Raw(MultiplayerHelper.GetCreatureName(entity));
+        var view = GetView();
+        if (view == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
+        return Message.Raw(view.Name);
     }
 
     public override string? GetTypeKey() => "creature";
 
     public override Message? GetStatusString()
     {
-        var entity = GetEntity();
-        if (entity == null) return null;
+        var view = GetView();
+        if (view == null) return null;
 
-        var parts = new List<string>();
-        var intentFirst = ModSettings.GetValue<bool>("ui.creature.intent_first");
+        var parts = new List<Message>
+        {
+            Message.Localized("ui", "RESOURCE.HP", new { current = view.CurrentHp, max = view.MaxHp }),
+        };
 
-        var intentSummary = GetIntentSummary(entity, includePrefix: !intentFirst);
+        if (view.Block > 0)
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = view.Block }));
 
-        if (intentFirst && !string.IsNullOrEmpty(intentSummary))
+        var intentSummary = CreatureIntentFormatter.Summary(view, includePrefix: true);
+        if (intentSummary is { IsEmpty: false })
             parts.Add(intentSummary);
 
-        // HP
-        parts.Add(Message.Localized("ui", "RESOURCE.HP", new { current = entity.CurrentHp, max = entity.MaxHp }).Resolve());
-
-        // Block
-        if (entity.Block > 0)
-            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = entity.Block }).Resolve());
-
-        if (!intentFirst && !string.IsNullOrEmpty(intentSummary))
-            parts.Add(intentSummary);
-
-        return Message.Raw(string.Join(", ", parts));
+        return Message.Join(", ", parts.ToArray());
     }
 
     public override string? HandleBuffers(BufferManager buffers)
     {
-        var entity = GetEntity();
-        if (entity == null) return base.HandleBuffers(buffers);
+        var view = GetView();
+        if (view == null) return base.HandleBuffers(buffers);
 
-        // If this is the local player, use the player buffer (always-enabled by RunScreen)
-        if (LocalContext.IsMe(entity))
+        // Local player: use the player buffer, bound to null
+        if (view.IsLocalPlayer)
         {
             var playerBuffer = buffers.GetBuffer("player") as PlayerBuffer;
             if (playerBuffer != null)
@@ -99,13 +113,13 @@ public class ProxyCreature : ProxyElement
             return "player";
         }
 
-        // If this is another player in multiplayer, bind the player buffer to them
-        if (entity.IsPlayer && entity.Player != null)
+        // Another player in multiplayer: bind the player buffer to them
+        if (view.IsPlayer && view.Player != null)
         {
             var playerBuffer = buffers.GetBuffer("player") as PlayerBuffer;
             if (playerBuffer != null)
             {
-                playerBuffer.Bind(entity.Player);
+                playerBuffer.Bind(view.Player);
                 playerBuffer.Update();
                 buffers.EnableBuffer("player", true);
             }
@@ -115,147 +129,10 @@ public class ProxyCreature : ProxyElement
         var creatureBuffer = buffers.GetBuffer("creature") as CreatureBuffer;
         if (creatureBuffer != null)
         {
-            creatureBuffer.Bind(entity);
+            creatureBuffer.Bind(view.Entity);
             creatureBuffer.Update();
             buffers.EnableBuffer("creature", true);
         }
-
         return "creature";
-    }
-
-    private static readonly PropertyInfo? IntentTitleProp =
-        AccessTools.Property(typeof(AbstractIntent), "IntentTitle");
-
-    /// <summary>
-    /// Gets the game's localized intent title (e.g. from "intents" table).
-    /// Falls back to IntentType enum name if reflection fails.
-    /// </summary>
-    public static string GetIntentName(AbstractIntent intent)
-    {
-        try
-        {
-            var locString = IntentTitleProp?.GetValue(intent) as MegaCrit.Sts2.Core.Localization.LocString;
-            var title = locString?.GetFormattedText();
-            if (!string.IsNullOrEmpty(title))
-                return title;
-        }
-        catch (Exception e) { Log.Error($"[AccessibilityMod] Intent title lookup failed: {e.Message}"); }
-        return intent.IntentType.ToString();
-    }
-
-    public static string? GetIntentSummary(Creature entity, bool includePrefix = true)
-    {
-        try
-        {
-            if (entity.IsMonster && entity.Monster != null)
-                return GetMonsterIntentSummary(entity, includePrefix);
-
-            if (entity.IsPlayer && entity.Player != null)
-                return GetPlayerIntentSummary(entity.Player, includePrefix);
-        }
-        catch
-        {
-            return null;
-        }
-
-        return null;
-    }
-
-    private static string? GetMonsterIntentSummary(Creature entity, bool includePrefix)
-    {
-        var intents = entity.Monster?.NextMove?.Intents;
-        if (intents == null || intents.Count == 0)
-            return null;
-
-        var summaries = new List<string>();
-        var allies = entity.CombatState?.Allies;
-
-        foreach (var intent in intents)
-        {
-            var name = GetIntentName(intent);
-            var label = intent.GetIntentLabel(allies ?? Enumerable.Empty<Creature>(), entity);
-            var text = label.GetFormattedText();
-            if (!string.IsNullOrEmpty(text) && text != "")
-                summaries.Add($"{name} {StripBbcode(text)}");
-            else
-                summaries.Add(name);
-        }
-
-        if (summaries.Count == 0)
-            return null;
-
-        var joined = string.Join(", ", summaries);
-        return includePrefix ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + joined : joined;
-    }
-
-    private static string? GetPlayerIntentSummary(MegaCrit.Sts2.Core.Entities.Players.Player player, bool includePrefix)
-    {
-        var hoveredModel = RunManager.Instance?.HoveredModelTracker?.GetHoveredModel(player.NetId);
-        if (hoveredModel == null)
-            return null;
-
-        var summary = GetHoveredModelSummary(hoveredModel);
-        if (string.IsNullOrWhiteSpace(summary))
-            return null;
-
-        return includePrefix ? LocalizationManager.GetOrDefault("ui", "CREATURE.INTENT_PREFIX", "Intent") + " " + summary : summary;
-    }
-
-    private static string? GetHoveredModelSummary(AbstractModel model)
-    {
-        return model switch
-        {
-            CardModel card => GetCardIntentSummary(card),
-            RelicModel relic => GetRelicIntentSummary(relic),
-            PotionModel potion => GetPotionIntentSummary(potion),
-            PowerModel power => GetPowerIntentSummary(power),
-            _ => null,
-        };
-    }
-
-    private static string GetCardIntentSummary(CardModel card)
-    {
-        var proxy = ProxyCard.FromModel(card);
-        var parts = new List<string>();
-        var label = proxy.GetLabel()?.Resolve();
-        var extras = proxy.GetExtrasString()?.Resolve();
-        var subtype = proxy.GetSubtypeKey();
-
-        if (!string.IsNullOrWhiteSpace(label))
-            parts.Add(label);
-        if (!string.IsNullOrWhiteSpace(extras))
-            parts.Add(extras);
-        if (!string.IsNullOrWhiteSpace(subtype))
-            parts.Add(Message.Localized("ui", "CREATURE.SUBTYPE_CARD", new { subtype }).Resolve());
-
-        return string.Join(", ", parts);
-    }
-
-    private static string GetRelicIntentSummary(RelicModel relic)
-    {
-        var proxy = ProxyRelicHolder.FromModel(relic);
-        var parts = new List<string>();
-        var label = proxy.GetLabel()?.Resolve();
-        var status = proxy.GetStatusString()?.Resolve();
-
-        if (!string.IsNullOrWhiteSpace(label))
-            parts.Add(label);
-        if (!string.IsNullOrWhiteSpace(status))
-            parts.Add(status);
-
-        return string.Join(", ", parts);
-    }
-
-    private static string GetPotionIntentSummary(PotionModel potion)
-    {
-        return ProxyPotionHolder.FromModel(potion).GetLabel()?.Resolve() ?? potion.Title.GetFormattedText();
-    }
-
-    private static string GetPowerIntentSummary(PowerModel power)
-    {
-        var title = power.Title.GetFormattedText();
-        if (power.StackType == PowerStackType.Counter && power.DisplayAmount != 0)
-            return $"{title} {power.DisplayAmount}";
-        return title;
     }
 }

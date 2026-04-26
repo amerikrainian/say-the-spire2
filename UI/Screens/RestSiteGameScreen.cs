@@ -15,7 +15,7 @@ public class RestSiteGameScreen : GameScreen
     private readonly NRestSiteRoom _room;
     private string? _stateToken;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.REST_SITE", "Rest Site");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.REST_SITE");
 
     public RestSiteGameScreen(NRestSiteRoom room)
     {
@@ -66,7 +66,7 @@ public class RestSiteGameScreen : GameScreen
 
         var list = new ListContainer
         {
-            ContainerLabel = headerText,
+            ContainerLabel = Message.Raw(headerText),
             AnnounceName = true,
             AnnouncePosition = true,
         };

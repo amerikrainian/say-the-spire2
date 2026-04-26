@@ -14,7 +14,7 @@ public class ChoiceSelectionScreen : Screen
     private readonly VBoxContainer _itemList;
     private readonly NavigableContainer _navContainer;
 
-    public override string? ScreenName => _setting.Label;
+    public override Message? ScreenName => Message.Raw(_setting.Label);
 
     public ChoiceSelectionScreen(ChoiceSetting setting)
     {
@@ -68,7 +68,7 @@ public class ChoiceSelectionScreen : Screen
 
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = setting.Label,
+            ContainerLabel = Message.Raw(setting.Label),
             AnnounceName = true,
             AnnouncePosition = true,
         };

@@ -68,16 +68,16 @@ public class PlayerBuffer : Buffer
             Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }).Resolve());
 
         if (pcs != null)
-            Add(ResourceHelper.GetResourceString(pcs));
+            Add(ResourceHelper.GetResourceMessage(pcs).Resolve());
 
         Add(Message.Localized("ui", "RESOURCE.GOLD", new { amount = player.Gold }).Resolve());
 
         if (pcs != null)
         {
-            var piles = Message.Localized("ui", "RESOURCE.DRAW_HAND_DISCARD", new { draw = pcs.DrawPile.Cards.Count, hand = pcs.Hand.Cards.Count, discard = pcs.DiscardPile.Cards.Count }).Resolve();
+            var piles = Message.Localized("ui", "RESOURCE.DRAW_HAND_DISCARD", new { draw = pcs.DrawPile.Cards.Count, hand = pcs.Hand.Cards.Count, discard = pcs.DiscardPile.Cards.Count });
             if (pcs.ExhaustPile.Cards.Count > 0)
-                piles += ", " + Message.Localized("ui", "RESOURCE.EXHAUST", new { count = pcs.ExhaustPile.Cards.Count }).Resolve();
-            Add(piles);
+                piles = Message.Join(", ", piles, Message.Localized("ui", "RESOURCE.EXHAUST", new { count = pcs.ExhaustPile.Cards.Count }));
+            Add(piles.Resolve());
         }
 
         if (creature.Powers.Count > 0)

@@ -239,7 +239,7 @@ public static class VotingHooks
     {
         if (point?.Point == null) return LocalizationManager.GetOrDefault("ui", "LABELS.UNKNOWN", "Unknown");
         var name = Map.MapNode.GetPointTypeName(point.Point.PointType);
-        var coords = Map.MapNode.GetCoordinatesString(point.Point);
+        var coords = Map.MapNode.GetCoordinates(point.Point).Resolve();
         return $"{name} {coords}";
     }
 

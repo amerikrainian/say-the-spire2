@@ -63,7 +63,7 @@ public class MapScreen : Screen
                     SpeechManager.Output(Message.Localized("map_nav", "NAV.CURRENT_LOCATION", new
                     {
                         type = startNode.GetDisplayName(),
-                        coordinates = startNode.GetCoordinatesString()
+                        coordinates = startNode.GetCoordinates()
                     }));
                 }
 
@@ -109,7 +109,7 @@ public class MapScreen : Screen
         new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_CLEAR_MARKERS", "Clear All Markers"), "map_clear_all_markers"),
     };
 
-    public string? DescribePoint(MapPoint point, bool includeChoicePrefix = true)
+    public Message? DescribePoint(MapPoint point, bool includeChoicePrefix = true)
     {
         var node = _handler.GetNode(point);
         if (node == null)
@@ -119,12 +119,25 @@ public class MapScreen : Screen
             travelOrigin: _handler.CurrentNode);
     }
 
+    /// <summary>
+    /// Structured view of a point for the announcement pipeline (ProxyMapPoint's
+    /// focus-string composition). Non-focus callers should use DescribePoint.
+    /// </summary>
+    public MapNodeView? BuildPointView(MapPoint point)
+    {
+        var node = _handler.GetNode(point);
+        if (node == null)
+            return null;
+
+        return MapNodeAnnouncementFormatter.BuildView(node, _handler, travelOrigin: _handler.CurrentNode);
+    }
+
     public override bool OnActionJustPressed(InputAction action)
     {
         if (_viewer == null) return false;
 
         var handled = false;
-        string? result = action.Key switch
+        Message? result = action.Key switch
         {
             "buffer_next_item" => _viewer.MoveForward(),   // Ctrl+Up
             "buffer_prev_item" => _viewer.MoveBackward(),  // Ctrl+Down
@@ -145,7 +158,7 @@ public class MapScreen : Screen
         if (result != null)
         {
             SyncPoiSelectionToViewer();
-            SpeechManager.Output(Message.Raw(result));
+            SpeechManager.Output(result);
             return true;
         }
 
@@ -174,7 +187,7 @@ public class MapScreen : Screen
         _pointOfInterestBuffer.SetSelection(_viewer?.CurrentNode?.Point);
     }
 
-    private string? TryMovePoi(bool previous, TreeMapViewer viewer)
+    private Message? TryMovePoi(bool previous, TreeMapViewer viewer)
     {
         var moved = previous
             ? _pointOfInterestBuffer.MovePrevious()
@@ -186,18 +199,18 @@ public class MapScreen : Screen
         return node == null ? null : viewer.JumpToNode(node);
     }
 
-    private string TryTogglePoiMode(TreeMapViewer viewer)
+    private Message TryTogglePoiMode(TreeMapViewer viewer)
     {
-        var modeLabel = _pointOfInterestBuffer.ToggleMode();
+        var modeLabel = Message.Raw(_pointOfInterestBuffer.ToggleMode());
         var node = _pointOfInterestBuffer.SelectedNode;
         if (node == null)
             return modeLabel;
 
         var announcement = viewer.JumpToNode(node);
-        return announcement == null ? modeLabel : $"{modeLabel}, {announcement}";
+        return announcement == null ? modeLabel : Message.Join(", ", modeLabel, announcement);
     }
 
-    private static string? TryToggleCurrentMarker(TreeMapViewer viewer)
+    private static Message? TryToggleCurrentMarker(TreeMapViewer viewer)
     {
         var node = viewer.CurrentNode;
         if (node == null)
@@ -211,14 +224,9 @@ public class MapScreen : Screen
         return viewer.JumpToNode(node);
     }
 
-    private static string TryClearAllMarkers()
+    private static Message TryClearAllMarkers()
     {
         MapMarkerState.ClearAll();
-        return Ui("MAP_MARKERS.CLEARED_ALL");
-    }
-
-    private static string Ui(string key)
-    {
-        return LocalizationManager.GetOrDefault("ui", key, key);
+        return Message.Localized("ui", "MAP_MARKERS.CLEARED_ALL");
     }
 }

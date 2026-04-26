@@ -4,12 +4,24 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Cards;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+// User-perceives this as a button; share settings / [AnnouncementOrder] with ProxyButton.
 public class ProxyCardBundle : ProxyElement
 {
+    public override System.Type AnnouncementOrderType => typeof(ProxyButton);
+
     public ProxyCardBundle(Control control) : base(control) { }
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+        yield return new TypeAnnouncement("card");
+    }
 
     private NCardBundle? FindBundle()
     {

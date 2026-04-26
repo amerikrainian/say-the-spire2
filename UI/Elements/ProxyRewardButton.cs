@@ -9,11 +9,50 @@ using MegaCrit.Sts2.Core.Nodes.Rewards;
 using MegaCrit.Sts2.Core.Rewards;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+// [AnnouncementOrder] used only for the fallback (card/special rewards, no inner).
+// When wrapping a potion/relic the composer uses the inner's order via
+// AnnouncementOrderType below.
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement)
+)]
 public class ProxyRewardButton : ProxyElement
 {
+    public override System.Type AnnouncementOrderType =>
+        GetInnerProxy()?.GetType() ?? typeof(ProxyRewardButton);
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var reward = GetReward();
+        if (reward == null)
+        {
+            if (Control != null)
+            {
+                var text = FindChildText(Control) ?? CleanNodeName(Control.Name);
+                yield return new LabelAnnouncement(text);
+            }
+            yield break;
+        }
+
+        // Potion and relic rewards have a single inner model — flatten inner's
+        // announcements; composer uses inner's [AnnouncementOrder] via AnnouncementOrderType.
+        var inner = GetInnerProxy();
+        if (inner != null)
+        {
+            foreach (var a in inner.GetFocusAnnouncements())
+                yield return a;
+            yield break;
+        }
+
+        // Card rewards and everything else: reward description + reward-kind type
+        yield return new LabelAnnouncement(reward.Description.GetFormattedText());
+        yield return new TypeAnnouncement(GetTypeKey() ?? "button");
+    }
+
     private static readonly FieldInfo? RelicField =
         AccessTools.Field(typeof(RelicReward), "_relic");
 
@@ -39,18 +78,6 @@ public class ProxyRewardButton : ProxyElement
         CardReward or SpecialCardReward => "card",
         _ => "button",
     };
-
-    public override Message? GetTooltip()
-    {
-        var inner = GetInnerProxy();
-        return inner?.GetTooltip();
-    }
-
-    public override Message? GetStatusString()
-    {
-        var inner = GetInnerProxy();
-        return inner?.GetStatusString();
-    }
 
     private ProxyElement? GetInnerProxy()
     {

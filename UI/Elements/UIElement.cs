@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
-using SayTheSpire2.Settings;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
@@ -12,6 +12,21 @@ public abstract class UIElement
 
     public virtual bool IsVisible => true;
 
+    /// <summary>
+    /// The type whose [AnnouncementOrder] drives focus-string composition for this
+    /// element. Defaults to the element's own type. Composite proxies override this
+    /// to delegate to the type of whatever inner element they're wrapping so the
+    /// inner's ordering (including its insertion points) governs the composed output.
+    /// </summary>
+    public virtual Type AnnouncementOrderType => GetType();
+
+    // Legacy data accessors — no longer drive focus-string composition (the
+    // announcement pipeline does), but non-focus callers still use them:
+    //   GetLabel: HandleBuffers default, HelpScreen, StatsGameScreen, etc.
+    //   GetTypeKey: FocusContext.ShouldAnnouncePosition checks
+    //   GetStatusString: reactive announcements on checkbox/slider toggle
+    //   GetTooltip: HandleBuffers default
+    //   GetExtrasString, GetSubtypeKey: CreatureIntentFormatter.CardSummary
     public abstract Message? GetLabel();
     public virtual Message? GetExtrasString() => null;
     public virtual string? GetTypeKey() => null;
@@ -20,16 +35,12 @@ public abstract class UIElement
     public virtual Message? GetTooltip() => null;
 
     /// <summary>
-    /// Fired during focus string building to collect additional pre-type extras.
-    /// Handlers append messages to the provided list.
+    /// Fires during focus-message composition so external code can inject extra
+    /// announcements without subclassing the element. Handlers append to the list.
+    /// The composer positions injected announcements via [AnnouncementOrder] just
+    /// like directly-yielded ones.
     /// </summary>
-    public event Action<List<Message>>? CollectPreExtras;
-
-    /// <summary>
-    /// Fired during focus string building to collect additional post-type extras.
-    /// Handlers append messages to the provided list.
-    /// </summary>
-    public event Action<List<Message>>? CollectPostExtras;
+    public event Action<List<Announcement>>? CollectAnnouncements;
 
     /// <summary>
     /// Called when this element receives focus. Configure which buffers are enabled
@@ -57,6 +68,14 @@ public abstract class UIElement
         return "ui";
     }
 
+    /// <summary>
+    /// Called when this element is being torn down — e.g., the settings screen
+    /// that owns it is popping. Subclasses override to unsubscribe from
+    /// long-lived events (NullableSetting.ResolvedChanged etc.) so they don't
+    /// accumulate stale handlers across repeated screen opens.
+    /// </summary>
+    public virtual void Detach() { }
+
     public bool IsFocused { get; private set; }
 
     public void Focus()
@@ -81,84 +100,29 @@ public abstract class UIElement
     protected virtual void OnUpdate() { }
 
     /// <summary>
-    /// Builds the spoken focus message in the format:
-    /// {label} {extras1}, {subtype} {type} {status}, {extras2}, {tooltip}
+    /// Builds the spoken focus message by composing the announcements yielded by
+    /// GetFocusAnnouncements plus any injected by CollectAnnouncements subscribers.
     /// </summary>
     public Message GetFocusMessage()
     {
-        var parts = new List<Message>();
+        var announcements = new List<Announcement>(GetFocusAnnouncements());
+        CollectAnnouncements?.Invoke(announcements);
 
-        // Label + pre-type extras (space-separated from label)
-        var labelPart = BuildLabelPart();
-        if (labelPart != null)
-            parts.Add(labelPart);
-
-        // Subtype + type + status
-        var typePart = BuildTypePart();
-        if (typePart != null)
-            parts.Add(typePart);
-
-        // Post-type extras
-        var postExtras = new List<Message>();
-        CollectPostExtras?.Invoke(postExtras);
-        foreach (var extra in postExtras)
-            parts.Add(extra);
-
-        // Tooltip
-        var tooltip = GetTooltip();
-        if (tooltip != null)
+        if (Parent is { AnnouncePosition: true } parent)
         {
-            var tk = GetTypeKey();
-            if (string.IsNullOrEmpty(tk) || FocusStringSettings.ShouldAnnounceTooltip(tk))
-                parts.Add(tooltip);
+            var pos = parent.GetPositionString(this);
+            if (pos != null)
+                announcements.Add(new PositionAnnouncement(pos));
         }
 
-        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : Message.Empty;
+        return AnnouncementComposer.Compose(this, announcements);
     }
 
-    /// <summary>Back-compat: resolve the focus message to a string.</summary>
-    public string GetFocusString() => GetFocusMessage().Resolve();
-
-    private Message? BuildLabelPart()
-    {
-        var label = GetLabel();
-        var preExtras = new List<Message>();
-        var extras = GetExtrasString();
-        if (extras != null)
-            preExtras.Add(extras);
-        CollectPreExtras?.Invoke(preExtras);
-
-        if (label == null && preExtras.Count == 0)
-            return null;
-
-        if (preExtras.Count == 0)
-            return label;
-
-        var extrasPart = Message.Join(", ", preExtras.ToArray());
-        return label != null ? label + extrasPart : extrasPart;
-    }
-
-    private Message? BuildTypePart()
-    {
-        var parts = new List<Message>();
-        var typeKey = GetTypeKey();
-
-        var subtypeKey = GetSubtypeKey();
-        if (!string.IsNullOrEmpty(subtypeKey)
-            && (string.IsNullOrEmpty(typeKey) || FocusStringSettings.ShouldAnnounceSubtype(typeKey)))
-        {
-            parts.Add(Message.Localized("ui", $"TYPES.{subtypeKey.ToUpperInvariant()}"));
-        }
-
-        if (!string.IsNullOrEmpty(typeKey) && FocusStringSettings.ShouldAnnounceType(typeKey))
-        {
-            parts.Add(Message.Localized("ui", $"TYPES.{typeKey.ToUpperInvariant()}"));
-        }
-
-        var status = GetStatusString();
-        if (status != null)
-            parts.Add(status);
-
-        return parts.Count > 0 ? Message.Join(" ", parts.ToArray()) : null;
-    }
+    /// <summary>
+    /// Yields the announcements that make up this element's focus message. Every
+    /// concrete UIElement declares its own set; there is no default implementation
+    /// beyond a potential label fallback for containers / other elements that are
+    /// rarely focused directly.
+    /// </summary>
+    public abstract IEnumerable<Announcement> GetFocusAnnouncements();
 }

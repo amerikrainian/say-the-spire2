@@ -40,7 +40,7 @@ public class CrystalSphereGameScreen : Screen
     private CrystalSphereMinigame.CrystalSphereToolType _lastTool;
     private int _lastDivinationCount;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.CRYSTAL_SPHERE", "Crystal Sphere");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.CRYSTAL_SPHERE");
 
     public override System.Collections.Generic.List<HelpMessage> GetHelpMessages() => new()
     {
@@ -126,17 +126,17 @@ public class CrystalSphereGameScreen : Screen
             var title = new LocString("events", "CRYSTAL_SPHERE.minigame.instructions.title").GetFormattedText();
             var desc = new LocString("events", "CRYSTAL_SPHERE.minigame.instructions.description").GetFormattedText();
 
-            var parts = new System.Collections.Generic.List<string>();
+            var parts = new System.Collections.Generic.List<Message>();
             if (!string.IsNullOrEmpty(title))
-                parts.Add(ProxyElement.StripBbcode(title));
+                parts.Add(Message.Raw(ProxyElement.StripBbcode(title)));
             if (!string.IsNullOrEmpty(desc))
-                parts.Add(ProxyElement.StripBbcode(desc));
+                parts.Add(Message.Raw(ProxyElement.StripBbcode(desc)));
 
             if (_minigame != null)
-                parts.Add(Message.Localized("ui", "CRYSTAL_SPHERE.DIVINATIONS_REMAINING", new { count = _minigame.DivinationCount }).Resolve());
+                parts.Add(Message.Localized("ui", "CRYSTAL_SPHERE.DIVINATIONS_REMAINING", new { count = _minigame.DivinationCount }));
 
             if (parts.Count > 0)
-                SpeechManager.Output(Message.Raw(string.Join(". ", parts)));
+                SpeechManager.Output(Message.Join(". ", parts.ToArray()));
         }
         catch (System.Exception e)
         {

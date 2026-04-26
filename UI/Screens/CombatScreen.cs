@@ -24,7 +24,9 @@ using SayTheSpire2.Help;
 using SayTheSpire2.Input;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Speech;
+using SayTheSpire2.UI;
 using SayTheSpire2.UI.Elements;
+using SayTheSpire2.Views;
 
 namespace SayTheSpire2.UI.Screens;
 
@@ -251,16 +253,16 @@ public class CombatScreen : Screen
         if (creature == null)
             return;
 
-        var parts = new List<string>
+        var parts = new List<Message>
         {
-            Multiplayer.MultiplayerHelper.GetCreatureName(creature),
-            creature.CurrentHp.ToString()
+            Message.Raw(Multiplayer.MultiplayerHelper.GetCreatureName(creature)),
+            Message.Raw(creature.CurrentHp.ToString()),
         };
 
         if (creature.Block > 0)
-            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }).Resolve());
+            parts.Add(Message.Localized("ui", "RESOURCE.BLOCK", new { amount = creature.Block }));
 
-        SpeechManager.Output(Message.Raw(string.Join(", ", parts)));
+        SpeechManager.Output(Message.Join(", ", parts.ToArray()));
     }
 
     private void AnnounceCombatantIntent(int index)
@@ -270,10 +272,10 @@ public class CombatScreen : Screen
             return;
 
         var intent = GetCombatantIntentSummary(creature);
-        if (string.IsNullOrEmpty(intent))
+        if (intent.IsEmpty)
             return;
 
-        SpeechManager.Output(Message.Raw(intent));
+        SpeechManager.Output(intent);
     }
 
     private Creature? GetBoundCombatant(int index)
@@ -297,9 +299,10 @@ public class CombatScreen : Screen
         return combatants[index];
     }
 
-    private string? GetCombatantIntentSummary(Creature creature)
+    private Message GetCombatantIntentSummary(Creature creature)
     {
-        return ProxyCreature.GetIntentSummary(creature, includePrefix: false) ?? LocalizationManager.GetOrDefault("ui", "SPEECH.NO_INTENT", "No intent");
+        return CreatureIntentFormatter.Summary(CreatureView.FromEntity(creature), includePrefix: false)
+            ?? Message.Localized("ui", "SPEECH.NO_INTENT");
     }
 
     private void AnnounceBlock()
@@ -314,7 +317,7 @@ public class CombatScreen : Screen
         var player = GetLocalPlayer();
         var combatState = player?.PlayerCombatState;
         if (combatState == null) return;
-        SpeechManager.Output(Message.Raw(ResourceHelper.GetResourceString(combatState)));
+        SpeechManager.Output(ResourceHelper.GetResourceMessage(combatState));
     }
 
     private void AnnouncePowers()
@@ -347,8 +350,6 @@ public class CombatScreen : Screen
         var state = GetLiveState();
         if (state == null) return;
 
-        var allies = state.Allies;
-
         var sb = new StringBuilder();
         foreach (var enemy in state.Enemies)
         {
@@ -358,17 +359,9 @@ public class CombatScreen : Screen
             sb.Append(enemy.Name);
             sb.Append(": ");
 
-            var move = enemy.Monster!.NextMove;
-            var intentParts = new List<string>();
-            foreach (var intent in move.Intents)
-            {
-                var name = ProxyCreature.GetIntentName(intent);
-                var label = intent.GetIntentLabel(allies, enemy).GetFormattedText();
-                if (!string.IsNullOrEmpty(label) && label != "")
-                    intentParts.Add($"{name} {label}");
-                else
-                    intentParts.Add(name);
-            }
+            var intentParts = CreatureView.FromEntity(enemy).MonsterIntents
+                .Select(i => !string.IsNullOrEmpty(i.Label) ? $"{i.Name} {i.Label}" : i.Name)
+                .ToList();
             sb.Append(intentParts.Count > 0 ? string.Join(", ", intentParts) : LocalizationManager.GetOrDefault("ui", "LABELS.UNKNOWN", "Unknown"));
         }
 

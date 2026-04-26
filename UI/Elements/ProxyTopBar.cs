@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Godot;
 using HarmonyLib;
@@ -9,11 +10,26 @@ using MegaCrit.Sts2.Core.Map;
 using MegaCrit.Sts2.Core.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using SayTheSpire2.Buffers;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
 public class ProxyTopBar : ProxyElement
 {
+    // User-perceives this as a button; share settings / [AnnouncementOrder] with ProxyButton.
+    public override System.Type AnnouncementOrderType => typeof(ProxyButton);
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        var tooltip = GetTooltip();
+        if (tooltip != null)
+            yield return new TooltipAnnouncement(tooltip);
+    }
+
     private enum TopBarType { Hp, Gold, Room, Floor, Boss }
 
     private static readonly FieldInfo? HpPlayerField =
@@ -46,16 +62,15 @@ public class ProxyTopBar : ProxyElement
     {
         try
         {
-            var text = _type switch
+            return _type switch
             {
                 TopBarType.Hp => GetHpLabel(),
                 TopBarType.Gold => GetGoldLabel(),
                 TopBarType.Room => GetRoomLabel(),
                 TopBarType.Floor => GetFloorLabel(),
                 TopBarType.Boss => GetBossLabel(),
-                _ => Control != null ? CleanNodeName(Control.Name) : null
+                _ => Control != null ? SayTheSpire2.Localization.Message.Raw(CleanNodeName(Control.Name)) : null
             };
-            return text != null ? SayTheSpire2.Localization.Message.Raw(text) : null;
         }
         catch
         {
@@ -101,50 +116,51 @@ public class ProxyTopBar : ProxyElement
         return "ui";
     }
 
-    private string? GetHpLabel()
+    private SayTheSpire2.Localization.Message GetHpLabel()
     {
         var player = HpPlayerField?.GetValue(Control) as MegaCrit.Sts2.Core.Entities.Players.Player;
-        if (player == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.HP", "HP");
-        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.HP", new { current = player.Creature.CurrentHp, max = player.Creature.MaxHp }).Resolve();
+        if (player == null) return SayTheSpire2.Localization.Message.Localized("ui", "LABELS.HP");
+        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.HP", new { current = player.Creature.CurrentHp, max = player.Creature.MaxHp });
     }
 
-    private string? GetGoldLabel()
+    private SayTheSpire2.Localization.Message GetGoldLabel()
     {
         var player = GoldPlayerField?.GetValue(Control) as MegaCrit.Sts2.Core.Entities.Players.Player;
-        if (player == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.GOLD", "Gold");
-        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.GOLD", new { amount = player.Gold }).Resolve();
+        if (player == null) return SayTheSpire2.Localization.Message.Localized("ui", "LABELS.GOLD");
+        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.GOLD", new { amount = player.Gold });
     }
 
-    private string? GetRoomLabel()
+    private SayTheSpire2.Localization.Message GetRoomLabel()
     {
         var runState = RoomRunStateField?.GetValue(Control) as IRunState;
-        var roomFallback = SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.ROOM", "Room");
-        if (runState == null) return roomFallback;
+        if (runState == null) return SayTheSpire2.Localization.Message.Localized("ui", "LABELS.ROOM");
         var tipKey = GetRoomTipPrefix(runState);
         var title = new LocString("static_hover_tips", tipKey + ".title").GetFormattedText();
-        return !string.IsNullOrEmpty(title) ? StripBbcode(title) : roomFallback;
+        return !string.IsNullOrEmpty(title)
+            ? SayTheSpire2.Localization.Message.Raw(StripBbcode(title))
+            : SayTheSpire2.Localization.Message.Localized("ui", "LABELS.ROOM");
     }
 
-    private string? GetFloorLabel()
+    private SayTheSpire2.Localization.Message GetFloorLabel()
     {
         var runState = FloorRunStateField?.GetValue(Control) as IRunState;
-        if (runState == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.FLOOR", "Floor");
-        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.FLOOR", new { floor = runState.TotalFloor }).Resolve();
+        if (runState == null) return SayTheSpire2.Localization.Message.Localized("ui", "LABELS.FLOOR");
+        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.FLOOR", new { floor = runState.TotalFloor });
     }
 
-    private string? GetBossLabel()
+    private SayTheSpire2.Localization.Message GetBossLabel()
     {
         var runState = BossRunStateField?.GetValue(Control) as IRunState;
-        if (runState == null) return SayTheSpire2.Localization.LocalizationManager.GetOrDefault("ui", "LABELS.BOSS", "Boss");
+        if (runState == null) return SayTheSpire2.Localization.Message.Localized("ui", "LABELS.BOSS");
 
         var boss1 = runState.Act.BossEncounter;
         var boss2 = runState.Act.SecondBossEncounter;
 
         if (boss2 != null && !ShouldOnlyShowSecondBoss(runState))
-            return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.BOSS_DUAL", new { name1 = boss1.Title.GetFormattedText(), name2 = boss2.Title.GetFormattedText() }).Resolve();
+            return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.BOSS_DUAL", new { name1 = boss1.Title.GetFormattedText(), name2 = boss2.Title.GetFormattedText() });
 
         var activeBoss = (boss2 != null && ShouldOnlyShowSecondBoss(runState)) ? boss2 : boss1;
-        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.BOSS", new { name = activeBoss.Title.GetFormattedText() }).Resolve();
+        return SayTheSpire2.Localization.Message.Localized("ui", "TOPBAR.BOSS", new { name = activeBoss.Title.GetFormattedText() });
     }
 
     private (string? title, string? desc) GetFormattedTooltip()

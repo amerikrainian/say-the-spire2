@@ -6,11 +6,49 @@ using HarmonyLib;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Screens.Settings;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[ElementSettingsKey("keybind")]
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement),
+    typeof(KeyboardBindingAnnouncement),
+    typeof(ControllerBindingAnnouncement),
+    typeof(BindingExclusivityAnnouncement)
+)]
 public class ProxyInputBinding : ProxyElement
 {
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        yield return new TypeAnnouncement("keybind");
+
+        var entry = Control as NInputSettingsEntry;
+        var inputName = entry?.InputName;
+        bool isKeyboardRemappable = inputName != null && NInputManager.remappableKeyboardInputs.Contains(inputName);
+        bool isControllerRemappable = inputName != null && NInputManager.remappableControllerInputs.Contains(inputName);
+
+        if (isKeyboardRemappable)
+        {
+            var keyLabel = Control?.GetNodeOrNull("%KeyBindingInputLabel");
+            var text = keyLabel != null ? FindChildText(keyLabel) : null;
+            yield return new KeyboardBindingAnnouncement(text);
+        }
+
+        if (isControllerRemappable)
+            yield return new ControllerBindingAnnouncement(GetControllerBindingName());
+
+        if (isKeyboardRemappable && !isControllerRemappable)
+            yield return new BindingExclusivityAnnouncement(isKeyboardOnly: true);
+        else if (!isKeyboardRemappable && isControllerRemappable)
+            yield return new BindingExclusivityAnnouncement(isKeyboardOnly: false);
+    }
+
     private static readonly FieldInfo ControllerInputMapField =
         AccessTools.Field(typeof(NInputManager), "_controllerInputMap")!;
 
@@ -61,30 +99,34 @@ public class ProxyInputBinding : ProxyElement
         bool isKeyboardRemappable = inputName != null && NInputManager.remappableKeyboardInputs.Contains(inputName);
         bool isControllerRemappable = inputName != null && NInputManager.remappableControllerInputs.Contains(inputName);
 
-        var parts = new List<string>();
+        var parts = new List<Message>();
 
         // Keyboard binding
         if (isKeyboardRemappable)
         {
             var keyLabel = Control?.GetNodeOrNull("%KeyBindingInputLabel");
             var text = keyLabel != null ? FindChildText(keyLabel) : null;
-            parts.Add(!string.IsNullOrEmpty(text) ? $"keyboard {text}" : "keyboard unbound");
+            parts.Add(!string.IsNullOrEmpty(text)
+                ? Message.Localized("ui", "BINDING.KEYBOARD_BOUND", new { key = text })
+                : Message.Localized("ui", "BINDING.KEYBOARD_UNBOUND"));
         }
 
         // Controller binding
         if (isControllerRemappable)
         {
             var controllerName = GetControllerBindingName();
-            parts.Add(controllerName != null ? $"controller {controllerName}" : "controller unbound");
+            parts.Add(controllerName != null
+                ? Message.Localized("ui", "BINDING.CONTROLLER_BOUND", new { button = controllerName })
+                : Message.Localized("ui", "BINDING.CONTROLLER_UNBOUND"));
         }
 
         // Label as keyboard-only or controller-only if applicable
         if (isKeyboardRemappable && !isControllerRemappable)
-            parts.Add("keyboard only");
+            parts.Add(Message.Localized("ui", "BINDING.KEYBOARD_ONLY"));
         else if (!isKeyboardRemappable && isControllerRemappable)
-            parts.Add("controller only");
+            parts.Add(Message.Localized("ui", "BINDING.CONTROLLER_ONLY"));
 
-        return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : null;
     }
 
     public static string GetControllerButtonName(string actionStr)

@@ -1,13 +1,66 @@
+using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Entities.Merchant;
 using MegaCrit.Sts2.Core.Nodes.Screens.Shops;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+// [AnnouncementOrder] used only for the card-removal fallback (no inner proxy).
+// When wrapping a card/relic/potion the composer uses the inner's order via
+// AnnouncementOrderType below.
+[ElementSettingsKey("shop_item")]
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement),
+    typeof(PriceAnnouncement)
+)]
 public class ProxyMerchantSlot : ProxyElement
 {
+    public override System.Type AnnouncementOrderType =>
+        GetInnerProxy()?.GetType() ?? typeof(ProxyMerchantSlot);
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var entry = GetEntry();
+        if (entry == null) yield break;
+
+        // Card removal: no inner proxy, yield our own label + type
+        if (entry is MerchantCardRemovalEntry)
+        {
+            yield return new LabelAnnouncement(Message.Localized("ui", "LABELS.CARD_REMOVAL"));
+            yield return new TypeAnnouncement("shop_item");
+            if (!entry.IsStocked)
+            {
+                yield return PriceAnnouncement.SoldOut();
+                yield break;
+            }
+            yield return new PriceAnnouncement(entry.Cost, canAfford: entry.EnoughGold);
+            yield break;
+        }
+
+        // Standard entry: flatten inner's announcements and append shop info.
+        // The inner's [AnnouncementOrder] (via AnnouncementOrderType) positions
+        // PriceAnnouncement at its declared insertion point.
+        var inner = GetInnerProxy();
+        if (inner != null)
+            foreach (var a in inner.GetFocusAnnouncements())
+                yield return a;
+        else if (Control != null)
+            yield return new LabelAnnouncement(CleanNodeName(Control.Name));
+
+        if (!entry.IsStocked)
+        {
+            yield return PriceAnnouncement.SoldOut();
+            yield break;
+        }
+
+        var isOnSale = entry is MerchantCardEntry cardEntry && cardEntry.IsOnSale;
+        yield return new PriceAnnouncement(entry.Cost, canAfford: entry.EnoughGold, isOnSale: isOnSale);
+    }
+
     private UIElement? _innerProxy;
     private MerchantEntry? _cachedEntry;
 
@@ -58,41 +111,7 @@ public class ProxyMerchantSlot : ProxyElement
         var inner = GetInnerProxy();
         if (inner != null) return inner.GetTypeKey();
 
-        return "shop item";
-    }
-
-    public override string? GetSubtypeKey()
-    {
-        return GetInnerProxy()?.GetSubtypeKey();
-    }
-
-    public override Message? GetExtrasString()
-    {
-        return GetInnerProxy()?.GetExtrasString();
-    }
-
-    public override Message? GetTooltip()
-    {
-        return GetInnerProxy()?.GetTooltip();
-    }
-
-    public override Message? GetStatusString()
-    {
-        var entry = GetEntry();
-        if (entry == null) return null;
-
-        if (!entry.IsStocked) return Message.Localized("ui", "LABELS.SOLD_OUT");
-
-        var parts = new System.Collections.Generic.List<string>();
-        parts.Add(Message.Localized("ui", "RESOURCE.PRICE", new { cost = entry.Cost }).Resolve());
-
-        if (!entry.EnoughGold)
-            parts.Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.NOT_ENOUGH_GOLD", "Not enough gold"));
-
-        if (entry is MerchantCardEntry cardEntry && cardEntry.IsOnSale)
-            parts.Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.ON_SALE", "On sale"));
-
-        return Message.Raw(string.Join(", ", parts));
+        return "shop_item";
     }
 
     public override string? HandleBuffers(BufferManager buffers)

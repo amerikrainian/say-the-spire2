@@ -10,9 +10,17 @@ using MegaCrit.Sts2.Core.Nodes.Screens.RunHistoryScreen;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Settings;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(EnergyCostAnnouncement),
+    typeof(SubtypeAnnouncement),
+    typeof(TypeAnnouncement),
+    typeof(TooltipAnnouncement)
+)]
 [ModSettings("ui.card", "UI/Card")]
 public class ProxyDeckHistoryEntry : ProxyElement
 {
@@ -24,6 +32,49 @@ public class ProxyDeckHistoryEntry : ProxyElement
     private NDeckHistoryEntry? Entry => Control as NDeckHistoryEntry;
     private CardModel? Card => Entry?.Card;
     private int Amount => AmountField?.GetValue(Entry) as int? ?? 1;
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var model = Card;
+        if (model == null)
+        {
+            if (Control != null)
+                yield return new LabelAnnouncement(CleanNodeName(Control.Name));
+            yield break;
+        }
+
+        // Label uses GetLabel since it folds in quantity + enchantment/affliction
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        int? energyCost = null;
+        bool energyIsX = false;
+        if (model.EnergyCost != null)
+        {
+            if (model.EnergyCost.CostsX) { energyCost = 0; energyIsX = true; }
+            else energyCost = model.EnergyCost.GetWithModifiers(CostModifiers.All);
+        }
+
+        int? starCost = null;
+        bool starIsX = false;
+        if (model.HasStarCostX) { starCost = 0; starIsX = true; }
+        else if (model.CurrentStarCost >= 0)
+        {
+            try { starCost = model.GetStarCostWithModifiers(); }
+            catch (System.Exception e) { Log.Info($"[AccessibilityMod] GetStarCostWithModifiers failed: {e.Message}"); starCost = model.CurrentStarCost; }
+        }
+
+        if (energyCost.HasValue || starCost.HasValue)
+            yield return new EnergyCostAnnouncement(energyCost, energyIsX, starCost, starIsX);
+
+        yield return new SubtypeAnnouncement(model.Type.ToString().ToLowerInvariant());
+        yield return new TypeAnnouncement("card");
+
+        var desc = model.GetDescriptionForPile(PileType.None);
+        if (!string.IsNullOrEmpty(desc))
+            yield return new TooltipAnnouncement(StripBbcode(desc));
+    }
 
     public override Message? GetLabel()
     {
@@ -46,42 +97,6 @@ public class ProxyDeckHistoryEntry : ProxyElement
     }
 
     public override string? GetTypeKey() => "card";
-
-    public override string? GetSubtypeKey()
-    {
-        var model = Card;
-        return model?.Type.ToString().ToLower();
-    }
-
-    public override Message? GetExtrasString()
-    {
-        var model = Card;
-        if (model == null)
-            return null;
-
-        var parts = new List<string>();
-        bool verbose = ModSettings.GetValue<bool>("ui.card.verbose_costs");
-
-        if (model.EnergyCost != null)
-        {
-            if (model.EnergyCost.CostsX)
-                parts.Add(verbose ? LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_ENERGY", "X energy") : "X");
-            else
-                parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost = model.EnergyCost.GetWithModifiers(CostModifiers.All) }).Resolve() : $"{model.EnergyCost.GetWithModifiers(CostModifiers.All)}");
-        }
-
-        if (model.HasStarCostX)
-            parts.Add(verbose ? LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_STARS", "X stars") : "X");
-        else if (model.CurrentStarCost >= 0)
-        {
-            int starCost;
-            try { starCost = model.GetStarCostWithModifiers(); }
-            catch (System.Exception e) { Log.Info($"[AccessibilityMod] GetStarCostWithModifiers failed: {e.Message}"); starCost = model.CurrentStarCost; }
-            parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = starCost }).Resolve() : $"{starCost}");
-        }
-
-        return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
-    }
 
     public override Message? GetTooltip()
     {

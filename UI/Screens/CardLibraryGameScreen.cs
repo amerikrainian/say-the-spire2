@@ -69,7 +69,7 @@ public class CardLibraryGameScreen : GameScreen
     private readonly NCardLibrary _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("CARD_LIBRARY.SCREEN_NAME"),
+        ContainerLabel = Message.Raw(Ui("CARD_LIBRARY.SCREEN_NAME")),
         AnnounceName = true,
         AnnouncePosition = false,
     };
@@ -85,7 +85,7 @@ public class CardLibraryGameScreen : GameScreen
     private string? _stateToken;
     private bool _suppressOpeningCardFocus;
 
-    public override string? ScreenName => Ui("CARD_LIBRARY.SCREEN_NAME");
+    public override Message? ScreenName => Message.Localized("ui", "CARD_LIBRARY.SCREEN_NAME");
 
     public CardLibraryGameScreen(NCardLibrary screen)
     {
@@ -145,7 +145,7 @@ public class CardLibraryGameScreen : GameScreen
         if (!focusedWasRegistered || !focusedStillRegistered || focusedBeforeRebuild != focusedAfterRebuild || focusedAfterRebuild is NGridCardHolder)
             AnnounceFocusedControlIfNeeded();
         if (sideEffects.Count > 0)
-            SpeechManager.Output(Message.Raw(string.Join(". ", sideEffects)));
+            SpeechManager.Output(Message.Join(". ", sideEffects.ToArray()));
     }
 
     public override bool OnActionJustPressed(InputAction action)
@@ -243,7 +243,7 @@ public class CardLibraryGameScreen : GameScreen
             return;
 
         _cardGridContainer.ClearCards();
-        _cardGridContainer.ContainerLabel = GetCardCountLabel();
+        _cardGridContainer.ContainerLabel = Message.Raw(GetCardCountLabel());
 
         var cardRows = GetDisplayedCardRows();
         if (cardRows.Count == 0)
@@ -508,7 +508,7 @@ public class CardLibraryGameScreen : GameScreen
         if (!IsUsable(holder))
             return null;
 
-        _cardGridContainer.ContainerLabel = GetCardCountLabel();
+        _cardGridContainer.ContainerLabel = Message.Raw(GetCardCountLabel());
 
         var existing = GetElement(holder);
         if (existing != null)
@@ -596,9 +596,9 @@ public class CardLibraryGameScreen : GameScreen
         return Ui("CARD_LIBRARY.CARDS");
     }
 
-    private List<string> GetToggleSideEffectAnnouncements(Control? sourceControl)
+    private List<Message> GetToggleSideEffectAnnouncements(Control? sourceControl)
     {
-        var changes = new List<string>();
+        var changes = new List<Message>();
 
         foreach (var control in GetTrackedToggleControls())
         {
@@ -618,10 +618,9 @@ public class CardLibraryGameScreen : GameScreen
             if (current.Value)
                 continue;
 
-            var label = GetElement(control)?.GetLabel()?.Resolve();
-            var uncheckedText = LocalizationManager.Get("ui", "CHECKBOX.UNCHECKED");
-            if (!string.IsNullOrWhiteSpace(label) && !string.IsNullOrWhiteSpace(uncheckedText))
-                changes.Add($"{label}, {uncheckedText}");
+            var label = GetElement(control)?.GetLabel();
+            if (label is { IsEmpty: false })
+                changes.Add(Message.Join(", ", label, Message.Localized("ui", "CHECKBOX.UNCHECKED")));
         }
 
         return changes;
@@ -671,7 +670,7 @@ public class CardLibraryGameScreen : GameScreen
 
     private static ListContainer NewRow(string label) => new()
     {
-        ContainerLabel = label,
+        ContainerLabel = Message.Raw(label),
         AnnounceName = true,
         AnnouncePosition = true,
     };

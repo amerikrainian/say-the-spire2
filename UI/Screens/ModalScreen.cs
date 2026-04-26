@@ -18,12 +18,12 @@ public class ModalScreen : Screen
     private readonly HashSet<ulong> _connectedControls = new();
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = LocalizationManager.GetOrDefault("ui", "SCREENS.DIALOG", "Dialog"),
+        ContainerLabel = Message.Localized("ui", "SCREENS.DIALOG"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
 
-    public override string? ScreenName => null; // Modal text is announced separately by ModalHooks
+    public override Message? ScreenName => null; // Modal text is announced separately by ModalHooks
 
     public override List<HelpMessage> GetHelpMessages()
     {

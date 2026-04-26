@@ -9,8 +9,13 @@ namespace SayTheSpire2.Map;
 
 public static class MapNodeAnnouncementFormatter
 {
-    public static string DescribeNode(MapNode node, MapHandler handler, IReadOnlyList<MapNode>? rowNodes = null,
-        bool includeChoicePrefix = false, MapNode? travelOrigin = null,
+    /// <summary>
+    /// Structured snapshot of everything announceable about a map node.
+    /// Focus-string builders convert this into individual Announcement instances;
+    /// one-shot callers render it to a single string via DescribeNode.
+    /// </summary>
+    public static MapNodeView BuildView(MapNode node, MapHandler handler, IReadOnlyList<MapNode>? rowNodes = null,
+        MapNode? travelOrigin = null,
         MapReachabilityContext? travelContext = null, MapReachabilityContext? nodeContext = null)
     {
         rowNodes ??= GetDefaultRowNodes(node);
@@ -18,44 +23,41 @@ public static class MapNodeAnnouncementFormatter
         var effectiveTravelContext = travelContext ?? ResolveContextAtNode(handler, effectiveOrigin);
         var effectiveNodeContext = nodeContext ?? ResolveContextAtNode(handler, node);
 
-        var type = node.GetDisplayName();
-        if (MapMarkerState.IsMarked(node.Point))
-            type = $"{GetMarkedText()}, {type}";
-        if (effectiveOrigin != null && MapReachability.IsFreeTravelOnly(effectiveOrigin, node, handler, effectiveTravelContext))
-            type = $"{type}, {GetFreeTravelText()}";
+        var isMarked = MapMarkerState.IsMarked(node.Point);
+        var isFreeTravel = effectiveOrigin != null &&
+            MapReachability.IsFreeTravelOnly(effectiveOrigin, node, handler, effectiveTravelContext);
 
-        string announcement;
-        var state = node.GetStateString();
-        if (state != null)
-        {
-            announcement = Message.Localized("map_nav", "NAV.NODE_WITH_STATE", new
-            {
-                type,
-                coordinates = node.GetCoordinatesString(),
-                state
-            }).Resolve();
-        }
-        else
-        {
-            announcement = Message.Localized("map_nav", "NAV.NODE", new
-            {
-                type,
-                coordinates = node.GetCoordinatesString()
-            }).Resolve();
-        }
+        var (onPath, diverges) = BuildMarkerLabels(node, handler, rowNodes, effectiveOrigin,
+            effectiveTravelContext, effectiveNodeContext);
+        var voters = BuildVotersList(node);
 
-        var guidance = BuildMarkerGuidance(node, handler, rowNodes, effectiveOrigin, effectiveTravelContext, effectiveNodeContext);
-        if (guidance.Count > 0)
-            announcement = $"{announcement}, {string.Join(", ", guidance)}";
+        return new MapNodeView(
+            TypeName: node.GetDisplayName(),
+            Coordinates: node.GetCoordinates(),
+            State: node.GetStateString(),
+            IsMarked: isMarked,
+            IsFreeTravel: isFreeTravel,
+            OnPathMarkers: onPath,
+            DivergingMarkers: diverges,
+            Voters: voters,
+            IsChoice: rowNodes.Count > 1);
+    }
 
-        var voteSummary = BuildVoteSummary(node);
-        if (!string.IsNullOrEmpty(voteSummary))
-            announcement = $"{announcement}, {voteSummary}";
-
-        if (includeChoicePrefix && rowNodes.Count > 1)
-            announcement = $"{GetChoiceText()}, {announcement}";
-
-        return announcement;
+    /// <summary>
+    /// Renders a node description as a single string, routed through the
+    /// announcement pipeline so non-focus callers (TreeMapViewer,
+    /// MapScreen.DescribePoint) honor the same settings and user-specified
+    /// order as the focus path.
+    /// </summary>
+    public static Message DescribeNode(MapNode node, MapHandler handler, IReadOnlyList<MapNode>? rowNodes = null,
+        bool includeChoicePrefix = false, MapNode? travelOrigin = null,
+        MapReachabilityContext? travelContext = null, MapReachabilityContext? nodeContext = null)
+    {
+        var view = BuildView(node, handler, rowNodes, travelOrigin, travelContext, nodeContext);
+        var message = UI.Elements.ProxyMapPoint.ComposeFromView(view);
+        if (includeChoicePrefix && view.IsChoice)
+            message = Message.Join(", ", Message.Localized("map_nav", "NAV.CHOICE"), message);
+        return message;
     }
 
     public static List<MapNode> GetDefaultRowNodes(MapNode node)
@@ -74,12 +76,13 @@ public static class MapNodeAnnouncementFormatter
             .ToList();
     }
 
-    private static List<string> BuildMarkerGuidance(MapNode node, MapHandler handler, IReadOnlyList<MapNode> rowNodes,
-        MapNode? travelOrigin, MapReachabilityContext travelContext, MapReachabilityContext nodeContext)
+    private static (List<string> onPath, List<string> diverges) BuildMarkerLabels(MapNode node, MapHandler handler,
+        IReadOnlyList<MapNode> rowNodes, MapNode? travelOrigin,
+        MapReachabilityContext travelContext, MapReachabilityContext nodeContext)
     {
         var markedCoords = new HashSet<MegaCrit.Sts2.Core.Map.MapCoord>(MapMarkerState.GetMarkedCoords());
         if (markedCoords.Count == 0)
-            return new List<string>();
+            return (new List<string>(), new List<string>());
 
         var currentReachable = MapReachability.GetReachableMarkedCoords(node, handler, nodeContext, markedCoords);
         currentReachable.Remove(node.Point.coord);
@@ -107,35 +110,17 @@ public static class MapNodeAnnouncementFormatter
             .Select(handler.GetNode)
             .OfType<MapNode>());
 
-        if (onPathNodes.Count == 0 && divergesNodes.Count == 0)
-            return new List<string>();
-
         var duplicateNames = GetDuplicateNames(onPathNodes.Concat(divergesNodes));
-        var guidance = new List<string>();
-
-        if (onPathNodes.Count > 0)
-        {
-            guidance.Add(Message.Localized("map_nav", "NAV.ON_PATH_TO", new
-            {
-                markers = string.Join(", ", onPathNodes.Select(marker => GetMarkerLabel(marker, duplicateNames)))
-            }).Resolve());
-        }
-
-        if (divergesNodes.Count > 0)
-        {
-            guidance.Add(Message.Localized("map_nav", "NAV.DIVERGES_FROM", new
-            {
-                markers = string.Join(", ", divergesNodes.Select(marker => GetMarkerLabel(marker, duplicateNames)))
-            }).Resolve());
-        }
-
-        return guidance;
+        return (
+            onPathNodes.Select(marker => GetMarkerLabel(marker, duplicateNames)).ToList(),
+            divergesNodes.Select(marker => GetMarkerLabel(marker, duplicateNames)).ToList()
+        );
     }
 
-    private static string? BuildVoteSummary(MapNode node)
+    private static List<string> BuildVotersList(MapNode node)
     {
         if (!MultiplayerHelper.IsMultiplayer())
-            return null;
+            return new List<string>();
 
         IReadOnlyList<MegaCrit.Sts2.Core.Entities.Players.Player>? players;
         try
@@ -145,11 +130,11 @@ public static class MapNodeAnnouncementFormatter
         catch (System.Exception e)
         {
             Log.Info($"[AccessibilityMod] Failed to read map vote players: {e.Message}");
-            return null;
+            return new List<string>();
         }
 
         if (players == null || players.Count == 0)
-            return null;
+            return new List<string>();
 
         var voters = new List<string>();
         foreach (var player in players)
@@ -165,13 +150,7 @@ public static class MapNodeAnnouncementFormatter
                 Log.Info($"[AccessibilityMod] Failed to read map vote for {player.NetId}: {e.Message}");
             }
         }
-
-        return voters.Count > 0
-            ? Message.Localized("ui", "EVENT.VOTED_FOR_BY", new
-            {
-                players = string.Join(", ", voters)
-            }).Resolve()
-            : null;
+        return voters;
     }
 
     private static MapNode? GetDefaultTravelOrigin(MapNode node)
@@ -215,22 +194,12 @@ public static class MapNodeAnnouncementFormatter
     {
         var name = node.GetDisplayName();
         return duplicateNames.Contains(name)
-            ? $"{name} {node.GetCoordinatesString()}"
+            ? $"{name} {node.GetCoordinates().Resolve()}"
             : name;
     }
 
     private static string GetChoiceText()
     {
         return LocalizationManager.GetOrDefault("map_nav", "NAV.CHOICE", "choice");
-    }
-
-    private static string GetMarkedText()
-    {
-        return LocalizationManager.GetOrDefault("map_nav", "MARKERS.MARKED", "Marked");
-    }
-
-    private static string GetFreeTravelText()
-    {
-        return LocalizationManager.GetOrDefault("map_nav", "NAV.FREE_TRAVEL", "fly");
     }
 }

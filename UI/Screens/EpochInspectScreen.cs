@@ -12,7 +12,7 @@ public class EpochInspectScreen : GameScreen
 {
     public static EpochInspectScreen? Current { get; private set; }
 
-    public override string? ScreenName => null; // Announced via OnOpen instead
+    public override Message? ScreenName => null; // Announced via OnOpen instead
 
     protected override void BuildRegistry()
     {
@@ -34,30 +34,30 @@ public class EpochInspectScreen : GameScreen
     {
         try
         {
-            var parts = new List<string>();
+            var parts = new List<Message>();
 
             AddEpochHeader(parts, epoch);
 
             if (wasRevealed)
-                parts.Add(LocalizationManager.GetOrDefault("ui", "TIMELINE.REVEALED", "revealed"));
+                parts.Add(Message.Localized("ui", "TIMELINE.REVEALED"));
 
             var desc = epoch.Description;
             if (!string.IsNullOrEmpty(desc))
-                parts.Add(Message.StripBbcode(desc));
+                parts.Add(Message.Raw(Message.StripBbcode(desc)));
 
             try
             {
                 var unlockText = epoch.UnlockText;
                 if (!string.IsNullOrEmpty(unlockText))
-                    parts.Add(Message.StripBbcode(unlockText));
+                    parts.Add(Message.Raw(Message.StripBbcode(unlockText)));
             }
             catch (Exception e) { Log.Error($"[AccessibilityMod] Epoch unlock text access failed: {e.Message}"); }
 
             if (parts.Count > 0)
             {
-                var message = string.Join(". ", parts);
-                Log.Info($"[AccessibilityMod] Epoch inspect: {message}");
-                SpeechManager.Output(Message.Raw(message));
+                var message = Message.Join(". ", parts.ToArray());
+                Log.Info($"[AccessibilityMod] Epoch inspect: {message.Resolve()}");
+                SpeechManager.Output(message);
             }
         }
         catch (System.Exception ex)
@@ -70,27 +70,27 @@ public class EpochInspectScreen : GameScreen
     {
         try
         {
-            var parts = new List<string>();
+            var parts = new List<Message>();
 
             AddEpochHeader(parts, epoch);
 
             var desc = epoch.Description;
             if (!string.IsNullOrEmpty(desc))
-                parts.Add(Message.StripBbcode(desc));
+                parts.Add(Message.Raw(Message.StripBbcode(desc)));
 
             try
             {
                 var unlockText = epoch.UnlockText;
                 if (!string.IsNullOrEmpty(unlockText))
-                    parts.Add(Message.StripBbcode(unlockText));
+                    parts.Add(Message.Raw(Message.StripBbcode(unlockText)));
             }
             catch (Exception e) { Log.Error($"[AccessibilityMod] Epoch paginate unlock text access failed: {e.Message}"); }
 
             if (parts.Count > 0)
             {
-                var message = string.Join(". ", parts);
-                Log.Info($"[AccessibilityMod] Epoch paginate: {message}");
-                SpeechManager.Output(Message.Raw(message));
+                var message = Message.Join(". ", parts.ToArray());
+                Log.Info($"[AccessibilityMod] Epoch paginate: {message.Resolve()}");
+                SpeechManager.Output(message);
             }
         }
         catch (System.Exception ex)
@@ -99,19 +99,19 @@ public class EpochInspectScreen : GameScreen
         }
     }
 
-    private static void AddEpochHeader(List<string> parts, EpochModel epoch)
+    private static void AddEpochHeader(List<Message> parts, EpochModel epoch)
     {
         var storyTitle = epoch.StoryTitle;
         var title = epoch.Title.GetFormattedText();
         if (!string.IsNullOrEmpty(storyTitle))
         {
             var chapterIndex = epoch.ChapterIndex;
-            parts.Add(Message.Localized("ui", "EPOCH.CHAPTER", new { index = chapterIndex, title }).Resolve());
-            parts.Add(storyTitle);
+            parts.Add(Message.Localized("ui", "EPOCH.CHAPTER", new { index = chapterIndex, title }));
+            parts.Add(Message.Raw(storyTitle));
         }
         else if (!string.IsNullOrEmpty(title))
         {
-            parts.Add(title);
+            parts.Add(Message.Raw(title));
         }
     }
 }

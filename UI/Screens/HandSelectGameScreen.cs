@@ -21,12 +21,12 @@ public class HandSelectGameScreen : GameScreen
     private readonly ListContainer _root = new();
     private readonly ListContainer _handList = new()
     {
-        ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.HAND", "Hand"),
+        ContainerLabel = Message.Localized("ui", "CONTAINERS.HAND"),
         AnnouncePosition = true,
     };
     private readonly ListContainer _selectedList = new()
     {
-        ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.SELECTED", "Selected"),
+        ContainerLabel = Message.Localized("ui", "CONTAINERS.SELECTED"),
         AnnouncePosition = true,
     };
 
@@ -35,7 +35,7 @@ public class HandSelectGameScreen : GameScreen
     // Track which selected holders we've connected focus signals to
     private readonly HashSet<NCardHolder> _connectedSelectedHolders = new();
 
-    public override string? ScreenName => _containerLabel;
+    public override Message? ScreenName => Message.Raw(_containerLabel);
 
     public override List<HelpMessage> GetHelpMessages() => new()
     {

@@ -1,28 +1,78 @@
-using System;
+using System.Collections.Generic;
 using Godot;
-using MegaCrit.Sts2.addons.mega_text;
 using MegaCrit.Sts2.Core.Entities.Cards;
-using MegaCrit.Sts2.Core.Entities.Enchantments;
-using MegaCrit.Sts2.Core.HoverTips;
-using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Nodes.Cards;
-using MegaCrit.Sts2.Core.Nodes.Cards.Holders;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Settings;
+using SayTheSpire2.UI.Announcements;
+using SayTheSpire2.Views;
 
 namespace SayTheSpire2.UI.Elements;
 
-[ModSettings("ui.card", "UI/Card")]
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(EnergyCostAnnouncement),
+    typeof(SubtypeAnnouncement),
+    typeof(TypeAnnouncement),
+    // Shop-context insertion point — ProxyCard never yields this, but
+    // ProxyMerchantSlot does, and card's order positions it here.
+    typeof(PriceAnnouncement),
+    // Grid-selection insertion points — injected via CollectAnnouncements in
+    // CardGridSelectionGameScreen when a card is part of the active selection.
+    typeof(SelectedMarkerAnnouncement),
+    typeof(SelectionCountAnnouncement),
+    typeof(TooltipAnnouncement)
+)]
 public class ProxyCard : ProxyElement
 {
-    public static void RegisterSettings(CategorySetting category)
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
-        category.Add(new BoolSetting("verbose_costs", "Verbose Costs", true));
+        var view = GetView();
+        if (view == null)
+        {
+            if (Control != null)
+                yield return new LabelAnnouncement(CleanNodeName(Control.Name));
+            yield break;
+        }
+
+        // Label (with enchantment/affliction in parens when present)
+        var modifiers = new List<string>();
+        if (view.EnchantmentTitle is { Length: > 0 } ench) modifiers.Add(ench);
+        if (view.AfflictionTitle is { Length: > 0 } aff) modifiers.Add(aff);
+        var labelText = modifiers.Count > 0
+            ? $"{view.Title} ({string.Join(", ", modifiers)})"
+            : view.Title;
+        yield return new LabelAnnouncement(labelText);
+
+        // Energy + star cost (skipped when the card has neither)
+        int? energyCost = null;
+        bool energyIsX = false;
+        var energy = view.EnergyCost;
+        if (energy != null)
+        {
+            if (energy.CostsX) { energyCost = 0; energyIsX = true; }
+            else energyCost = energy.GetWithModifiers(CostModifiers.All);
+        }
+
+        int? starCost = null;
+        bool starIsX = false;
+        if (view.HasStarCostX) { starCost = 0; starIsX = true; }
+        else if (view.CurrentStarCost >= 0) starCost = view.StarCostWithModifiers;
+
+        if (energyCost.HasValue || starCost.HasValue)
+            yield return new EnergyCostAnnouncement(energyCost, energyIsX, starCost, starIsX);
+
+        // Subtype + type
+        yield return new SubtypeAnnouncement(view.TypeKey);
+        yield return new TypeAnnouncement("card");
+
+        // Tooltip
+        if (!string.IsNullOrEmpty(view.Description))
+            yield return new TooltipAnnouncement(view.Description);
     }
 
-    private CardModel? _model;
+    private readonly CardModel? _model;
 
     public ProxyCard(Control control) : base(control) { }
 
@@ -33,133 +83,73 @@ public class ProxyCard : ProxyElement
 
     public static ProxyCard FromModel(CardModel model) => new(model);
 
-    private NCardHolder? FindCardHolder()
-    {
-        if (Control is NCardHolder direct)
-            return direct;
-        Node? current = Control?.GetParent();
-        while (current != null)
-        {
-            if (current is NCardHolder holder)
-                return holder;
-            current = current.GetParent();
-        }
-        return null;
-    }
-
-    private NGridCardHolder? FindGridCardHolder() => FindCardHolder() as NGridCardHolder;
-
-    private CardModel? GetDisplayedCardModel()
-    {
-        if (_model != null)
-            return _model;
-
-        var holder = FindCardHolder();
-        if (holder == null)
-            return null;
-
-        if (holder is NGridCardHolder)
-            return holder.CardNode?.Model ?? holder.CardModel;
-
-        return holder.CardModel;
-    }
-
-    private CardModel? GetBaseCardModel() => _model ?? FindCardHolder()?.CardModel;
-
-    private string? GetCardLibraryStatsText()
-    {
-        var stats = FindGridCardHolder()?.CardLibraryStats;
-        if (stats == null || !stats.Visible)
-            return null;
-
-        var label = stats.GetNodeOrNull<MegaRichTextLabel>("%Label");
-        var text = label?.Text;
-        return string.IsNullOrWhiteSpace(text) ? null : StripBbcode(text);
-    }
+    private CardView? GetView() =>
+        _model != null ? CardView.FromModel(_model) : CardView.FromControl(Control);
 
     public override Message? GetLabel()
     {
-        var model = GetDisplayedCardModel();
-        if (model == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
-        var title = model.Title;
-        var modifiers = new System.Collections.Generic.List<string>();
-        var enchantTitle = model.Enchantment?.Title?.GetFormattedText();
-        if (!string.IsNullOrEmpty(enchantTitle)) modifiers.Add(enchantTitle);
-        var afflictionTitle = model.Affliction?.Title?.GetFormattedText();
-        if (!string.IsNullOrEmpty(afflictionTitle)) modifiers.Add(afflictionTitle);
+        var view = GetView();
+        if (view == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
+
+        var modifiers = new List<string>();
+        if (view.EnchantmentTitle is { Length: > 0 } ench) modifiers.Add(ench);
+        if (view.AfflictionTitle is { Length: > 0 } aff) modifiers.Add(aff);
         if (modifiers.Count > 0)
-            return Message.Raw($"{title} ({string.Join(", ", modifiers)})");
-        return Message.Raw(title);
+            return Message.Raw($"{view.Title} ({string.Join(", ", modifiers)})");
+        return Message.Raw(view.Title);
     }
 
     public override string? GetTypeKey() => "card";
 
-    public override string? GetSubtypeKey()
-    {
-        var model = GetDisplayedCardModel();
-        if (model == null) return null;
-        return model.Type.ToString().ToLower();
-    }
+    public override string? GetSubtypeKey() => GetView()?.TypeKey;
 
     public override Message? GetExtrasString()
     {
-        var model = GetDisplayedCardModel();
-        if (model == null) return null;
+        var view = GetView();
+        if (view == null) return null;
 
-        var parts = new System.Collections.Generic.List<string>();
+        var parts = new List<Message>();
+        bool verbose = ModSettings.GetValue<bool>("announcements.energy_cost.verbose");
 
-        bool verbose = ModSettings.GetValue<bool>("ui.card.verbose_costs");
-        if (model.EnergyCost != null)
+        var energyCost = view.EnergyCost;
+        if (energyCost != null)
         {
-            if (model.EnergyCost.CostsX)
-                parts.Add(verbose ? LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_ENERGY", "X energy") : "X");
+            if (energyCost.CostsX)
+                parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_X_ENERGY") : Message.Raw("X"));
             else
             {
-                var cost = model.EnergyCost.GetWithModifiers(CostModifiers.All);
-                parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost }).Resolve() : $"{cost}");
+                var cost = energyCost.GetWithModifiers(CostModifiers.All);
+                parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost }) : Message.Raw($"{cost}"));
             }
         }
 
-        if (model.HasStarCostX)
-            parts.Add(verbose ? LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_STARS", "X stars") : "X");
-        else if (model.CurrentStarCost >= 0)
+        if (view.HasStarCostX)
+            parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_X_STARS") : Message.Raw("X"));
+        else if (view.CurrentStarCost >= 0)
         {
-            int starCost;
-            try { starCost = model.GetStarCostWithModifiers(); }
-            catch (System.Exception e) { Log.Info($"[AccessibilityMod] GetStarCostWithModifiers failed: {e.Message}"); starCost = model.CurrentStarCost; }
-            parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = starCost }).Resolve() : $"{starCost}");
+            var starCost = view.StarCostWithModifiers;
+            parts.Add(verbose ? Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = starCost }) : Message.Raw($"{starCost}"));
         }
 
-        return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : null;
     }
 
     public override Message? GetTooltip()
     {
-        var model = GetDisplayedCardModel();
-        if (model == null) return null;
-
-        try
-        {
-            var desc = model.GetDescriptionForPile(PileType.None);
-            if (!string.IsNullOrEmpty(desc))
-                return Message.Raw(StripBbcode(desc));
-        }
-        catch (Exception e) { Log.Error($"[AccessibilityMod] Card tooltip description failed: {e.Message}"); }
-
-        return null;
+        var desc = GetView()?.Description;
+        return string.IsNullOrEmpty(desc) ? null : Message.Raw(desc);
     }
 
     public override string? HandleBuffers(BufferManager buffers)
     {
-        var displayedModel = GetDisplayedCardModel();
-        var baseModel = GetBaseCardModel();
-        if (displayedModel == null || baseModel == null) return base.HandleBuffers(buffers);
+        var view = GetView();
+        if (view == null) return base.HandleBuffers(buffers);
 
         var cardBuffer = buffers.GetBuffer("card") as CardBuffer;
         if (cardBuffer != null)
         {
-            var statsText = GetCardLibraryStatsText();
-            cardBuffer.Bind(displayedModel, statsText == null ? null : new[] { statsText });
+            var statsText = view.LibraryStatsText;
+            cardBuffer.Bind(view.DisplayedModel, statsText == null ? null : new[] { statsText });
             cardBuffer.Update();
             buffers.EnableBuffer("card", true);
         }
@@ -167,11 +157,10 @@ public class ProxyCard : ProxyElement
         var upgradeBuffer = buffers.GetBuffer("upgrade") as UpgradeBuffer;
         if (upgradeBuffer != null)
         {
-            var gridHolder = FindGridCardHolder();
-            if (gridHolder?.IsShowingUpgradedCard == true)
+            if (view.IsShowingUpgradedCard)
                 upgradeBuffer.BindUnavailable();
             else
-                upgradeBuffer.Bind(baseModel);
+                upgradeBuffer.Bind(view.BaseModel);
             upgradeBuffer.Update();
             buffers.EnableBuffer("upgrade", true);
         }

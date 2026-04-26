@@ -15,7 +15,7 @@ public class ListenScreen : Screen
     private readonly PanelContainer _root;
     private bool _listening;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.LISTEN", "Listen");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.LISTEN");
 
     public ListenScreen(BindingSetting setting, bool isController, InputBinding? replacing = null)
     {

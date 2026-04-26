@@ -13,7 +13,7 @@ public class CardRewardGameScreen : GameScreen
 
     private readonly NCardRewardSelectionScreen _screen;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.CARD_REWARD", "Card Reward");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.CARD_REWARD");
 
     public CardRewardGameScreen(NCardRewardSelectionScreen screen)
     {

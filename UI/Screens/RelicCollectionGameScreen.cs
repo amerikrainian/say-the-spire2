@@ -12,14 +12,14 @@ public class RelicCollectionGameScreen : GameScreen
     private readonly NRelicCollection _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = Ui("RELIC_COLLECTION.SCREEN_NAME"),
+        ContainerLabel = Message.Localized("ui", "RELIC_COLLECTION.SCREEN_NAME"),
         AnnounceName = true,
         AnnouncePosition = true,
     };
     private readonly Dictionary<Control, ProxyRelicCollectionEntry> _proxyCache = new();
     private string? _stateToken;
 
-    public override string? ScreenName => Ui("RELIC_COLLECTION.SCREEN_NAME");
+    public override Message? ScreenName => Message.Localized("ui", "RELIC_COLLECTION.SCREEN_NAME");
 
     public RelicCollectionGameScreen(NRelicCollection screen)
     {
@@ -77,7 +77,7 @@ public class RelicCollectionGameScreen : GameScreen
 
         var grid = new Elements.GridContainer
         {
-            ContainerLabel = GetCategoryLabel(category),
+            ContainerLabel = Message.Raw(GetCategoryLabel(category)),
             AnnounceName = true,
             AnnouncePosition = true,
         };

@@ -19,7 +19,7 @@ public class SettingsGameScreen : GameScreen
 
     private readonly NSettingsScreen _screen;
 
-    public override string ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.SETTINGS", "Settings");
+    public override Message ScreenName => Message.Localized("ui", "SCREENS.SETTINGS");
 
     // Tab node name -> panel node path, in order
     private static readonly (string tabName, string panelPath)[] TabPanels =
@@ -69,7 +69,7 @@ public class SettingsGameScreen : GameScreen
 
             var tabContainer = new ListContainer
             {
-                ContainerLabel = tabLabel,
+                ContainerLabel = Message.Raw(tabLabel),
                 AnnounceName = true,
                 AnnouncePosition = true,
             };

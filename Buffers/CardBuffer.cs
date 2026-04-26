@@ -54,32 +54,36 @@ public class CardBuffer : Buffer
     public static void Populate(Buffer buffer, CardModel model, IEnumerable<string>? extraLines = null)
     {
         // Name, type, and rarity
-        var header = $"{model.Title}, {model.Type}";
+        var typeText = LocalizationManager.GetOrDefault("ui", $"TYPES.{model.Type.ToString().ToUpperInvariant()}", model.Type.ToString());
+        var header = $"{model.Title}, {typeText}";
         if (model.Rarity != CardRarity.None)
-            header += $", {model.Rarity}";
+        {
+            var rarityText = LocalizationManager.GetOrDefault("ui", $"RARITIES.{model.Rarity.ToString().ToUpperInvariant()}", model.Rarity.ToString());
+            header += $", {rarityText}";
+        }
         buffer.Add(header);
 
         // Costs (energy + stars on one line)
-        var costs = new System.Collections.Generic.List<string>();
+        var costs = new System.Collections.Generic.List<Message>();
         if (model.EnergyCost != null)
         {
             if (model.EnergyCost.CostsX)
-                costs.Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_ENERGY", "X energy"));
+                costs.Add(Message.Localized("ui", "RESOURCE.CARD_X_ENERGY"));
             else
             {
-                try { costs.Add(Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost = model.EnergyCost.GetWithModifiers(CostModifiers.All) }).Resolve()); }
-                catch (System.Exception e) { Log.Info($"[AccessibilityMod] Energy cost modifier failed: {e.Message}"); costs.Add(Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost = model.EnergyCost.Canonical }).Resolve()); }
+                try { costs.Add(Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost = model.EnergyCost.GetWithModifiers(CostModifiers.All) })); }
+                catch (System.Exception e) { Log.Info($"[AccessibilityMod] Energy cost modifier failed: {e.Message}"); costs.Add(Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost = model.EnergyCost.Canonical })); }
             }
         }
         if (model.HasStarCostX)
-            costs.Add(LocalizationManager.GetOrDefault("ui", "RESOURCE.CARD_X_STARS", "X stars"));
+            costs.Add(Message.Localized("ui", "RESOURCE.CARD_X_STARS"));
         else if (model.CurrentStarCost >= 0)
         {
-            try { costs.Add(Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = model.GetStarCostWithModifiers() }).Resolve()); }
-            catch (System.Exception e) { Log.Info($"[AccessibilityMod] Star cost modifier failed: {e.Message}"); costs.Add(Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = model.CurrentStarCost }).Resolve()); }
+            try { costs.Add(Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = model.GetStarCostWithModifiers() })); }
+            catch (System.Exception e) { Log.Info($"[AccessibilityMod] Star cost modifier failed: {e.Message}"); costs.Add(Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = model.CurrentStarCost })); }
         }
         if (costs.Count > 0)
-            buffer.Add(string.Join(", ", costs));
+            buffer.Add(Message.Join(", ", costs.ToArray()).Resolve());
 
         // Description
         try

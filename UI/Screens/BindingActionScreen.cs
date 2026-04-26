@@ -14,7 +14,7 @@ public class BindingActionScreen : Screen
     private readonly PanelContainer _root;
     private readonly NavigableContainer _navContainer;
 
-    public override string? ScreenName => _binding.DisplayName;
+    public override Message? ScreenName => Message.Raw(_binding.DisplayName);
 
     public BindingActionScreen(BindingSetting setting, InputBinding binding)
     {
@@ -66,7 +66,7 @@ public class BindingActionScreen : Screen
 
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = binding.DisplayName,
+            ContainerLabel = Message.Raw(binding.DisplayName),
             AnnounceName = true,
             AnnouncePosition = true,
         };

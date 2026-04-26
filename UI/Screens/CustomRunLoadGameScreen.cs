@@ -30,7 +30,7 @@ public class CustomRunLoadGameScreen : GameScreen
     private readonly NCustomRunLoadScreen _screen;
     private readonly ListContainer _root = new()
     {
-        ContainerLabel = new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText(),
+        ContainerLabel = Message.Raw(new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText()),
         AnnounceName = true,
         AnnouncePosition = false,
     };
@@ -52,7 +52,7 @@ public class CustomRunLoadGameScreen : GameScreen
     private readonly ListContainer _ascensionRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.ASCENSION"), announcePosition: false);
     private readonly ListContainer _modifierRow = NewRow(UiStatic("CUSTOM_RUN.ROWS.MODIFIERS"));
 
-    public override string? ScreenName => new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText();
+    public override Message? ScreenName => Message.Raw(new LocString("main_menu_ui", "CUSTOM_RUN_SCREEN.CUSTOM_MODE_TITLE").GetFormattedText());
 
     public CustomRunLoadGameScreen(NCustomRunLoadScreen screen)
     {
@@ -388,7 +388,7 @@ public class CustomRunLoadGameScreen : GameScreen
 
     private static ListContainer NewRow(string label, bool announcePosition = true) => new()
     {
-        ContainerLabel = label,
+        ContainerLabel = Message.Raw(label),
         AnnounceName = true,
         AnnouncePosition = announcePosition,
     };
@@ -399,7 +399,7 @@ public class CustomRunLoadGameScreen : GameScreen
             _root.Add(row);
     }
 
-    private string? GetAscensionStatus()
+    private Message? GetAscensionStatus()
     {
         if (_ascensionPanel == null)
             return null;
@@ -407,7 +407,9 @@ public class CustomRunLoadGameScreen : GameScreen
         var value = _ascensionPanel.Ascension;
         var title = AscensionHelper.GetTitle(value).GetFormattedText();
         var description = AscensionHelper.GetDescription(value).GetFormattedText();
-        return string.IsNullOrWhiteSpace(description) ? title : $"{title}. {description}";
+        return string.IsNullOrWhiteSpace(description)
+            ? Message.Raw(title)
+            : Message.Join(". ", Message.Raw(title), Message.Raw(description));
     }
 
     private UIElement GetOrCreate(Control control, Func<UIElement> factory)
@@ -432,11 +434,11 @@ public class CustomRunLoadGameScreen : GameScreen
         return MultiplayerHelper.GetPlayerName(playerId, Lobby?.NetService.Platform);
     }
 
-    private string Ui(string key, object? data = null)
+    private Message Ui(string key, object? data = null)
     {
         return data == null
-            ? LocalizationManager.GetOrDefault("ui", key, key)
-            : Message.Localized("ui", key, data).Resolve();
+            ? Message.Localized("ui", key)
+            : Message.Localized("ui", key, data);
     }
 
     private static string UiStatic(string key)

@@ -11,7 +11,7 @@ namespace SayTheSpire2.UI.Screens;
 
 public class MainMenuScreen : GameScreen
 {
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.MAIN_MENU", "Main Menu");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.MAIN_MENU");
 
     protected override void BuildRegistry()
     {
@@ -22,7 +22,7 @@ public class MainMenuScreen : GameScreen
             return;
         }
 
-        var root = new ListContainer { ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.MAIN_MENU", "Main Menu"), AnnounceName = false };
+        var root = new ListContainer { ContainerLabel = Message.Localized("ui", "CONTAINERS.MAIN_MENU"), AnnounceName = false };
 
         var buttonsContainer = mainMenu.GetNodeOrNull("MainMenuTextButtons");
         if (buttonsContainer == null)

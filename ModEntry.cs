@@ -19,7 +19,7 @@ namespace SayTheSpire2;
 [ModInitializer(nameof(Initialize))]
 public static class ModEntry
 {
-    public const string Version = "0.4.1";
+    public const string Version = "0.5.0";
     public static bool AccessibilityEnabled => Settings.InstallationConfig.ScreenReader;
     private static Harmony? _harmony;
 
@@ -107,13 +107,9 @@ public static class ModEntry
         var settingsDir = Path.Combine(
             Godot.OS.GetUserDataDir(), "mods", "SayTheSpire2");
 
-        // Register UI element settings
-        Settings.ModSettingsRegistry.Register(typeof(UI.Elements.ProxyCard));
-        Settings.ModSettingsRegistry.Register(typeof(UI.Elements.ProxyCreature));
-
         // Each subsystem registers its own defaults
-        Settings.FocusStringSettings.RegisterDefaults();
         Settings.EventRegistry.RegisterDefaults();
+        UI.Announcements.AnnouncementRegistry.RegisterDefaults();
 
         // Advanced settings
         var advancedCategory = new Settings.CategorySetting("advanced", "Advanced");

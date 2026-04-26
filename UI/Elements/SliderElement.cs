@@ -1,12 +1,24 @@
+using System.Collections.Generic;
 using Godot;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Settings;
 using SayTheSpire2.Speech;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
 public class SliderElement : UIElement
 {
+    // Share settings / [AnnouncementOrder] with ProxySlider.
+    public override System.Type AnnouncementOrderType => typeof(ProxySlider);
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        yield return new LabelAnnouncement(_setting.Label);
+        yield return new TypeAnnouncement("slider");
+        yield return new StatusAnnouncement(_setting.Get().ToString());
+    }
+
     private readonly HSlider _control;
     private readonly IntSetting _setting;
     private bool _suppressSync;

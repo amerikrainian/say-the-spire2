@@ -19,7 +19,7 @@ public class RunScreen : Screen
 {
     public static RunScreen? Current { get; private set; }
 
-    private static readonly string[] _alwaysEnabled = { "player" };
+    private static readonly string[] _alwaysEnabled = { "player", "events" };
     public override System.Collections.Generic.IEnumerable<string> AlwaysEnabledBuffers => _alwaysEnabled;
 
     private Player? _subscribedPlayer;

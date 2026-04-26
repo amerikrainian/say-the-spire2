@@ -14,7 +14,7 @@ public class ModMenuScreen : Screen
     private readonly PanelContainer _root;
     private readonly NavigableContainer _navContainer;
 
-    public override string? ScreenName => LocalizationManager.GetOrDefault("ui", "SCREENS.MOD_MENU", "Mod Menu");
+    public override Message? ScreenName => Message.Localized("ui", "SCREENS.MOD_MENU");
 
     public ModMenuScreen()
     {
@@ -66,7 +66,7 @@ public class ModMenuScreen : Screen
 
         _navContainer = new NavigableContainer
         {
-            ContainerLabel = LocalizationManager.GetOrDefault("ui", "CONTAINERS.MOD_MENU", "Mod Menu"),
+            ContainerLabel = Message.Localized("ui", "CONTAINERS.MOD_MENU"),
             AnnounceName = true,
             AnnouncePosition = true,
         };

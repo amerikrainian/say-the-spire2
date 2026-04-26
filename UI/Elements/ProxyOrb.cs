@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Logging;
@@ -5,14 +6,43 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Orbs;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement),
+    typeof(OrbNumbersAnnouncement),
+    typeof(TooltipAnnouncement)
+)]
 public class ProxyOrb : ProxyElement
 {
     public ProxyOrb(Control control) : base(control) { }
 
     private NOrb? Orb => Control as NOrb;
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        yield return new TypeAnnouncement("orb");
+
+        var model = Orb?.Model;
+        if (model != null)
+        {
+            yield return new OrbNumbersAnnouncement((int)model.PassiveVal, (int)model.EvokeVal);
+        }
+        else
+        {
+            var tip = OrbModel.EmptySlotHoverTipHoverTip;
+            var desc = tip.Description;
+            if (!string.IsNullOrEmpty(desc))
+                yield return new TooltipAnnouncement(StripBbcode(desc));
+        }
+    }
 
     public override Message? GetLabel()
     {

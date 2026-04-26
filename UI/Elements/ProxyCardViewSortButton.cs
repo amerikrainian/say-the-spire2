@@ -1,12 +1,30 @@
+using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
 public class ProxyCardViewSortButton : ProxyElement
 {
+    // User-perceives this as a button; share settings / [AnnouncementOrder] with ProxyButton.
+    public override System.Type AnnouncementOrderType => typeof(ProxyButton);
+
     public ProxyCardViewSortButton(Control control) : base(control) { }
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        yield return new TypeAnnouncement("button");
+
+        var status = GetStatusString();
+        if (status != null)
+            yield return new StatusAnnouncement(status);
+    }
 
     public override Message? GetLabel()
     {

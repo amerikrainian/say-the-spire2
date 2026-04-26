@@ -104,7 +104,7 @@ public static class InputRebindHooks
             var newKey = NInputManager.Instance.GetShortcutKey(inputName).ToString();
 
             // Check if a swap occurred
-            string? swapMessage = null;
+            Message? swapMessage = null;
             if (_previousKeyboardMap != null)
             {
                 var currentMap = KeyboardInputMapField.GetValue(NInputManager.Instance) as Dictionary<StringName, Key>;
@@ -117,20 +117,18 @@ public static class InputRebindHooks
                         {
                             var swappedLabel = GetEntryLabelByInputName(kvp.Key);
                             var swappedKey = kvp.Value.ToString();
-                            swapMessage = Message.Localized("ui", "KEYBIND.SWAPPED", new { action = swappedLabel, key = swappedKey }).Resolve();
+                            swapMessage = Message.Localized("ui", "KEYBIND.SWAPPED", new { action = swappedLabel, key = swappedKey });
                             break;
                         }
                     }
                 }
             }
 
-            var boundText = Message.Localized("ui", "KEYBIND.BOUND", new { action = label, key = newKey }).Resolve();
+            var bound = Message.Localized("ui", "KEYBIND.BOUND", new { action = label, key = newKey });
+            var message = swapMessage != null ? Message.Join(". ", bound, swapMessage) : bound;
 
-            if (swapMessage != null)
-                boundText = $"{boundText}. {swapMessage}";
-
-            Log.Info($"[AccessibilityMod] Rebind: {boundText}");
-            SpeechManager.Output(Message.Raw(boundText));
+            Log.Info($"[AccessibilityMod] Rebind: {message.Resolve()}");
+            SpeechManager.Output(message);
         }
 
         _previousListeningEntry = null;

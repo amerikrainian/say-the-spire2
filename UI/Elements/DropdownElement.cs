@@ -1,11 +1,24 @@
+using System.Collections.Generic;
 using Godot;
 using SayTheSpire2.Localization;
 using SayTheSpire2.Settings;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
 public class DropdownElement : UIElement
 {
+    // Share settings / [AnnouncementOrder] with ProxyDropdown.
+    public override System.Type AnnouncementOrderType => typeof(ProxyDropdown);
+
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        yield return new LabelAnnouncement(_setting.Label);
+        yield return new TypeAnnouncement("dropdown");
+        var selected = _setting.GetSelected();
+        yield return new StatusAnnouncement(selected?.Label ?? _setting.Get());
+    }
+
     private readonly Button _control;
     private readonly ChoiceSetting _setting;
 

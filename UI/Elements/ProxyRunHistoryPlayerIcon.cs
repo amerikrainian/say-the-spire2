@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Godot;
 using HarmonyLib;
@@ -7,11 +8,39 @@ using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Nodes.Screens.RunHistoryScreen;
 using SayTheSpire2.Buffers;
 using SayTheSpire2.Localization;
+using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement),
+    typeof(AscensionAnnouncement),
+    typeof(AchievementsLockedAnnouncement)
+)]
 public class ProxyRunHistoryPlayerIcon : ProxyElement
 {
+    public override IEnumerable<Announcement> GetFocusAnnouncements()
+    {
+        var label = GetLabel();
+        if (label != null)
+            yield return new LabelAnnouncement(label);
+
+        yield return new TypeAnnouncement("button");
+
+        var icon = Icon;
+        if (icon == null)
+            yield break;
+
+        var ascensionLabel = AscensionLabelField?.GetValue(icon) as Label;
+        if (ascensionLabel != null && !string.IsNullOrWhiteSpace(ascensionLabel.Text))
+            yield return new AscensionAnnouncement(ascensionLabel.Text.Trim());
+
+        var achievementLock = AchievementLockField?.GetValue(icon) as Control;
+        if (achievementLock?.Visible == true)
+            yield return new AchievementsLockedAnnouncement();
+    }
+
     private static readonly FieldInfo? AscensionLabelField =
         AccessTools.Field(typeof(NRunHistoryPlayerIcon), "_ascensionLabel");
     private static readonly FieldInfo? AchievementLockField =
@@ -40,7 +69,7 @@ public class ProxyRunHistoryPlayerIcon : ProxyElement
         if (icon == null)
             return null;
 
-        var parts = new List<string>();
+        var parts = new List<Message>();
         var ascensionLabel = AscensionLabelField?.GetValue(icon) as Label;
         if (ascensionLabel != null && !string.IsNullOrWhiteSpace(ascensionLabel.Text))
             parts.Add(Ui("RUN_HISTORY.ASCENSION", new { value = ascensionLabel.Text.Trim() }));
@@ -49,7 +78,7 @@ public class ProxyRunHistoryPlayerIcon : ProxyElement
         if (achievementLock?.Visible == true)
             parts.Add(Ui("RUN_HISTORY.ACHIEVEMENTS_LOCKED"));
 
-        return parts.Count > 0 ? Message.Raw(string.Join(", ", parts)) : null;
+        return parts.Count > 0 ? Message.Join(", ", parts.ToArray()) : null;
     }
 
     public override string? HandleBuffers(BufferManager buffers)
@@ -60,13 +89,11 @@ public class ProxyRunHistoryPlayerIcon : ProxyElement
 
         uiBuffer.Clear();
 
-        var label = GetLabel()?.Resolve();
-        if (!string.IsNullOrWhiteSpace(label))
-            uiBuffer.Add(label);
+        var label = GetLabel();
+        if (label is { IsEmpty: false }) uiBuffer.Add(label.Resolve());
 
-        var status = GetStatusString()?.Resolve();
-        if (!string.IsNullOrWhiteSpace(status))
-            uiBuffer.Add(status);
+        var status = GetStatusString();
+        if (status is { IsEmpty: false }) uiBuffer.Add(status.Resolve());
 
         foreach (var detail in GetExpandedDetailItems())
             uiBuffer.Add(detail);
@@ -75,10 +102,12 @@ public class ProxyRunHistoryPlayerIcon : ProxyElement
         return "ui";
     }
 
-    public string? GetExpandedDetails()
+    public Message? GetExpandedDetails()
     {
         var parts = GetExpandedDetailItems();
-        return parts.Count > 0 ? string.Join(". ", parts) : null;
+        return parts.Count > 0
+            ? Message.Join(". ", parts.Select(s => Message.Raw(s)).ToArray())
+            : null;
     }
 
     private List<string> GetExpandedDetailItems()
@@ -106,13 +135,6 @@ public class ProxyRunHistoryPlayerIcon : ProxyElement
         return parts;
     }
 
-    private static string Ui(string key, object vars)
-    {
-        return Message.Localized("ui", key, vars).Resolve();
-    }
-
-    private static string Ui(string key)
-    {
-        return LocalizationManager.GetOrDefault("ui", key, key);
-    }
+    private static Message Ui(string key, object vars) => Message.Localized("ui", key, vars);
+    private static Message Ui(string key) => Message.Localized("ui", key);
 }
