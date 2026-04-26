@@ -23,6 +23,9 @@ public class GameOverScreen : GameScreen
     private static readonly FieldInfo? EncounterQuoteField =
         AccessTools.Field(typeof(NGameOverScreen), "_encounterQuote");
 
+    private static readonly FieldInfo? BadgeTitleField =
+        AccessTools.Field(typeof(NBadge), "_title");
+
     protected override void BuildRegistry()
     {
     }
@@ -82,14 +85,11 @@ public class GameOverScreen : GameScreen
         }
     }
 
-    public void OnBadge(string locEntryKey, string? locAmountKey, int amount)
+    public void OnBadge(NBadge? badge)
     {
         try
         {
-            var locString = new LocString("game_over_screen", locEntryKey);
-            if (locAmountKey != null)
-                locString.Add(locAmountKey, amount);
-            var text = locString.GetFormattedText();
+            var text = (BadgeTitleField?.GetValue(badge) as LocString)?.GetFormattedText();
             if (string.IsNullOrEmpty(text)) return;
 
             var stripped = Message.StripBbcode(text);
