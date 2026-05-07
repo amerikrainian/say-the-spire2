@@ -22,6 +22,7 @@ public static class ModEntry
     public const string Version = "0.5.2";
     public static bool AccessibilityEnabled => Settings.InstallationConfig.ScreenReader;
     private static Harmony? _harmony;
+    private static Settings.BoolSetting? _checkUpdatesSetting;
 
     public static void Initialize()
     {
@@ -96,6 +97,10 @@ public static class ModEntry
         DevConsoleHooks.Initialize(_harmony);
         CombatEventManager.Initialize();
 
+        // Settings are loaded by InitializeSettings; safe to read the toggle now.
+        if (_checkUpdatesSetting?.Value == true)
+            Updates.UpdateChecker.Run();
+
         Log.Info("[AccessibilityMod] Initialized. Custom TTS active.");
     }
 
@@ -112,6 +117,14 @@ public static class ModEntry
         // Each subsystem registers its own defaults
         Settings.EventRegistry.RegisterDefaults();
         UI.Announcements.AnnouncementRegistry.RegisterDefaults();
+
+        // Top-level toggles
+        var checkUpdates = new Settings.BoolSetting(
+            "check_updates",
+            Ui("MOD.CHECK_UPDATES", "Check for Updates on Launch"),
+            true);
+        Settings.ModSettings.Root.Add(checkUpdates);
+        _checkUpdatesSetting = checkUpdates;
 
         // Advanced settings
         var advancedCategory = new Settings.CategorySetting("advanced", "Advanced");

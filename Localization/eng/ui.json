@@ -476,6 +476,8 @@
   "GAME_OVER.ROWS.DISCOVERIES": "Discoveries",
 
   "MOD.VERSION_ANNOUNCE": "Say the Spire {version}",
+  "MOD.UPDATE_AVAILABLE": "An update is available: version {version}",
+  "MOD.CHECK_UPDATES": "Check for Updates on Launch",
 
   "CONTAINERS.CARD_LIBRARY": "Card Library",
   "CONTAINERS.GAME_OVER": "Game Over",

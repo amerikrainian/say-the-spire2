@@ -16,6 +16,7 @@ public static class ScreenManager
     private static GameScreen? _lastFactoryScreen;
     private static bool _announceQueued;
     private static bool _announced;
+    private static bool _updateAnnounced;
 
     public static Screen? CurrentScreen =>
         _screenStack.Count > 0 ? _screenStack[^1].DeepestActiveScreen() : null;
@@ -27,12 +28,17 @@ public static class ScreenManager
     }
 
     /// <summary>
-    /// Called each frame from the _Process postfix. Checks for the logo screen
-    /// and queues the mod version announcement with a short delay.
+    /// Called each frame from the _Process postfix. Queues the mod version
+    /// announcement when the logo or main menu first appears, then keeps
+    /// watching for the async update check (<see cref="Updates.UpdateChecker"/>)
+    /// to land — appending an "update available" message whenever the
+    /// background HTTP request resolves to a newer remote version. Both flags
+    /// are reset only by reloading the mod (i.e. once per game launch), so
+    /// each session announces at most once.
     /// </summary>
     public static void CheckStartupAnnouncement(Node sceneNode)
     {
-        if (_announced) return;
+        if (_announced && _updateAnnounced) return;
 
         var currentContext = ActiveScreenContext.Instance.GetCurrentScreen();
         if (currentContext == null) return;
@@ -53,6 +59,21 @@ public static class ScreenManager
             _announced = true;
             Speech.SpeechManager.Output(
                 Localization.Message.Localized("ui", "MOD.VERSION_ANNOUNCE", new { version = ModEntry.Version }));
+        }
+
+        // Once the version announce is out and the background update check
+        // has reported a newer version, queue a follow-up. The HTTP request
+        // can resolve before, during, or after the version announcement —
+        // we just wait for both and emit each once.
+        if (_announced && !_updateAnnounced)
+        {
+            var remote = Updates.UpdateChecker.LatestRemoteVersion;
+            if (remote != null)
+            {
+                _updateAnnounced = true;
+                Speech.SpeechManager.Output(
+                    Localization.Message.Localized("ui", "MOD.UPDATE_AVAILABLE", new { version = remote }));
+            }
         }
     }
 

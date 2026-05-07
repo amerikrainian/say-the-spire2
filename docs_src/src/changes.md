@@ -6,7 +6,8 @@
 * Cards, relics, and potions shown on the epoch unlock screens are now focusable with keyboard / controller and read out via the screen reader.
 * Added a "Keep Summoned Creatures Focusable" setting to the UI Enhancements category (defaults to enabled.) When enabled, it prevents the game from arbitrarily hiding summoned creatures (this usually occurs in multiplayer.)
 * The credits screen now reads aloud automatically as it scrolls.
-* Home and End now work on the creature row in combat. Pressing Home jumps to the leftmost combatant; End jumps to the rightmost.
+* The mod now checks GitHub for a newer release at launch and announces it alongside the version. Disable via the new "Check for Updates on Launch" toggle at the top of mod settings.
+
 
 ## V0.5.2
 * Added partial Russian localization (thanks to @darrthscorrp.)
