@@ -662,6 +662,19 @@ public class CombatScreen : Screen
                     || (c.Hitbox != null && c.Hitbox.FocusMode != Control.FocusModeEnum.None)))
                 .OrderBy(c => c.Hitbox?.GetScreenPosition().X ?? c.GlobalPosition.X)
                 .OfType<Control>());
+
+        // Creatures are wired so Godot focuses the Hitbox (NClickableControl),
+        // not the NCreature itself. Without this mapping, focus events on the
+        // hitbox fall through ProxyFactory and produce an unparented
+        // ProxyCreature, breaking home / end navigation. Map the hitbox to
+        // the same cached element so GetElement(hitbox) returns the parented
+        // entry from _creatureContainer.
+        foreach (var creature in combatRoom.CreatureNodes)
+        {
+            if (creature?.Hitbox != null && _elementCache.TryGetValue(creature, out var element))
+                _elementCache[creature.Hitbox] = element;
+        }
+
         SyncContainer(_handContainer, hand?.ActiveHolders?.OfType<Control>());
     }
 

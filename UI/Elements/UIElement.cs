@@ -88,6 +88,19 @@ public abstract class UIElement
 
     public bool IsFocused { get; private set; }
 
+    /// <summary>
+    /// Move Godot focus to this element's underlying control. Default is to
+    /// call <c>Control.GrabFocus()</c>; proxies whose Control is a non-focusable
+    /// container (e.g. <see cref="ProxyCreature"/> wraps NCreature but the
+    /// NClickableControl Hitbox child is the actual focus owner) override
+    /// this to redirect the call to the focusable descendant.
+    /// </summary>
+    public virtual void GrabFocus()
+    {
+        if (Control != null && GodotObject.IsInstanceValid(Control))
+            Control.GrabFocus();
+    }
+
     public void Focus()
     {
         IsFocused = true;

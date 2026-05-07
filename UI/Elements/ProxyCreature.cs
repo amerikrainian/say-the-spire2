@@ -69,6 +69,23 @@ public class ProxyCreature : ProxyElement
 
     public ProxyCreature(Control control) : base(control) { }
 
+    /// <summary>
+    /// NCreature itself is not the focus owner — its child Hitbox
+    /// (NClickableControl) is what NCombatRoom wires FocusNeighbors against.
+    /// Redirect GrabFocus so jump-to-creature actually moves Godot focus.
+    /// </summary>
+    public override void GrabFocus()
+    {
+        if (Control is MegaCrit.Sts2.Core.Nodes.Combat.NCreature creature
+            && creature.Hitbox is { } hitbox
+            && GodotObject.IsInstanceValid(hitbox))
+        {
+            hitbox.GrabFocus();
+            return;
+        }
+        base.GrabFocus();
+    }
+
     private CreatureView? GetView() => CreatureView.FromControl(Control);
 
     public override Message? GetLabel()

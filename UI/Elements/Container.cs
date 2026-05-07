@@ -96,7 +96,7 @@ public abstract class Container : UIElement
     public virtual void FocusChild(UIElement child)
     {
         if (child.Control != null && GodotObject.IsInstanceValid(child.Control))
-            child.Control.GrabFocus();
+            child.GrabFocus();
         else
             UIManager.SetFocusedElement(child);
     }
