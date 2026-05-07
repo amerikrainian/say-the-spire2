@@ -1,1 +1,26 @@
-{}
+{
+  "NODE_TYPES.UNKNOWN": "ไม่ทราบ",
+  "NODE_TYPES.SHOP": "ร้านค้า",
+  "NODE_TYPES.TREASURE": "สมบัติ",
+  "NODE_TYPES.REST_SITE": "จุดพักผ่อน",
+  "NODE_TYPES.MONSTER": "มอนสเตอร์",
+  "NODE_TYPES.ELITE": "ชั้นยอด",
+  "NODE_TYPES.BOSS": "บอส",
+  "NODE_TYPES.ANCIENT": "เทพโบราณ",
+  "STATE.TRAVELABLE": "ไปได้",
+  "STATE.TRAVELED": "ผ่านแล้ว",
+  "STATE.UNTRAVELABLE": "ไปไม่ได้",
+  "NAV.CHOICE": "ทางเลือก",
+  "NAV.PATH_ITEM": "{type}",
+  "NAV.COORDINATES": "({col}, {row})",
+  "NAV.CURRENT_LOCATION": "ตำแหน่งปัจจุบัน: {type}, {coordinates}",
+  "NAV.ON_PATH_TO": "บนเส้นทางไปยัง {markers}",
+  "NAV.DIVERGES_FROM": "แยกจาก {markers}",
+  "NAV.FREE_TRAVEL": "บิน",
+  "NAV.BRANCH": "เส้นทาง {position}/{total}: {type} {coordinates}",
+  "NAV.NO_FORWARD": "ไม่มีเส้นทางไปข้างหน้า",
+  "NAV.NO_BACKWARD": "ไม่มีเส้นทางย้อนกลับ",
+  "NAV.NO_MORE_BRANCHES": "ไม่มีทางแยกอื่น",
+  "QUEST_MARKED": "ภารกิจ",
+  "MARKERS.MARKED": "ทำเครื่องหมายแล้ว"
+}
