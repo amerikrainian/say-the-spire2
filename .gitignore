@@ -20,3 +20,6 @@ installer/Cargo.lock
 # Python
 __pycache__/
 *.pyc
+
+# Extracted game locale (pulled from the game's pck for terminology cross-check)
+game_locale/
