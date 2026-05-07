@@ -1,1 +1,26 @@
-{}
+{
+  "NODE_TYPES.UNKNOWN": "알 수 없음",
+  "NODE_TYPES.SHOP": "상점",
+  "NODE_TYPES.TREASURE": "보물",
+  "NODE_TYPES.REST_SITE": "휴식처",
+  "NODE_TYPES.MONSTER": "몬스터",
+  "NODE_TYPES.ELITE": "정예",
+  "NODE_TYPES.BOSS": "보스",
+  "NODE_TYPES.ANCIENT": "고대",
+  "STATE.TRAVELABLE": "이동 가능",
+  "STATE.TRAVELED": "통과함",
+  "STATE.UNTRAVELABLE": "이동 불가",
+  "NAV.CHOICE": "분기",
+  "NAV.PATH_ITEM": "{type}",
+  "NAV.COORDINATES": "({col}, {row})",
+  "NAV.CURRENT_LOCATION": "현재 위치: {type}, {coordinates}",
+  "NAV.ON_PATH_TO": "{markers} 가는 길",
+  "NAV.DIVERGES_FROM": "{markers} 에서 갈라짐",
+  "NAV.FREE_TRAVEL": "비행",
+  "NAV.BRANCH": "경로 {position}/{total}: {type} {coordinates}",
+  "NAV.NO_FORWARD": "앞으로 갈 길 없음",
+  "NAV.NO_BACKWARD": "뒤로 갈 길 없음",
+  "NAV.NO_MORE_BRANCHES": "더 이상 분기 없음",
+  "QUEST_MARKED": "퀘스트",
+  "MARKERS.MARKED": "표시됨"
+}
