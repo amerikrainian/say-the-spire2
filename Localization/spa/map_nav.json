@@ -1,1 +1,26 @@
-{}
+{
+  "NODE_TYPES.UNKNOWN": "Desconocido",
+  "NODE_TYPES.SHOP": "Tienda",
+  "NODE_TYPES.TREASURE": "Tesoro",
+  "NODE_TYPES.REST_SITE": "Lugar de descanso",
+  "NODE_TYPES.MONSTER": "Monstruo",
+  "NODE_TYPES.ELITE": "Élite",
+  "NODE_TYPES.BOSS": "Jefe",
+  "NODE_TYPES.ANCIENT": "Antiguo",
+  "STATE.TRAVELABLE": "accesible",
+  "STATE.TRAVELED": "recorrido",
+  "STATE.UNTRAVELABLE": "inaccesible",
+  "NAV.CHOICE": "elección",
+  "NAV.PATH_ITEM": "{type}",
+  "NAV.COORDINATES": "({col}, {row})",
+  "NAV.CURRENT_LOCATION": "Estás en {type}, {coordinates}",
+  "NAV.ON_PATH_TO": "en el camino hacia {markers}",
+  "NAV.DIVERGES_FROM": "diverge de {markers}",
+  "NAV.FREE_TRAVEL": "vuelo",
+  "NAV.BRANCH": "camino {position} de {total}: {type} {coordinates}",
+  "NAV.NO_FORWARD": "Sin camino hacia adelante",
+  "NAV.NO_BACKWARD": "Sin camino hacia atrás",
+  "NAV.NO_MORE_BRANCHES": "No hay más ramificaciones",
+  "QUEST_MARKED": "Misión",
+  "MARKERS.MARKED": "Marcado"
+}
