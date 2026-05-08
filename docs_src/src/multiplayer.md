@@ -46,7 +46,7 @@ The mod can announce when other players play cards or use potions. By default, y
 The mod announces when other players end their turn or cancel their end turn decision.
 
 ### Expanded Player View
-Press **Accept** on a player creature in the creature row to open their expanded view, showing their full deck, relics, and potions with position announcements.
+Press **Confirm** on a player creature in the creature row to open their expanded view, showing their full deck, relics, and potions with position announcements.
 
 ## Rest Site (Mend)
 When using the Mend option to heal another player, focusing each player character announces their name and current HP.

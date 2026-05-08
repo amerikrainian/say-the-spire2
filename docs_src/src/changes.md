@@ -8,7 +8,6 @@
 * The credits screen now reads aloud automatically as it scrolls.
 * The mod now checks GitHub for a newer release at launch and announces it alongside the version. Disable via the new "Check for Updates on Launch" toggle at the top of mod settings.
 
-
 ## V0.5.2
 * Added partial Russian localization (thanks to @darrthscorrp.)
 * Restored the missing owner readout on summoned creatures (such as Osty). this regression was accidentally introduced in the previous patch.

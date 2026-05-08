@@ -239,7 +239,6 @@ public class CombatScreen : Screen
             case "announce_summarized_intents":
                 AnnounceSummarizedIntents();
                 return true;
-            case "ui_accept":
             case "ui_select":
                 return TryOpenPlayerExpandedState();
         }

@@ -6,6 +6,8 @@ After installing the mod, launch Slay the Spire 2. You should hear the mod annou
 
 The mod acts as a screenreader for Slay the Spire 2, narrating focused UI elements and announcing gameplay events. Navigating the UI should feel fairly intuitive for the most part. Use the arrow keys, d-pad, or left stick to navigate menus. Use enter/a/x to confirm, backspace/b/circle to cancel. To read more information on an item, use control up/down (keyboard) or right stick up/down (controller) to review the current buffer of information (we will get to buffers in a moment.) The game does use quite a few bindings, so I highly recommend you consult the bindings documentation or check your mod settings menu (ctrl m keyboard, r2+start xbox, rt+start ps5.)
 
+There are quite a few points in the game where you need to press your Accept keybinding (e keyboard, y xbox, triangle ps5) to confirm certain popups. If enter isn't working where you feel it should, you most likely need to press your accept binding. Note that this input is also used to end your turn, so be careful when confirming certain popups in combat that you don't end your turn by accident.
+
 A note when playing your first game: the tutorial dialogs are a little unintuitive for the moment. For the multi-page tutorials, you must use right and left to navigate the pages; navigate right of the last page to exit and return to regular gameplay.
 
 ## Help
