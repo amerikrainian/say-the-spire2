@@ -32,6 +32,9 @@
   "TYPES.STATUS": "status",
   "TYPES.CURSE": "curse",
   "TYPES.QUEST": "quest",
+  "TYPES.MONSTER": "monster",
+  "TYPES.ELITE": "elite",
+  "TYPES.BOSS": "boss",
   "KEYBIND.LISTENING": "Press a key to rebind {action}",
   "KEYBIND.BOUND": "{action} bound to {key}",
   "KEYBIND.SWAPPED": "{action} swapped to {key}",
@@ -466,6 +469,12 @@
   "SCREENS.DIALOG": "Dialog",
   "SCREENS.REWARDS": "Rewards",
   "SCREENS.MOD_SETTINGS": "Mod Settings",
+  "SCREENS.BESTIARY": "Bestiary",
+
+  "BESTIARY.MONSTERS": "Monsters",
+  "BESTIARY.ACTIONS": "Actions",
+  "BESTIARY.LOCKED": "locked",
+  "BESTIARY.UNDER_CONSTRUCTION": "under construction",
 
   "SORT.DESCENDING": "Descending",
   "SORT.ASCENDING": "Ascending",

@@ -93,7 +93,7 @@ These rules were discovered through bugs. Check against them before making chang
 - Pre-resolved elements (passed to `SetFocusedControl`) must never be downgraded by re-resolve. Only upgrade via screen registry (`ScreenManager.ResolveElement`), never fall back to `ProxyFactory.Create` over a pre-resolved proxy.
 - `FocusContext` is a single global instance in `UIManager`, not per-screen. Path diffing is centralized.
 - Mouse hover must not trigger focus announcements during controller mode. We suppress `CheckForMouseInput` via Harmony to prevent the game from switching back to mouse mode during controller navigation.
-- Disabled `NClickableControl`s have `FocusMode = None` set by the game. We patch `SetEnabled` to restore `FocusMode.All` and use `HasFocus()` fallback in `RefreshFocusPostfix` since `IsFocused` is never true for disabled controls.
+- Disabled `NClickableControl`s have `FocusMode = None` set by the game. We patch both `SetEnabled` and `Disable` to restore `FocusMode.All` (some screens like `NBestiaryEntry._Ready` call `Disable()` directly, bypassing `SetEnabled`) and use `HasFocus()` fallback in `RefreshFocusPostfix` since `IsFocused` is never true for disabled controls.
 
 **Speech and Messages:**
 - `SpeechManager.Output` must NEVER use `interrupt: true`. User preference is to never interrupt existing speech.
@@ -210,6 +210,8 @@ These private fields/properties are accessed via reflection. A game update renam
 - `NDailyRunScreen._lobby`, `NDailyRunLoadScreen._lobby`, `NCustomRunLoadScreen._lobby` — lobby access
 - `NMultiplayerLoadGameScreen._runLobby` — multiplayer load game lobby
 - `NRunHistory.SelectPlayer` (method) — run history player selection
+- `NBestiary._bestiaryList`, `._moveList`, `._selectedEntry`, `._epithet`, `._descriptionLabel` — bestiary screen state
+- `NBestiaryEntry._monsterType` — entry's room-type qualifier (boss / elite / monster)
 
 **Daily leaderboard (DailyLeaderboardAdapter.cs):**
 - `NDailyRunLeaderboard._scoreContainer`, `._loadingIndicator`, `._noScoresIndicator`, `._noFriendsIndicator`, `._noScoreUploadIndicator` — leaderboard state indicators

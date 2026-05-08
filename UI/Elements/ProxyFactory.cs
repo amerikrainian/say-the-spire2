@@ -10,6 +10,7 @@ using MegaCrit.Sts2.Core.Nodes.Orbs;
 using MegaCrit.Sts2.Core.Nodes.Potions;
 using MegaCrit.Sts2.Core.Nodes.Relics;
 using MegaCrit.Sts2.Core.Nodes.Rewards;
+using MegaCrit.Sts2.Core.Nodes.Screens.Bestiary;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardLibrary;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Nodes.Screens.GameOverScreen;
@@ -61,6 +62,12 @@ public static class ProxyFactory
 
         if (control is NRelicCollectionEntry)
             return new ProxyRelicCollectionEntry(control);
+
+        if (control is NBestiaryEntry)
+            return new ProxyBestiaryEntry(control);
+
+        if (control is NBestiaryMoveButton)
+            return new ProxyBestiaryMoveButton(control);
 
         if (control is NStatEntry)
             return new ProxyStatEntry(control);

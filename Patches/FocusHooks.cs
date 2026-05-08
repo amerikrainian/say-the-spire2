@@ -42,13 +42,23 @@ public static class FocusHooks
         harmony.Patch(refreshFocus, prefix: prefix, postfix: postfix);
         Log.Info("[AccessibilityMod] RefreshFocus hook patched.");
 
-        // Keep disabled controls focusable for accessibility
+        // Keep disabled controls focusable for accessibility. Patch both SetEnabled
+        // (the public toggle) and Disable (called directly by some screens like
+        // NBestiaryEntry._Ready) so locked entries still take focus.
         var setEnabled = AccessTools.Method(typeof(NClickableControl), "SetEnabled");
         if (setEnabled != null)
         {
             harmony.Patch(setEnabled,
                 postfix: new HarmonyMethod(typeof(FocusHooks), nameof(SetEnabledPostfix)));
             Log.Info("[AccessibilityMod] SetEnabled focus override patched.");
+        }
+
+        var disable = AccessTools.Method(typeof(NClickableControl), "Disable");
+        if (disable != null)
+        {
+            harmony.Patch(disable,
+                postfix: new HarmonyMethod(typeof(FocusHooks), nameof(DisablePostfix)));
+            Log.Info("[AccessibilityMod] Disable focus override patched.");
         }
 
         // Patch NSettingsSlider.OnFocus and NPaginator.OnFocus (not NClickableControl subclasses)
@@ -144,6 +154,14 @@ public static class FocusHooks
     {
         // Keep disabled controls focusable so screen readers can still read them
         if (!enabled && __instance.FocusMode == Control.FocusModeEnum.None)
+            __instance.FocusMode = Control.FocusModeEnum.All;
+    }
+
+    public static void DisablePostfix(NClickableControl __instance)
+    {
+        // Same intent as SetEnabledPostfix — Disable bypasses SetEnabled in
+        // some screens (e.g. NBestiaryEntry).
+        if (__instance.FocusMode == Control.FocusModeEnum.None)
             __instance.FocusMode = Control.FocusModeEnum.All;
     }
 

@@ -1,5 +1,6 @@
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Nodes.Screens;
+using MegaCrit.Sts2.Core.Nodes.Screens.Bestiary;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardLibrary;
 using MegaCrit.Sts2.Core.Nodes.Screens.MainMenu;
 using MegaCrit.Sts2.Core.Nodes.Screens.PotionLab;
@@ -94,6 +95,7 @@ public static class CompendiumHooks
             NStatsScreen statsScreen => new StatsGameScreen(statsScreen),
             NCardLibrary cardLibrary => new CardLibraryGameScreen(cardLibrary),
             NRunHistory runHistory => new RunHistoryGameScreen(runHistory),
+            NBestiary bestiary => new BestiaryGameScreen(bestiary),
             _ => null,
         };
     }
