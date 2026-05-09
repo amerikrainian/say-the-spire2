@@ -8,12 +8,17 @@ using SayTheSpire2.UI.Announcements;
 
 namespace SayTheSpire2.UI.Elements;
 
-// Delegates settings / [AnnouncementOrder] to ProxyButton — cell is perceived
-// as a button; range info rides along as StatusAnnouncement.
+// Crystal sphere cells get their own announcement settings tree
+// (ui.crystal_sphere_cell.announcements.*) so users can toggle / reorder
+// them independently of regular buttons. Range info rides along as
+// StatusAnnouncement.
+[AnnouncementOrder(
+    typeof(LabelAnnouncement),
+    typeof(TypeAnnouncement),
+    typeof(StatusAnnouncement)
+)]
 public class ProxyCrystalSphereCell : ProxyElement
 {
-    public override System.Type AnnouncementOrderType => typeof(ProxyButton);
-
     public ProxyCrystalSphereCell(Control control) : base(control) { }
 
     private NCrystalSphereCell? Cell => Control as NCrystalSphereCell;

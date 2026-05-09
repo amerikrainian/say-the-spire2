@@ -20,6 +20,7 @@ namespace SayTheSpire2.UI.Elements;
 /// </summary>
 [AnnouncementOrder(
     typeof(LabelAnnouncement),
+    typeof(SelectedMarkerAnnouncement),
     typeof(TypeAnnouncement),
     typeof(StatusAnnouncement),
     typeof(TooltipAnnouncement)
@@ -30,6 +31,8 @@ public class ProxyBestiaryEntry : ProxyElement
         AccessTools.Field(typeof(NBestiary), "_epithet")!;
     private static readonly System.Reflection.FieldInfo DescriptionLabelField =
         AccessTools.Field(typeof(NBestiary), "_descriptionLabel")!;
+    private static readonly System.Reflection.FieldInfo SelectedEntryField =
+        AccessTools.Field(typeof(NBestiary), "_selectedEntry")!;
 
     public ProxyBestiaryEntry(Control control) : base(control) { }
 
@@ -48,6 +51,9 @@ public class ProxyBestiaryEntry : ProxyElement
         var label = GetLabel();
         if (label != null)
             yield return new LabelAnnouncement(label);
+
+        if (IsSelected)
+            yield return new SelectedMarkerAnnouncement();
 
         yield return new TypeAnnouncement(view.TypeKey);
 
@@ -139,6 +145,16 @@ public class ProxyBestiaryEntry : ProxyElement
 
         buffers.EnableBuffer("ui", true);
         return "ui";
+    }
+
+    private bool IsSelected
+    {
+        get
+        {
+            var bestiary = NBestiary.Instance;
+            if (bestiary == null) return false;
+            return ReferenceEquals(SelectedEntryField.GetValue(bestiary), Control);
+        }
     }
 
     private (string? epithet, string? description) ReadDetailLabels()

@@ -3,6 +3,7 @@ using System.Linq;
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Nodes.Screens.Bestiary;
+using SayTheSpire2.Help;
 using SayTheSpire2.Input;
 using SayTheSpire2.Localization;
 using SayTheSpire2.UI.Elements;
@@ -58,11 +59,25 @@ public class BestiaryGameScreen : GameScreen
     };
 
     private readonly List<NBestiaryEntry> _entryNodes = new();
+    /// <summary>First entry of each act, in the same order acts appear in the sidebar.</summary>
+    private readonly List<NBestiaryEntry> _actStartEntries = new();
     private readonly List<NBestiaryMoveButton> _moveNodes = new();
     private NBestiaryEntry? _lastSelectedEntry;
     private int _lastMoveCount = -1;
 
     public override Message? ScreenName => Message.Localized("ui", "SCREENS.BESTIARY");
+
+    public override List<HelpMessage> GetHelpMessages() => new()
+    {
+        new TextHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.BESTIARY_NAV",
+            "Up and down move through the monster list. Right enters the actions list for the focused monster; left from any action returns to the monster."), exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.BESTIARY_PREV_ACT", "Previous Act"),
+            "mega_view_deck_and_tab_left", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.BESTIARY_NEXT_ACT", "Next Act"),
+            "mega_view_exhaust_pile_and_tab_right", exclusive: true),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.BESTIARY_PLAY_MOVE", "Play Move 1-9"),
+            MoveHotkeyActions, exclusive: true),
+    };
 
     public BestiaryGameScreen(NBestiary screen)
     {
@@ -73,15 +88,100 @@ public class BestiaryGameScreen : GameScreen
 
         foreach (var action in MoveHotkeyActions)
             ClaimAction(action);
+
+        ClaimAction("mega_view_deck_and_tab_left");
+        ClaimAction("mega_view_exhaust_pile_and_tab_right");
     }
 
     public override bool OnActionJustPressed(InputAction action)
     {
+        switch (action.Key)
+        {
+            case "mega_view_deck_and_tab_left":
+                return JumpToActStart(-1);
+            case "mega_view_exhaust_pile_and_tab_right":
+                return JumpToActStart(1);
+        }
+
         var index = System.Array.IndexOf(MoveHotkeyActions, action.Key);
         if (index < 0 || index >= _moveNodes.Count)
             return false;
         Activate(_moveNodes[index]);
         return true;
+    }
+
+    /// <summary>
+    /// Tab-left/right navigation between act starts. When tabbing left from
+    /// somewhere mid-act, jump to the start of the current act first; another
+    /// press jumps to the previous act. Tab-right always jumps to the next
+    /// act's first entry. No-op when the focused control is not a sidebar
+    /// entry, or when there's nowhere to go (boundary).
+    /// </summary>
+    private bool JumpToActStart(int direction)
+    {
+        if (_actStartEntries.Count == 0) return false;
+
+        var focused = FindFocusedEntry();
+        if (focused == null) return false;
+
+        int currentActIdx = _actStartEntries.IndexOf(focused);
+
+        NBestiaryEntry? target;
+        if (direction < 0)
+        {
+            if (currentActIdx < 0)
+            {
+                // Mid-act: jump to start of current act
+                target = FindCurrentActStart(focused);
+            }
+            else if (currentActIdx > 0)
+            {
+                target = _actStartEntries[currentActIdx - 1];
+            }
+            else
+            {
+                return false; // already at first act's first entry
+            }
+        }
+        else
+        {
+            // direction > 0 — find the next act start strictly after `focused`
+            int focusedListIdx = _entryNodes.IndexOf(focused);
+            target = _actStartEntries
+                .FirstOrDefault(e => _entryNodes.IndexOf(e) > focusedListIdx);
+        }
+
+        if (target == null || !GodotObject.IsInstanceValid(target))
+            return false;
+        target.GrabFocus();
+        return true;
+    }
+
+    private NBestiaryEntry? FindFocusedEntry()
+    {
+        foreach (var entry in _entryNodes)
+            if (GodotObject.IsInstanceValid(entry) && entry.HasFocus())
+                return entry;
+        return null;
+    }
+
+    /// <summary>
+    /// Returns the act-start entry whose act contains <paramref name="entry"/>,
+    /// or null if nothing precedes it.
+    /// </summary>
+    private NBestiaryEntry? FindCurrentActStart(NBestiaryEntry entry)
+    {
+        int focusedIdx = _entryNodes.IndexOf(entry);
+        NBestiaryEntry? result = null;
+        foreach (var actStart in _actStartEntries)
+        {
+            int startIdx = _entryNodes.IndexOf(actStart);
+            if (startIdx <= focusedIdx)
+                result = actStart;
+            else
+                break;
+        }
+        return result;
     }
 
     public override void OnPop()
@@ -90,6 +190,7 @@ public class BestiaryGameScreen : GameScreen
         _monsters.Clear();
         _actions.Clear();
         _entryNodes.Clear();
+        _actStartEntries.Clear();
         _moveNodes.Clear();
         _connectedControls.Clear();
         _lastSelectedEntry = null;
@@ -115,6 +216,7 @@ public class BestiaryGameScreen : GameScreen
         _monsters.Clear();
         _actions.Clear();
         _entryNodes.Clear();
+        _actStartEntries.Clear();
         _moveNodes.Clear();
 
         BuildSidebar();
@@ -137,6 +239,7 @@ public class BestiaryGameScreen : GameScreen
         if (listNode == null) return;
 
         ListContainer? currentAct = null;
+        bool actNeedsFirstEntry = false;
 
         foreach (var child in listNode.GetChildren().OfType<Control>())
         {
@@ -152,6 +255,7 @@ public class BestiaryGameScreen : GameScreen
                             AnnouncePosition = true,
                         };
                         _monsters.Add(currentAct);
+                        actNeedsFirstEntry = true;
                         break;
                     }
                 case NBestiaryEntry entry:
@@ -160,6 +264,11 @@ public class BestiaryGameScreen : GameScreen
                         (currentAct ?? _monsters).Add(proxy);
                         Register(entry, proxy);
                         _entryNodes.Add(entry);
+                        if (actNeedsFirstEntry)
+                        {
+                            _actStartEntries.Add(entry);
+                            actNeedsFirstEntry = false;
+                        }
                         break;
                     }
             }

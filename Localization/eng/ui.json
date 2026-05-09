@@ -574,6 +574,10 @@
   "HELP.CRYSTAL_SPHERE_NAV": "Navigate the grid with directional controls. Press Select to divine a cell. Use Tab Left and Tab Right to switch between Big (3x3) and Small (1x1) divination tools.",
   "HELP.CRYSTAL_SPHERE_DIVINATIONS": "Divination count is announced automatically when it changes.",
   "HELP.HAND_SELECT_NAV": "Left and right move through cards. Up and down move between your hand and the selected row. Press Select to move a card between hand and selected.",
+  "HELP.BESTIARY_NAV": "Up and down move through the monster list. Right enters the actions list for the focused monster; left from any action returns to the monster.",
+  "HELP.BESTIARY_PREV_ACT": "Previous Act",
+  "HELP.BESTIARY_NEXT_ACT": "Next Act",
+  "HELP.BESTIARY_PLAY_MOVE": "Play Move 1-9",
 
   "SETTINGS.ANNOUNCEMENTS_ROOT": "Announcements",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "Announce",

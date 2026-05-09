@@ -163,18 +163,36 @@ public class RunScreen : Screen
         var runState = RunManager.Instance.DebugOnlyGetState();
         if (runState == null) return;
 
-        var boss = runState.Act.BossEncounter;
-        var name = boss.Title.GetFormattedText();
+        var boss1 = runState.Act.BossEncounter;
+        var boss2 = runState.Act.SecondBossEncounter;
 
-        if (runState.Act.HasSecondBoss)
+        Message message;
+        if (boss2 != null && !ShouldOnlyShowSecondBoss(runState))
         {
-            var second = runState.Act.SecondBossEncounter;
-            var secondName = second?.Title.GetFormattedText();
-            if (!string.IsNullOrEmpty(secondName))
-                name = $"{name} and {secondName}";
+            message = Message.Localized("ui", "TOPBAR.BOSS_DUAL", new
+            {
+                name1 = boss1.Title.GetFormattedText(),
+                name2 = boss2.Title.GetFormattedText(),
+            });
+        }
+        else
+        {
+            var activeBoss = (boss2 != null && ShouldOnlyShowSecondBoss(runState)) ? boss2 : boss1;
+            message = Message.Localized("ui", "TOPBAR.BOSS", new { name = activeBoss.Title.GetFormattedText() });
         }
 
-        SpeechManager.Output(Message.Raw(name));
+        SpeechManager.Output(message);
+    }
+
+    /// <summary>
+    /// Mirrors <c>NTopBarBossIcon.ShouldOnlyShowSecondBossIcon</c>: when the
+    /// player is currently AT the first boss room, only the second boss is
+    /// surfaced (since the first is being or has been fought).
+    /// </summary>
+    private static bool ShouldOnlyShowSecondBoss(IRunState runState)
+    {
+        return runState.Map.SecondBossMapPoint != null
+            && runState.CurrentMapPoint == runState.Map.BossMapPoint;
     }
 
     private void AnnounceRelicCounters()
