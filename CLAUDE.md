@@ -104,6 +104,16 @@ These rules were discovered through bugs. Check against them before making chang
 - Event `GetMessage()` returns `Message?`. EventDispatcher passes the Message directly to SpeechManager.
 - Localization keys live in `Localization/eng/ui.json`. Language switches at runtime via `LocManager.SetLanguage` hook.
 
+**Localization workflow (when adding new keys):**
+- Source of truth is `Localization/eng/ui.json`. Add the key there first, then propagate to the 13 other locales (deu, esp, fra, ita, jpn, kor, pol, ptb, rus, spa, tha, tur, zhs).
+- Cross-check terminology against the **game's own** localization. Extracted to `game_locale/` (gitignored) via `python scripts/extract_game_locale.py [--all]` — re-run after game updates. Reuse the game's word for game concepts (Boss, Bestiary, Block, Card, Relic, etc.) so the mod doesn't say a different thing than the sighted UI shows. Useful files: `bestiary.json`, `card_keywords.json`, `gameplay_ui.json`, `intents.json`, `main_menu_ui.json`.
+- `python scripts/locale_tool.py audit [<lang>]` — per-locale breakdown of translated / eng-equiv / missing / stale / placeholder-mismatched keys. Audits every non-eng locale when run without an arg.
+- `python scripts/locale_tool.py extract <lang>` — dumps the missing keys with eng source values as a JSON blob, suitable for handoff to a translator or LLM.
+- `python scripts/locale_tool.py apply <lang> <path>` — merges a flat key→value JSON back into the locale. Refuses to overwrite existing translations without `--force`. Validates `{placeholder}` sets match the eng source.
+- Locale files are **sparse** — a key only appears once it has a real translation. Anything missing falls back to eng at runtime via `LocalizationManager.Get`. So an eng-side rewording never strands a stale English copy in another language.
+- "eng-equiv" entries flagged by audit are usually pure format strings (`"{buffer}: {item}"`, `"{passive}/{evoke}"`, etc.) where the translation is identical to English by design. Check before "fixing" them.
+- After filling new keys, build (`dotnet build 2>&1 | tail -5`) to confirm the PCK regenerates with all locales.
+
 **Views (data abstraction):**
 - `Views/CardView.cs`, `Views/CreatureView.cs`, `Views/IntentView.cs`, `Views/RelicView.cs`, `Views/PotionView.cs` are the canonical wrappers over their game-model counterparts. **Anything that reads from a game model should go through the matching View.** Direct `card.X` / `creature.X` / `relic.X` access outside these files is the smell.
 - Why: the game's model surface shifts between betas (e.g., `Creature.CombatState` going from concrete class to interface; `CardCmd.AddBadge` getting renamed). Centralizing reads in one View per model means a game update touches one file, not five.
