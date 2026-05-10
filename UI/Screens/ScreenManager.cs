@@ -55,7 +55,13 @@ public static class ScreenManager
         }
         else if (!_announceQueued && currentContext.GetType().Name == "NMainMenu")
         {
-            // Logo was skipped — announce immediately
+            // Logo was skipped — announce immediately. Set _announceQueued
+            // alongside _announced so this branch can't re-fire every frame:
+            // the early-return guard above only kicks in once _updateAnnounced
+            // is also set, which never happens on the latest version (or with
+            // update checks disabled). Without this flag the version line
+            // would loop forever on the main menu.
+            _announceQueued = true;
             _announced = true;
             Speech.SpeechManager.Output(
                 Localization.Message.Localized("ui", "MOD.VERSION_ANNOUNCE", new { version = ModEntry.Version }));
