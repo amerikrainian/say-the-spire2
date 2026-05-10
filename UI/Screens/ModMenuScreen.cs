@@ -110,6 +110,26 @@ public class ModMenuScreen : Screen
         _navContainer.Add(releaseBtn);
         AddControl(itemList, releaseBtn);
 
+        // Visit Discord
+        var discordBtn = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.VISIT_DISCORD", "Visit Discord"));
+        discordBtn.OnActivated = () =>
+        {
+            OS.ShellOpen("https://discord.gg/Dz8u2Pr9py");
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.OPENING_DISCORD"));
+        };
+        _navContainer.Add(discordBtn);
+        AddControl(itemList, discordBtn);
+
+        // Visit Patreon
+        var patreonBtn = new ButtonElement(LocalizationManager.GetOrDefault("ui", "BUTTONS.VISIT_PATREON", "Visit Patreon"));
+        patreonBtn.OnActivated = () =>
+        {
+            OS.ShellOpen("https://www.patreon.com/bradjrenshaw");
+            SpeechManager.Output(Message.Localized("ui", "SPEECH.OPENING_PATREON"));
+        };
+        _navContainer.Add(patreonBtn);
+        AddControl(itemList, patreonBtn);
+
         ClaimAction("ui_up");
         ClaimAction("ui_down");
         ClaimAction("ui_left");
