@@ -19,7 +19,7 @@ namespace SayTheSpire2;
 [ModInitializer(nameof(Initialize))]
 public static class ModEntry
 {
-    public const string Version = "1.0.1";
+    public const string Version = "1.0.2";
     public static bool AccessibilityEnabled => Settings.InstallationConfig.ScreenReader;
     private static Harmony? _harmony;
     private static Settings.BoolSetting? _checkUpdatesSetting;
@@ -118,11 +118,14 @@ public static class ModEntry
         Settings.EventRegistry.RegisterDefaults();
         UI.Announcements.AnnouncementRegistry.RegisterDefaults();
 
-        // Top-level toggles
+        // Top-level toggles. SortPriority pushes this past all the category
+        // entries so it sits at the bottom of the root list rather than
+        // landing somewhere in the middle by alphabetical chance.
         var checkUpdates = new Settings.BoolSetting(
             "check_updates",
             Ui("MOD.CHECK_UPDATES", "Check for Updates on Launch"),
-            true);
+            true)
+        { SortPriority = 1000 };
         Settings.ModSettings.Root.Add(checkUpdates);
         _checkUpdatesSetting = checkUpdates;
 
