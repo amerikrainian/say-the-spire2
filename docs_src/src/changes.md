@@ -1,3 +1,6 @@
+## V1.0.1
+This is an emergency patch to fix an issue where you could not select characters other than Ironclad. This was caused by a change in the game's controller logic on the character select screen interacting with our mod's controller focusing logic in an unintended way.
+
 ## V1.0.0
 * Replaced the Tolk screen-reader library with Prism. Prism is similar to Tolk but supports more screenreaders and is actively being updated. Please let me know if there are any issues with your prefered output method.
 * Added machine translations for all remaining languages. Please let me know if there are any issues with the translations. I will accept contributions with fixes.

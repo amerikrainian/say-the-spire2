@@ -36,8 +36,6 @@ public static class LobbyHooks
             typeof(LobbyHooks), nameof(LobbyPlayerDisconnectedPostfix), "Lobby RemotePlayerDisconnected");
         HarmonyHelper.PatchIfFound(harmony, typeof(NCharacterSelectScreen), "LocalPlayerDisconnected",
             typeof(LobbyHooks), nameof(LobbyLocalDisconnectedPostfix), "Lobby LocalPlayerDisconnected");
-        HarmonyHelper.PatchIfFound(harmony, typeof(NCharacterSelectScreen), "OnEmbarkPressed",
-            typeof(LobbyHooks), nameof(LobbyEmbarkPostfix), "Lobby OnEmbarkPressed");
         HarmonyHelper.PatchIfFound(harmony, typeof(NCharacterSelectScreen), "OnUnreadyPressed",
             typeof(LobbyHooks), nameof(LobbyUnreadyPostfix), "Lobby OnUnreadyPressed");
 
@@ -85,11 +83,6 @@ public static class LobbyHooks
     public static void LobbyLocalDisconnectedPostfix(NCharacterSelectScreen __instance, NetErrorInfo info)
     {
         CharacterSelectGameScreen.Current?.OnLobbyLocalDisconnected(__instance, info);
-    }
-
-    public static void LobbyEmbarkPostfix(NCharacterSelectScreen __instance)
-    {
-        CharacterSelectGameScreen.Current?.OnLobbyStateChanged();
     }
 
     public static void LobbyUnreadyPostfix(NCharacterSelectScreen __instance)
