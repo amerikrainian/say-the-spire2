@@ -53,7 +53,7 @@ public static class ModSettingsRegistry
         if (attr == null)
             throw new InvalidOperationException($"{type.Name} is missing [ModSettings] attribute");
 
-        var cat = EnsureCategory(attr.Path, attr.Label);
+        var cat = EnsureCategory(attr.Path, attr.Label, attr.LocalizationKey);
 
         var method = type.GetMethod("RegisterSettings",
             BindingFlags.Public | BindingFlags.Static,

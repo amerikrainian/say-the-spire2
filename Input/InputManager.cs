@@ -117,134 +117,131 @@ public static class InputManager
 
     private static void RegisterGameActions()
     {
-        _actions.Add(new InputAction("ui_accept", "Accept", gameAction: "ui_accept")
+        _actions.Add(new InputAction("ui_accept", "Accept", gameAction: "ui_accept", localizationKey: "INPUT.ACCEPT")
             .AddBinding(Key.E)
             .AddBinding(ControllerInput.Y));
-        _actions.Add(new InputAction("ui_select", "Select", gameAction: "ui_select")
+        _actions.Add(new InputAction("ui_select", "Select", gameAction: "ui_select", localizationKey: "INPUT.SELECT")
             .AddBinding(Key.Enter)
             .AddBinding(ControllerInput.A));
-        _actions.Add(new InputAction("ui_cancel", "Cancel", gameAction: "ui_cancel")
+        _actions.Add(new InputAction("ui_cancel", "Cancel", gameAction: "ui_cancel", localizationKey: "INPUT.CANCEL")
             .AddBinding(Key.Backspace)
             .AddBinding(ControllerInput.B));
-        _actions.Add(new InputAction("ui_up", "Navigate Up", gameAction: "ui_up")
+        _actions.Add(new InputAction("ui_up", "Navigate Up", gameAction: "ui_up", localizationKey: "INPUT.NAVIGATE_UP")
             .AddBinding(Key.Up)
             .AddBinding(ControllerInput.DpadUp)
             .AddBinding(ControllerInput.LeftStickUp));
-        _actions.Add(new InputAction("ui_down", "Navigate Down", gameAction: "ui_down")
+        _actions.Add(new InputAction("ui_down", "Navigate Down", gameAction: "ui_down", localizationKey: "INPUT.NAVIGATE_DOWN")
             .AddBinding(Key.Down)
             .AddBinding(ControllerInput.DpadDown)
             .AddBinding(ControllerInput.LeftStickDown));
-        _actions.Add(new InputAction("ui_left", "Navigate Left", gameAction: "ui_left")
+        _actions.Add(new InputAction("ui_left", "Navigate Left", gameAction: "ui_left", localizationKey: "INPUT.NAVIGATE_LEFT")
             .AddBinding(Key.Left)
             .AddBinding(ControllerInput.DpadLeft)
             .AddBinding(ControllerInput.LeftStickLeft));
-        _actions.Add(new InputAction("ui_right", "Navigate Right", gameAction: "ui_right")
+        _actions.Add(new InputAction("ui_right", "Navigate Right", gameAction: "ui_right", localizationKey: "INPUT.NAVIGATE_RIGHT")
             .AddBinding(Key.Right)
             .AddBinding(ControllerInput.DpadRight)
             .AddBinding(ControllerInput.LeftStickRight));
-        _actions.Add(new InputAction("mega_peek", "Peek", gameAction: "mega_peek")
+        _actions.Add(new InputAction("mega_peek", "Peek", gameAction: "mega_peek", localizationKey: "INPUT.PEEK")
             .AddBinding(Key.Space)
             .AddBinding(ControllerInput.LeftStickClick));
-        _actions.Add(new InputAction("mega_view_draw_pile", "View Draw Pile", gameAction: "mega_view_draw_pile")
+        _actions.Add(new InputAction("mega_view_draw_pile", "View Draw Pile", gameAction: "mega_view_draw_pile", localizationKey: "INPUT.VIEW_DRAW_PILE")
             .AddBinding(Key.A)
             .AddBinding(ControllerInput.LeftShoulder, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("mega_view_discard_pile", "View Discard Pile", gameAction: "mega_view_discard_pile")
+        _actions.Add(new InputAction("mega_view_discard_pile", "View Discard Pile", gameAction: "mega_view_discard_pile", localizationKey: "INPUT.VIEW_DISCARD_PILE")
             .AddBinding(Key.S)
             .AddBinding(ControllerInput.RightShoulder, modifier: ControllerInput.RightTrigger));
-        _actions.Add(new InputAction("mega_view_deck_and_tab_left", "View Deck / Tab Left", gameAction: "mega_view_deck_and_tab_left")
+        _actions.Add(new InputAction("mega_view_deck_and_tab_left", "View Deck / Tab Left", gameAction: "mega_view_deck_and_tab_left", localizationKey: "INPUT.VIEW_DECK_TAB_LEFT")
             .AddBinding(Key.D)
             .AddBinding(ControllerInput.LeftShoulder));
-        _actions.Add(new InputAction("mega_view_exhaust_pile_and_tab_right", "View Exhaust / Tab Right", gameAction: "mega_view_exhaust_pile_and_tab_right")
+        _actions.Add(new InputAction("mega_view_exhaust_pile_and_tab_right", "View Exhaust / Tab Right", gameAction: "mega_view_exhaust_pile_and_tab_right", localizationKey: "INPUT.VIEW_EXHAUST_TAB_RIGHT")
             .AddBinding(Key.F)
             .AddBinding(ControllerInput.RightShoulder));
-        _actions.Add(new InputAction("mega_view_map", "View Map", gameAction: "mega_view_map")
+        _actions.Add(new InputAction("mega_view_map", "View Map", gameAction: "mega_view_map", localizationKey: "INPUT.VIEW_MAP")
             .AddBinding(Key.M)
             .AddBinding(ControllerInput.Back));
-        _actions.Add(new InputAction("mega_pause_and_back", "Pause / Back", gameAction: "mega_pause_and_back")
+        _actions.Add(new InputAction("mega_pause_and_back", "Pause / Back", gameAction: "mega_pause_and_back", localizationKey: "INPUT.PAUSE_BACK")
             .AddBinding(Key.Escape)
             .AddBinding(ControllerInput.Start));
-        _actions.Add(new InputAction("mega_top_panel", "Top Panel", gameAction: "mega_top_panel")
+        _actions.Add(new InputAction("mega_top_panel", "Top Panel", gameAction: "mega_top_panel", localizationKey: "INPUT.TOP_PANEL")
             .AddBinding(Key.T)
             .AddBinding(ControllerInput.X));
-        _actions.Add(new InputAction("mega_select_card_1", "Creature Status 1", gameAction: "mega_select_card_1").AddBinding(Key.Key1));
-        _actions.Add(new InputAction("mega_select_card_2", "Creature Status 2", gameAction: "mega_select_card_2").AddBinding(Key.Key2));
-        _actions.Add(new InputAction("mega_select_card_3", "Creature Status 3", gameAction: "mega_select_card_3").AddBinding(Key.Key3));
-        _actions.Add(new InputAction("mega_select_card_4", "Creature Status 4", gameAction: "mega_select_card_4").AddBinding(Key.Key4));
-        _actions.Add(new InputAction("mega_select_card_5", "Creature Status 5", gameAction: "mega_select_card_5").AddBinding(Key.Key5));
-        _actions.Add(new InputAction("mega_select_card_6", "Creature Status 6", gameAction: "mega_select_card_6").AddBinding(Key.Key6));
-        _actions.Add(new InputAction("mega_select_card_7", "Creature Status 7", gameAction: "mega_select_card_7").AddBinding(Key.Key7));
-        _actions.Add(new InputAction("mega_select_card_8", "Creature Status 8", gameAction: "mega_select_card_8").AddBinding(Key.Key8));
-        _actions.Add(new InputAction("mega_select_card_9", "Creature Status 9", gameAction: "mega_select_card_9").AddBinding(Key.Key9));
-        _actions.Add(new InputAction("mega_select_card_10", "Creature Status 10", gameAction: "mega_select_card_10").AddBinding(Key.Key0));
-        _actions.Add(new InputAction("mega_select_card_11", "Creature Status 11").AddBinding(Key.Minus));
-        _actions.Add(new InputAction("mega_select_card_12", "Creature Status 12").AddBinding(Key.Equal));
-        _actions.Add(new InputAction("mega_release_card", "Release Card", gameAction: "mega_release_card").AddBinding(Key.Down));
+        // Numbered series: prefix localized once at registration, suffix is the
+        // bare index (universal across languages). Not runtime-dynamic but the
+        // simpler path; saves 11 loc keys per language.
+        var creatureStatus = Ui("INPUT.CREATURE_STATUS", "Creature Status");
+        var statusKeys = new[] { Key.Key1, Key.Key2, Key.Key3, Key.Key4, Key.Key5, Key.Key6,
+            Key.Key7, Key.Key8, Key.Key9, Key.Key0, Key.Minus, Key.Equal };
+        for (int i = 0; i < statusKeys.Length; i++)
+        {
+            int n = i + 1;
+            // Only the first 10 have a corresponding game action; 11 and 12 are mod-only.
+            var gameAction = n <= 10 ? $"mega_select_card_{n}" : null;
+            _actions.Add(new InputAction($"mega_select_card_{n}", $"{creatureStatus} {n}", gameAction: gameAction).AddBinding(statusKeys[i]));
+        }
+        _actions.Add(new InputAction("mega_release_card", "Release Card", gameAction: "mega_release_card", localizationKey: "INPUT.RELEASE_CARD").AddBinding(Key.Down));
     }
 
     private static void RegisterModActions()
     {
-        _actions.Add(new InputAction("nav_home", Ui("UI_NAV.HOME", "Jump to First Element"))
+        _actions.Add(new InputAction("nav_home", "Jump to First Element", localizationKey: "UI_NAV.HOME")
             .AddBinding(Key.Home));
-        _actions.Add(new InputAction("nav_end", Ui("UI_NAV.END", "Jump to Last Element"))
+        _actions.Add(new InputAction("nav_end", "Jump to Last Element", localizationKey: "UI_NAV.END")
             .AddBinding(Key.End));
-        _actions.Add(new InputAction("buffer_next_item", "Buffer Next Item").AddBinding(Key.Up, ctrl: true)
+        _actions.Add(new InputAction("buffer_next_item", "Buffer Next Item", localizationKey: "INPUT.NEXT_BUFFER_ITEM").AddBinding(Key.Up, ctrl: true)
             .AddBinding(ControllerInput.RightStickUp));
-        _actions.Add(new InputAction("buffer_prev_item", "Buffer Previous Item").AddBinding(Key.Down, ctrl: true)
+        _actions.Add(new InputAction("buffer_prev_item", "Buffer Previous Item", localizationKey: "INPUT.PREV_BUFFER_ITEM").AddBinding(Key.Down, ctrl: true)
             .AddBinding(ControllerInput.RightStickDown));
-        _actions.Add(new InputAction("buffer_next", "Next Buffer").AddBinding(Key.Right, ctrl: true)
+        _actions.Add(new InputAction("buffer_next", "Next Buffer", localizationKey: "INPUT.NEXT_BUFFER").AddBinding(Key.Right, ctrl: true)
             .AddBinding(ControllerInput.RightStickRight));
-        _actions.Add(new InputAction("buffer_prev", "Previous Buffer").AddBinding(Key.Left, ctrl: true)
+        _actions.Add(new InputAction("buffer_prev", "Previous Buffer", localizationKey: "INPUT.PREV_BUFFER").AddBinding(Key.Left, ctrl: true)
             .AddBinding(ControllerInput.RightStickLeft));
-        _actions.Add(new InputAction("map_poi_prev", Ui("MAP_POI.ACTION_PREVIOUS", "Previous Point of Interest"))
+        _actions.Add(new InputAction("map_poi_prev", "Previous Point of Interest", localizationKey: "MAP_POI.ACTION_PREVIOUS")
             .AddBinding(Key.Comma)
             .AddBinding(ControllerInput.RightStickLeft, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("map_poi_next", Ui("MAP_POI.ACTION_NEXT", "Next Point of Interest"))
+        _actions.Add(new InputAction("map_poi_next", "Next Point of Interest", localizationKey: "MAP_POI.ACTION_NEXT")
             .AddBinding(Key.Period)
             .AddBinding(ControllerInput.RightStickRight, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("map_poi_toggle_mode", Ui("MAP_POI.ACTION_TOGGLE_MODE", "Toggle Point of Interest Mode"))
+        _actions.Add(new InputAction("map_poi_toggle_mode", "Toggle Point of Interest Mode", localizationKey: "MAP_POI.ACTION_TOGGLE_MODE")
             .AddBinding(Key.Backslash)
             .AddBinding(ControllerInput.RightStickUp, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("map_toggle_current_marker", Ui("MAP_MARKERS.ACTION_TOGGLE_CURRENT", "Toggle Current Marker"))
+        _actions.Add(new InputAction("map_toggle_current_marker", "Toggle Current Marker", localizationKey: "MAP_MARKERS.ACTION_TOGGLE_CURRENT")
             .AddBinding(Key.Slash));
-        _actions.Add(new InputAction("map_clear_all_markers", Ui("MAP_MARKERS.ACTION_CLEAR_ALL", "Clear All Markers"))
+        _actions.Add(new InputAction("map_clear_all_markers", "Clear All Markers", localizationKey: "MAP_MARKERS.ACTION_CLEAR_ALL")
             .AddBinding(Key.Slash, ctrl: true, shift: true));
-        _actions.Add(new InputAction("dev_console", "Dev Console").AddBinding(Key.Quoteleft));
-        _actions.Add(new InputAction("feedback", "Report Issue").AddBinding(Key.F2));
-        _actions.Add(new InputAction("help", "Help").AddBinding(Key.F1)
+        _actions.Add(new InputAction("dev_console", "Dev Console", localizationKey: "INPUT.DEV_CONSOLE").AddBinding(Key.Quoteleft));
+        _actions.Add(new InputAction("feedback", "Report Issue", localizationKey: "INPUT.FEEDBACK").AddBinding(Key.F2));
+        _actions.Add(new InputAction("help", "Help", localizationKey: "INPUT.HELP").AddBinding(Key.F1)
             .AddBinding(ControllerInput.Back, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("reset_bindings", "Reset Bindings").AddBinding(Key.R, ctrl: true, shift: true));
-        _actions.Add(new InputAction("announce_gold", "Announce Gold").AddBinding(Key.G, ctrl: true)
+        _actions.Add(new InputAction("reset_bindings", "Reset Bindings", localizationKey: "INPUT.RESET_BINDINGS").AddBinding(Key.R, ctrl: true, shift: true));
+        _actions.Add(new InputAction("announce_gold", "Announce Gold", localizationKey: "INPUT.ANNOUNCE_GOLD").AddBinding(Key.G, ctrl: true)
             .AddBinding(ControllerInput.A, modifier: ControllerInput.RightTrigger));
-        _actions.Add(new InputAction("announce_hp", "Announce HP").AddBinding(Key.H, ctrl: true)
+        _actions.Add(new InputAction("announce_hp", "Announce HP", localizationKey: "INPUT.ANNOUNCE_HP").AddBinding(Key.H, ctrl: true)
             .AddBinding(ControllerInput.A, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_block", "Announce Block").AddBinding(Key.B, ctrl: true)
+        _actions.Add(new InputAction("announce_block", "Announce Block", localizationKey: "INPUT.ANNOUNCE_BLOCK").AddBinding(Key.B, ctrl: true)
             .AddBinding(ControllerInput.B, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_energy", "Announce Energy").AddBinding(Key.Y, ctrl: true)
+        _actions.Add(new InputAction("announce_energy", "Announce Energy", localizationKey: "INPUT.ANNOUNCE_ENERGY").AddBinding(Key.Y, ctrl: true)
             .AddBinding(ControllerInput.X, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_powers", "Announce Powers").AddBinding(Key.P, ctrl: true)
+        _actions.Add(new InputAction("announce_powers", "Announce Powers", localizationKey: "INPUT.ANNOUNCE_POWERS").AddBinding(Key.P, ctrl: true)
             .AddBinding(ControllerInput.Y, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_intents", "Announce Intents").AddBinding(Key.I, ctrl: true)
+        _actions.Add(new InputAction("announce_intents", "Announce Intents", localizationKey: "INPUT.ANNOUNCE_INTENTS").AddBinding(Key.I, ctrl: true)
             .AddBinding(ControllerInput.Y, modifier: ControllerInput.RightTrigger));
-        _actions.Add(new InputAction("announce_summarized_intents", "Announce Summarized Intents").AddBinding(Key.I, alt: true)
+        _actions.Add(new InputAction("announce_summarized_intents", "Announce Summarized Intents", localizationKey: "INPUT.ANNOUNCE_SUMMARIZED_INTENTS").AddBinding(Key.I, alt: true)
             .AddBinding(ControllerInput.X, modifier: ControllerInput.RightTrigger));
-        _actions.Add(new InputAction("announce_boss", "Announce Boss").AddBinding(Key.N, ctrl: true)
+        _actions.Add(new InputAction("announce_boss", "Announce Boss", localizationKey: "INPUT.ANNOUNCE_BOSS").AddBinding(Key.N, ctrl: true)
             .AddBinding(ControllerInput.B, modifier: ControllerInput.RightTrigger));
-        _actions.Add(new InputAction("announce_relic_counters", "Announce Relic Counters").AddBinding(Key.R, ctrl: true)
+        _actions.Add(new InputAction("announce_relic_counters", "Announce Relic Counters", localizationKey: "INPUT.ANNOUNCE_RELIC_COUNTERS").AddBinding(Key.R, ctrl: true)
             .AddBinding(ControllerInput.Back, modifier: ControllerInput.RightTrigger));
-        _actions.Add(new InputAction("mod_settings", "Mod Settings").AddBinding(Key.M, ctrl: true)
+        _actions.Add(new InputAction("mod_settings", "Mod Settings", localizationKey: "INPUT.MOD_SETTINGS").AddBinding(Key.M, ctrl: true)
             .AddBinding(ControllerInput.Start, modifier: ControllerInput.LeftTrigger));
-        _actions.Add(new InputAction("announce_combatant_intent_1", "Combatant Intent 1").AddBinding(Key.Key1, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_2", "Combatant Intent 2").AddBinding(Key.Key2, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_3", "Combatant Intent 3").AddBinding(Key.Key3, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_4", "Combatant Intent 4").AddBinding(Key.Key4, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_5", "Combatant Intent 5").AddBinding(Key.Key5, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_6", "Combatant Intent 6").AddBinding(Key.Key6, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_7", "Combatant Intent 7").AddBinding(Key.Key7, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_8", "Combatant Intent 8").AddBinding(Key.Key8, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_9", "Combatant Intent 9").AddBinding(Key.Key9, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_10", "Combatant Intent 10").AddBinding(Key.Key0, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_11", "Combatant Intent 11").AddBinding(Key.Minus, shift: true));
-        _actions.Add(new InputAction("announce_combatant_intent_12", "Combatant Intent 12").AddBinding(Key.Equal, shift: true));
+        var combatantIntent = Ui("INPUT.COMBATANT_INTENT", "Combatant Intent");
+        var intentKeys = new[] { Key.Key1, Key.Key2, Key.Key3, Key.Key4, Key.Key5, Key.Key6,
+            Key.Key7, Key.Key8, Key.Key9, Key.Key0, Key.Minus, Key.Equal };
+        for (int i = 0; i < intentKeys.Length; i++)
+        {
+            int n = i + 1;
+            _actions.Add(new InputAction($"announce_combatant_intent_{n}", $"{combatantIntent} {n}").AddBinding(intentKeys[i], shift: true));
+        }
     }
 
     private static string Ui(string key, string fallback)

@@ -25,10 +25,10 @@ public static class SpeechManager
         // Handler selection dropdown (auto = try each in order)
         var handlerChoices = new List<Choice>
         {
-            new Choice("auto", "Auto"),
+            new Choice("auto", "Auto", localizationKey: "SPEECH.AUTO"),
         };
         foreach (var handler in Handlers)
-            handlerChoices.Add(new Choice(handler.Key, handler.Label));
+            handlerChoices.Add(new Choice(handler.Key, handler.Label, localizationKey: handler.LocalizationKey));
         var handlerSetting = new ChoiceSetting("handler", "Speech Handler", "auto", handlerChoices, localizationKey: "SPEECH.HANDLER") { SortPriority = -1 };
         speechCategory.Add(handlerSetting);
         SetHandlerSetting(handlerSetting);

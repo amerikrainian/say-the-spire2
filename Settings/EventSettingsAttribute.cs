@@ -28,7 +28,8 @@ public class EventSettingsAttribute : ModSettingsAttribute
         bool defaultAnnounce = true, bool defaultBuffer = true,
         bool hasSourceFilter = false, bool allowCurrentPlayer = true, bool allowOtherPlayers = true, bool allowEnemies = true,
         bool defaultCurrentPlayer = true, bool defaultOtherPlayers = true, bool defaultEnemies = true)
-        : base($"events.{key}", $"Events/{label}")
+        : base($"events.{key}", $"Events/{label}",
+            $"SETTINGS.EVENTS_ROOT/SETTINGS.EVENTS.{key.ToUpperInvariant()}")
     {
         Key = key;
         DefaultAnnounce = defaultAnnounce;

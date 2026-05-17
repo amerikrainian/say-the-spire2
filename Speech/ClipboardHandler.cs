@@ -6,6 +6,7 @@ public class ClipboardHandler : ISpeechHandler
 {
     public string Key => "clipboard";
     public string Label => "Clipboard";
+    public string LocalizationKey => "SPEECH.CLIPBOARD";
     public Settings.CategorySetting? GetSettings() => null;
 
     public bool Detect() => true;

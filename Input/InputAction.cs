@@ -2,25 +2,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using SayTheSpire2.Localization;
 
 namespace SayTheSpire2.Input;
 
 public class InputAction
 {
+    private readonly string _labelFallback;
+
     public string Key { get; }
-    public string Label { get; }
+    public string LocalizationKey { get; }
     public string? GameAction { get; }
     private readonly List<InputBinding> _bindings = new();
+
+    /// <summary>
+    /// Resolves the localization key if one was supplied at construction,
+    /// otherwise returns the raw label. Dynamic so language switches take
+    /// effect without restarting the mod.
+    /// </summary>
+    public string Label => !string.IsNullOrEmpty(LocalizationKey)
+        ? LocalizationManager.GetOrDefault("ui", LocalizationKey, _labelFallback)
+        : _labelFallback;
 
     public IReadOnlyList<InputBinding> Bindings => _bindings;
 
     public event Action? BindingsChanged;
 
-    public InputAction(string key, string label, string? gameAction = null)
+    public InputAction(string key, string label, string? gameAction = null, string localizationKey = "")
     {
         Key = key;
-        Label = label;
+        _labelFallback = label;
         GameAction = gameAction;
+        LocalizationKey = localizationKey;
     }
 
     public InputAction AddBinding(InputBinding binding)

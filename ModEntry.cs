@@ -114,6 +114,21 @@ public static class ModEntry
         var settingsDir = Path.Combine(
             Godot.OS.GetUserDataDir(), "mods", "SayTheSpire2");
 
+        // Pre-create the auto-registered top-level roots with localized labels
+        // so EventRegistry / AnnouncementRegistry's EnsureCategory calls find
+        // them with their localization keys already attached, rather than
+        // creating literal-English fallbacks. Order matters: this must run
+        // before the registry calls below.
+        Settings.ModSettings.Root.Add(new Settings.CategorySetting(
+            "events", Ui("SETTINGS.EVENTS_ROOT", "Events"),
+            localizationKey: "SETTINGS.EVENTS_ROOT"));
+        Settings.ModSettings.Root.Add(new Settings.CategorySetting(
+            "ui", Ui("SETTINGS.UI_ROOT", "UI"),
+            localizationKey: "SETTINGS.UI_ROOT"));
+        Settings.ModSettings.Root.Add(new Settings.CategorySetting(
+            "announcements", Ui("SETTINGS.ANNOUNCEMENTS_ROOT", "Announcements"),
+            localizationKey: "SETTINGS.ANNOUNCEMENTS_ROOT"));
+
         // Each subsystem registers its own defaults
         Settings.EventRegistry.RegisterDefaults();
         UI.Announcements.AnnouncementRegistry.RegisterDefaults();
@@ -130,13 +145,19 @@ public static class ModEntry
         _checkUpdatesSetting = checkUpdates;
 
         // Advanced settings
-        var advancedCategory = new Settings.CategorySetting("advanced", "Advanced");
+        var advancedCategory = new Settings.CategorySetting(
+            "advanced", Ui("SETTINGS.ADVANCED", "Advanced"),
+            localizationKey: "SETTINGS.ADVANCED");
         Settings.ModSettings.Root.Add(advancedCategory);
-        var verboseLogging = new Settings.BoolSetting("verbose_logging", "Verbose Logging", false);
+        var verboseLogging = new Settings.BoolSetting(
+            "verbose_logging", Ui("SETTINGS.VERBOSE_LOGGING", "Verbose Logging"),
+            false, localizationKey: "SETTINGS.VERBOSE_LOGGING");
         advancedCategory.Add(verboseLogging);
         Events.EventDispatcher.VerboseLogging = verboseLogging.Value;
         verboseLogging.Changed += v => Events.EventDispatcher.VerboseLogging = v;
-        var profiling = new Settings.BoolSetting("profiling", "Performance Profiling", false);
+        var profiling = new Settings.BoolSetting(
+            "profiling", Ui("SETTINGS.PERFORMANCE_PROFILING", "Performance Profiling"),
+            false, localizationKey: "SETTINGS.PERFORMANCE_PROFILING");
         advancedCategory.Add(profiling);
         Events.EventDispatcher.Profiling = profiling.Value;
         profiling.Changed += v => Events.EventDispatcher.Profiling = v;
@@ -164,7 +185,9 @@ public static class ModEntry
         poiCategory.Add(new Settings.BoolSetting("quest_marked", Ui("MAP_POI.SETTINGS.QUEST_MARKED", "Quest Marked"), false));
 
         // Speech handler settings
-        var speechCategory = new Settings.CategorySetting("speech", "Speech");
+        var speechCategory = new Settings.CategorySetting(
+            "speech", Ui("SETTINGS.SPEECH", "Speech"),
+            localizationKey: "SETTINGS.SPEECH");
         Settings.ModSettings.Root.Add(speechCategory);
         Speech.SpeechManager.RegisterSettings(speechCategory);
 
