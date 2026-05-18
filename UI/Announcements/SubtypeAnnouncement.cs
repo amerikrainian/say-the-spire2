@@ -15,6 +15,7 @@ public sealed class SubtypeAnnouncement : Announcement
     public SubtypeAnnouncement(string subtypeKey) { _subtypeKey = subtypeKey; }
 
     public override string Key => "subtype";
+    public override string Suffix => ",";
     public override Message Render(AnnouncementContext ctx) =>
         Message.Localized("ui", $"TYPES.{_subtypeKey.ToUpperInvariant()}");
 }

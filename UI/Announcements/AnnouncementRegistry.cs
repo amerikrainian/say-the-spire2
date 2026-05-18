@@ -32,6 +32,7 @@ namespace SayTheSpire2.UI.Announcements;
 public static class AnnouncementRegistry
 {
     private const string EnabledLocKey = "SETTINGS.ANNOUNCEMENT.ENABLED";
+    private const string IncludeSuffixLocKey = "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX";
     private const string RootLocKey = "SETTINGS.ANNOUNCEMENTS_ROOT";
 
     public static void RegisterDefaults()
@@ -82,6 +83,9 @@ public static class AnnouncementRegistry
 
         if (category.GetByKey("enabled") == null)
             category.Add(new BoolSetting("enabled", "Announce", true, localizationKey: EnabledLocKey));
+
+        if (category.GetByKey("include_suffix") == null)
+            category.Add(new BoolSetting("include_suffix", "Include suffix punctuation", true, localizationKey: IncludeSuffixLocKey));
 
         var method = announcementType.GetMethod("RegisterSettings",
             BindingFlags.Public | BindingFlags.Static,

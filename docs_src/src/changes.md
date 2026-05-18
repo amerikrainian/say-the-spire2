@@ -1,3 +1,11 @@
+## V1.0.4
+* Added back the travel announcement (for example, "Traveling to Combat 5, 3") that fires when you begin moving to a map node, in both singleplayer and multiplayer. It can be toggled under Events / Map / Travel.
+* Added commas between every part of an element's focus readout. Previously the label, type, subtype, and position pieces were space-joined to whatever came next, which could run two words together on screen readers that don't pause on plain spaces.
+* Fixed a number of strings in the mod settings that were not being localized into other languages.
+* Fixed a bug where the deck shuffled into draw pile readout was triggering when any player's deck was reshuffled instead of just yours in multiplayer.
+* Fixed a bug where stackless powers such as Shrink were being read out as -1 stacks for both power gained/lost events and the read powers binding.
+* Fixed a bug introduced in the latest game beta where you could no longer focus other players in multiplayer outside of combat.
+
 ## V1.0.3
 * Fixed a bug where the Say the Spire version announcement in the main menu could repeat infinitely if the logo was skipped and there was no mod update available.
 * Added buttons in the mod menu for Discord and Patreon.

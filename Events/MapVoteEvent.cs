@@ -11,7 +11,6 @@ public class MapVoteEvent : GameEvent
     {
         RemoteVote,
         LocalVote,
-        Travel,
         RemoteSkip,
         LocalSkip,
     }
@@ -37,10 +36,6 @@ public class MapVoteEvent : GameEvent
             node = _targetName
         }),
         VoteKind.LocalVote => Message.Localized("ui", "EVENT.MAP_VOTE_LOCAL", new
-        {
-            node = _targetName
-        }),
-        VoteKind.Travel => Message.Localized("ui", "EVENT.MAP_TRAVEL", new
         {
             node = _targetName
         }),

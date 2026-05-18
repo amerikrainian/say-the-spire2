@@ -148,6 +148,40 @@ public static class ProxyFactory
                 return new ProxyMultiplayerPlayerState(control, playerState);
             current = current.GetParent();
         }
+
+        // Fallback: walk the global multiplayer player container looking for
+        // a player state whose Hitbox matches this control. The scene tree
+        // walk above can miss this association when the hitbox isn't a
+        // direct descendant (e.g. when the player container is reparented
+        // into a different scene out of combat, which changed in beta).
+        var owner = FindMultiplayerOwnerByHitbox(control);
+        if (owner != null)
+            return new ProxyMultiplayerPlayerState(control, owner);
+
+        return null;
+    }
+
+    private static MegaCrit.Sts2.Core.Nodes.Multiplayer.NMultiplayerPlayerState?
+        FindMultiplayerOwnerByHitbox(Control control)
+    {
+        try
+        {
+            var container = MegaCrit.Sts2.Core.Nodes.NRun.Instance?.GlobalUi?.MultiplayerPlayerContainer;
+            if (container == null) return null;
+            foreach (var child in container.GetChildren())
+            {
+                if (child is MegaCrit.Sts2.Core.Nodes.Multiplayer.NMultiplayerPlayerState state
+                    && ReferenceEquals(state.Hitbox, control))
+                {
+                    return state;
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            MegaCrit.Sts2.Core.Logging.Log.Info(
+                $"[AccessibilityMod] FindMultiplayerOwnerByHitbox failed: {e.Message}");
+        }
         return null;
     }
 }

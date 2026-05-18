@@ -12,5 +12,6 @@ public sealed class LabelAnnouncement : Announcement
     public LabelAnnouncement(Message label) { _label = label; }
 
     public override string Key => "label";
+    public override string Suffix => ",";
     public override Message Render(AnnouncementContext ctx) => _label;
 }

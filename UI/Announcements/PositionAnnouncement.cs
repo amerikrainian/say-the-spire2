@@ -18,5 +18,6 @@ public sealed class PositionAnnouncement : Announcement
     public PositionAnnouncement(Message position) { _position = position; }
 
     public override string Key => "position";
+    public override string Suffix => ",";
     public override Message Render(AnnouncementContext ctx) => _position;
 }

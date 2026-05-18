@@ -130,11 +130,9 @@ public static class VotingHooks
     {
         try
         {
-            if (!MultiplayerHelper.IsMultiplayer()) return;
-
             var point = ResolveMapPoint(__instance, coord);
             var nodeName = GetMapPointName(point);
-            EventDispatcher.Enqueue(new MapVoteEvent("", nodeName, kind: MapVoteEvent.VoteKind.Travel));
+            EventDispatcher.Enqueue(new TravelEvent(nodeName));
         }
         catch (Exception e)
         {

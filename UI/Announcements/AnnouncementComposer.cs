@@ -47,14 +47,20 @@ public static class AnnouncementComposer
         }
         sorted.AddRange(undeclared);
 
-        // Render, skip disabled (per-element override, else global), skip empty
+        // Render, skip disabled (per-element override, else global), skip empty.
+        // When include_suffix is false for this announcement, swap its suffix
+        // for "" so the composer space-joins it into the next slot instead of
+        // inserting the announcement's punctuation.
         var rendered = new List<(string Text, string Suffix)>();
         foreach (var a in sorted)
         {
             if (!ctx.ResolveBool(a.Key, "enabled", true)) continue;
             var text = a.Render(ctx)?.Resolve();
             if (!string.IsNullOrEmpty(text))
-                rendered.Add((text, a.Suffix));
+            {
+                var suffix = ctx.ResolveBool(a.Key, "include_suffix", true) ? a.Suffix : "";
+                rendered.Add((text, suffix));
+            }
         }
 
         if (rendered.Count == 0) return Message.Empty;
