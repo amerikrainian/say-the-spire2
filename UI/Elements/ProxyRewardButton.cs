@@ -162,12 +162,13 @@ public class ProxyRewardButton : ProxyElement
     {
         try
         {
-            var cardTips = new List<CardHoverTip>();
             foreach (var tip in tips)
             {
                 if (tip is CardHoverTip cardTip)
                 {
-                    cardTips.Add(cardTip);
+                    var formatted = CardBuffer.FormatHoverTip(cardTip.Card);
+                    if (!string.IsNullOrEmpty(formatted))
+                        buffer.Add(formatted);
                 }
                 else if (tip is HoverTip ht)
                 {
@@ -177,22 +178,6 @@ public class ProxyRewardButton : ProxyElement
                         buffer.Add($"{title}: {StripBbcode(desc)}");
                     else if (!string.IsNullOrEmpty(title))
                         buffer.Add(title);
-                }
-            }
-
-            if (cardTips.Count > 0 && buffers != null)
-            {
-                var cardBuffer = buffers.GetBuffer("card");
-                if (cardBuffer != null)
-                {
-                    cardBuffer.Clear();
-                    foreach (var cardTip in cardTips)
-                    {
-                        if (cardBuffer.Count > 0)
-                            cardBuffer.Add("---");
-                        CardBuffer.Populate(cardBuffer, cardTip.Card);
-                    }
-                    buffers.EnableBuffer("card", true);
                 }
             }
         }

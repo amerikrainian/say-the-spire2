@@ -137,9 +137,12 @@ public class PlayerBuffer : Buffer
                         buffer.Add(line);
                         first = false;
                     }
-                    var cardName = cardTip.Card?.Title;
-                    if (!string.IsNullOrEmpty(cardName))
-                        buffer.Add(cardName);
+                    if (cardTip.Card != null)
+                    {
+                        var formatted = CardBuffer.FormatHoverTip(cardTip.Card);
+                        if (!string.IsNullOrEmpty(formatted))
+                            buffer.Add(formatted);
+                    }
                 }
             }
             if (first)

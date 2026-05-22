@@ -14,7 +14,7 @@ namespace SayTheSpire2.UI.Elements;
     typeof(LabelAnnouncement),
     typeof(TypeAnnouncement),
     typeof(OrbNumbersAnnouncement),
-    typeof(TooltipAnnouncement)
+    typeof(DescriptionAnnouncement)
 )]
 public class ProxyOrb : ProxyElement
 {
@@ -40,7 +40,7 @@ public class ProxyOrb : ProxyElement
             var tip = OrbModel.EmptySlotHoverTipHoverTip;
             var desc = tip.Description;
             if (!string.IsNullOrEmpty(desc))
-                yield return new TooltipAnnouncement(StripBbcode(desc));
+                yield return new DescriptionAnnouncement(StripBbcode(desc));
         }
     }
 

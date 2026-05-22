@@ -23,7 +23,7 @@ namespace SayTheSpire2.UI.Elements;
     // CardGridSelectionGameScreen when a card is part of the active selection.
     typeof(SelectedMarkerAnnouncement),
     typeof(SelectionCountAnnouncement),
-    typeof(TooltipAnnouncement)
+    typeof(DescriptionAnnouncement)
 )]
 public class ProxyCard : ProxyElement
 {
@@ -69,9 +69,9 @@ public class ProxyCard : ProxyElement
         yield return new SubtypeAnnouncement(view.TypeKey);
         yield return new TypeAnnouncement("card");
 
-        // Tooltip
+        // Description (card text body)
         if (!string.IsNullOrEmpty(view.Description))
-            yield return new TooltipAnnouncement(view.Description);
+            yield return new DescriptionAnnouncement(view.Description);
     }
 
     private readonly CardModel? _model;

@@ -98,68 +98,42 @@ public class ProxyEventOptionButton : ProxyElement
                 uiBuffer.Add("Locked");
 
             if (option.Relic != null)
-                uiBuffer.Add($"Relic: {option.Relic.Title.GetFormattedText()}");
+            {
+                var relicTitle = option.Relic.Title.GetFormattedText();
+                if (!string.IsNullOrEmpty(relicTitle))
+                    uiBuffer.Add($"Relic: {relicTitle}");
+                try
+                {
+                    var relicDesc = option.Relic.DynamicDescription.GetFormattedText();
+                    if (!string.IsNullOrEmpty(relicDesc))
+                        uiBuffer.Add(StripBbcode(relicDesc));
+                }
+                catch (Exception e) { Log.Error($"[AccessibilityMod] Event option relic description failed: {e.Message}"); }
+            }
 
-            // Hover tips (enchantments, keywords, cards, relics, etc.)
+            // Hover tips (keywords, referenced cards, etc.) — inlined into the
+            // ui buffer so the user finds everything about the option in one
+            // place, rather than chasing it across card/relic buffers.
             try
             {
-                var cardTips = new List<CardHoverTip>();
-                var hoverTips = new List<HoverTip>();
                 foreach (var tip in option.HoverTips)
                 {
                     if (tip is CardHoverTip cardTip)
-                        cardTips.Add(cardTip);
-                    else if (tip is HoverTip hoverTip)
-                        hoverTips.Add(hoverTip);
-                }
-
-                foreach (var hoverTip in hoverTips)
-                {
-                    var tipTitle = hoverTip.Title;
-                    var tipDesc = hoverTip.Description;
-                    if (!string.IsNullOrEmpty(tipTitle) && !string.IsNullOrEmpty(tipDesc))
-                        uiBuffer.Add($"{tipTitle}: {StripBbcode(tipDesc)}");
-                    else if (!string.IsNullOrEmpty(tipTitle))
-                        uiBuffer.Add(tipTitle);
-                    else if (!string.IsNullOrEmpty(tipDesc))
-                        uiBuffer.Add(StripBbcode(tipDesc));
-                }
-
-                if (cardTips.Count > 0)
-                {
-                    var cardBuffer = buffers.GetBuffer("card");
-                    if (cardBuffer != null)
                     {
-                        cardBuffer.Clear();
-                        foreach (var cardTip in cardTips)
-                        {
-                            if (cardBuffer.Count > 0)
-                                cardBuffer.Add("---");
-                            CardBuffer.Populate(cardBuffer, cardTip.Card);
-                        }
-                        buffers.EnableBuffer("card", true);
+                        var formatted = CardBuffer.FormatHoverTip(cardTip.Card);
+                        if (!string.IsNullOrEmpty(formatted))
+                            uiBuffer.Add(formatted);
                     }
-                }
-
-                // Relic buffer (only when option explicitly has a relic)
-                if (option.Relic != null)
-                {
-                    var relicBuffer = buffers.GetBuffer("relic");
-                    if (relicBuffer != null)
+                    else if (tip is HoverTip hoverTip)
                     {
-                        relicBuffer.Clear();
-                        var relicTitle = option.Relic.Title.GetFormattedText();
-                        if (!string.IsNullOrEmpty(relicTitle))
-                            relicBuffer.Add(relicTitle);
-                        try
-                        {
-                            var relicDesc = option.Relic.DynamicDescription.GetFormattedText();
-                            if (!string.IsNullOrEmpty(relicDesc))
-                                relicBuffer.Add(StripBbcode(relicDesc));
-                        }
-                        catch (Exception e) { Log.Error($"[AccessibilityMod] Event option relic description failed: {e.Message}"); }
-                        if (relicBuffer.Count > 0)
-                            buffers.EnableBuffer("relic", true);
+                        var tipTitle = hoverTip.Title;
+                        var tipDesc = hoverTip.Description;
+                        if (!string.IsNullOrEmpty(tipTitle) && !string.IsNullOrEmpty(tipDesc))
+                            uiBuffer.Add($"{tipTitle}: {StripBbcode(tipDesc)}");
+                        else if (!string.IsNullOrEmpty(tipTitle))
+                            uiBuffer.Add(tipTitle);
+                        else if (!string.IsNullOrEmpty(tipDesc))
+                            uiBuffer.Add(StripBbcode(tipDesc));
                     }
                 }
             }

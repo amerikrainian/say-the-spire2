@@ -99,7 +99,10 @@ public class RelicBuffer : Buffer
     }
 
     /// <summary>
-    /// Extracts CardHoverTips from the bound relic model, for cross-buffer population.
+    /// Enumerates the CardHoverTips a relic carries (excluding the
+    /// self-referencing first tip). Callers use this to inline each card's
+    /// short description into the host buffer via
+    /// <see cref="CardBuffer.FormatHoverTip(CardModel)"/>.
     /// </summary>
     public static List<CardHoverTip> GetCardTips(RelicModel model)
     {

@@ -179,7 +179,7 @@ public class ModMenuScreen : Screen
 
     public override bool OnActionJustPressed(InputAction action)
     {
-        if (action.Key == "ui_cancel" || action.Key == "mod_settings")
+        if (action.Key == "ui_cancel" || action.Key == "mega_pause_and_back" || action.Key == "mod_settings")
         {
             ScreenManager.RemoveScreen(this);
             SpeechManager.Output(Message.Localized("ui", "SPEECH.CLOSED"));

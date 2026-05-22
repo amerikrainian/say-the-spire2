@@ -146,12 +146,22 @@ public class CardBuffer : Buffer
             catch (Exception e) { Log.Error($"[AccessibilityMod] Card affliction access failed: {e.Message}"); }
         }
 
-        // Hover tips (keywords, powers, etc.)
+        // Hover tips (keywords, powers, referenced cards). CardHoverTip
+        // entries (e.g. Blade Dance referencing Shiv) get inlined via
+        // FormatHoverTip so the user finds them in the card buffer instead
+        // of having to switch to a separate cross-referenced card buffer.
         try
         {
             foreach (var tip in view.HoverTips)
             {
-                if (tip is HoverTip hoverTip)
+                if (tip is CardHoverTip cardTip)
+                {
+                    if (cardTip.Card == null) continue;
+                    var formatted = FormatHoverTip(cardTip.Card);
+                    if (!string.IsNullOrEmpty(formatted))
+                        buffer.Add(formatted);
+                }
+                else if (tip is HoverTip hoverTip)
                 {
                     var title = hoverTip.Title;
                     var desc = hoverTip.Description;
@@ -173,6 +183,53 @@ public class CardBuffer : Buffer
         {
             if (!string.IsNullOrWhiteSpace(line))
                 buffer.Add(line.Trim());
+        }
+    }
+
+    /// <summary>
+    /// Compact one-line description of a card hover-tip's referenced card —
+    /// "Title, N energy, description". Used when another element (relic, event
+    /// option, reward, power) references a card via <see cref="CardHoverTip"/>
+    /// and we want that card's info inline in the host's buffer instead of
+    /// fanning out to a separate card buffer. The full card buffer review is
+    /// reserved for when the user is actually focused on a card.
+    /// </summary>
+    public static string? FormatHoverTip(CardModel model)
+    {
+        try
+        {
+            var view = CardView.FromModel(model);
+            var parts = new List<string> { view.Title };
+
+            if (view.EnergyCost != null)
+            {
+                if (view.EnergyCost.CostsX)
+                    parts.Add(Message.Localized("ui", "RESOURCE.CARD_X_ENERGY").Resolve());
+                else
+                {
+                    int cost;
+                    try { cost = view.EnergyCost.GetWithModifiers(CostModifiers.All); }
+                    catch (Exception e) { Log.Info($"[AccessibilityMod] FormatHoverTip energy modifier failed: {e.Message}"); cost = view.EnergyCost.Canonical; }
+                    parts.Add(Message.Localized("ui", "RESOURCE.CARD_ENERGY_COST", new { cost }).Resolve());
+                }
+            }
+            if (view.HasStarCostX)
+                parts.Add(Message.Localized("ui", "RESOURCE.CARD_X_STARS").Resolve());
+            else if (view.CurrentStarCost >= 0)
+                parts.Add(Message.Localized("ui", "RESOURCE.CARD_STAR_COST", new { cost = view.StarCostWithModifiers }).Resolve());
+
+            string? desc = null;
+            try { desc = view.DisplayedModel.GetDescriptionForPile(PileType.Hand); }
+            catch { try { desc = view.DisplayedModel.GetDescriptionForPile(PileType.None); } catch { } }
+            if (!string.IsNullOrEmpty(desc))
+                parts.Add(ProxyElement.StripBbcode(desc));
+
+            return string.Join(", ", parts);
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[AccessibilityMod] FormatHoverTip failed: {e.Message}");
+            return null;
         }
     }
 }

@@ -24,7 +24,7 @@ namespace SayTheSpire2.UI.Elements;
     typeof(PriceAnnouncement),
     // Treasure-room insertion point — only NTreasureRoomRelicHolder yields voters.
     typeof(VotersAnnouncement),
-    typeof(TooltipAnnouncement)
+    typeof(DescriptionAnnouncement)
 )]
 public class ProxyRelicHolder : ProxyElement
 {
@@ -55,7 +55,7 @@ public class ProxyRelicHolder : ProxyElement
         }
 
         if (!string.IsNullOrEmpty(view.Description))
-            yield return new TooltipAnnouncement(view.Description);
+            yield return new DescriptionAnnouncement(view.Description);
     }
 
     private readonly RelicModel? _model;
@@ -111,27 +111,19 @@ public class ProxyRelicHolder : ProxyElement
         var relicBuffer = buffers.GetBuffer("relic") as RelicBuffer;
         if (relicBuffer != null)
         {
-            relicBuffer.Bind(view.Model, GetBufferExtraLines(view));
+            var extras = new List<string>();
+            foreach (var line in GetBufferExtraLines(view))
+                extras.Add(line);
+            foreach (var cardTip in RelicBuffer.GetCardTips(view.Model))
+            {
+                var formatted = CardBuffer.FormatHoverTip(cardTip.Card);
+                if (!string.IsNullOrEmpty(formatted))
+                    extras.Add(formatted);
+            }
+
+            relicBuffer.Bind(view.Model, extras);
             relicBuffer.Update();
             buffers.EnableBuffer("relic", true);
-        }
-
-        // Populate card buffer if relic has card hover tips
-        var cardTips = RelicBuffer.GetCardTips(view.Model);
-        if (cardTips.Count > 0)
-        {
-            var cardBuffer = buffers.GetBuffer("card");
-            if (cardBuffer != null)
-            {
-                cardBuffer.Clear();
-                foreach (var cardTip in cardTips)
-                {
-                    if (cardBuffer.Count > 0)
-                        cardBuffer.Add("---");
-                    CardBuffer.Populate(cardBuffer, cardTip.Card);
-                }
-                buffers.EnableBuffer("card", true);
-            }
         }
 
         return "relic";

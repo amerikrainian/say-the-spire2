@@ -223,6 +223,17 @@ public class Message
         IconNames[suffix] = label;
     }
 
+    /// <summary>
+    /// Resolved labels for every registered icon, in the current language.
+    /// Used by description-rendering code that wants to collapse runs of the
+    /// same icon (e.g. "Energy Energy Energy" → "3 Energy").
+    /// </summary>
+    public static IEnumerable<string> GetIconLabels()
+    {
+        foreach (var (_, locKey) in IconNames)
+            yield return LocalizationManager.GetOrDefault("ui", locKey, locKey);
+    }
+
     internal static string SubstituteVars(string text, Dictionary<string, Message> vars)
     {
         return VariablePattern.Replace(text, match =>

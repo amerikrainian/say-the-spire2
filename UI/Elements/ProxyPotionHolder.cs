@@ -18,7 +18,7 @@ namespace SayTheSpire2.UI.Elements;
     // Shop-context insertion point — ProxyPotionHolder never yields this, but
     // ProxyMerchantSlot does, and potion's order positions it here.
     typeof(PriceAnnouncement),
-    typeof(TooltipAnnouncement)
+    typeof(DescriptionAnnouncement)
 )]
 public class ProxyPotionHolder : ProxyElement
 {
@@ -39,7 +39,7 @@ public class ProxyPotionHolder : ProxyElement
         yield return new TypeAnnouncement("potion");
 
         if (!string.IsNullOrEmpty(view.Description))
-            yield return new TooltipAnnouncement(view.Description);
+            yield return new DescriptionAnnouncement(view.Description);
     }
 
     private readonly PotionModel? _model;
