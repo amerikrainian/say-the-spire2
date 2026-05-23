@@ -95,10 +95,17 @@ public static class AnnouncementRegistry
         category.Hidden = announcementType.GetCustomAttribute<ShowInGlobalSettingsAttribute>() == null;
 
         if (category.GetByKey("enabled") == null)
-            category.Add(new BoolSetting("enabled", "Announce", true, localizationKey: EnabledLocKey));
+            // "Announce on/off" is meaningful for focus and buffers, but not
+            // for a hotkey (you just don't press it).
+            category.Add(new BoolSetting("enabled", "Announce", true, localizationKey: EnabledLocKey)
+            { AllowedContexts = AnnouncementContexts.Focus | AnnouncementContexts.Buffer });
 
         if (category.GetByKey("include_suffix") == null)
-            category.Add(new BoolSetting("include_suffix", "Include suffix punctuation", true, localizationKey: IncludeSuffixLocKey));
+            // Suffix punctuation only matters when announcements are joined
+            // into one spoken string — the focus context. Buffers put each
+            // entry on its own line; hotkeys are a single utterance.
+            category.Add(new BoolSetting("include_suffix", "Include suffix punctuation", true, localizationKey: IncludeSuffixLocKey)
+            { AllowedContexts = AnnouncementContexts.Focus });
 
         var method = announcementType.GetMethod("RegisterSettings",
             BindingFlags.Public | BindingFlags.Static,
@@ -165,14 +172,17 @@ public static class AnnouncementRegistry
                 $"/SETTINGS.ELEMENTS.{elementKey.ToUpperInvariant()}/{RootLocKey}/{announcementCategoryLocKey}");
             announcementCategory.SortPriority = i;
 
-            // Mirror every setting declared on the global announcement category
-            // as a per-element Nullable* override. Covers Bool, Int, String, Choice
-            // — any setting type an announcement's RegisterSettings might declare.
+            // Mirror each setting declared on the global announcement category
+            // as a per-element Nullable* override, skipping ones not allowed in
+            // the Focus context. Covers Bool, Int, String, Choice — any setting
+            // type an announcement's RegisterSettings might declare.
             var globalCategory = ModSettings.GetSetting<CategorySetting>($"announcements.{announcementKey}");
             if (globalCategory == null) continue;
 
             foreach (var globalChild in globalCategory.Children)
             {
+                if (!globalChild.AllowedContexts.HasFlag(AnnouncementContexts.Focus))
+                    continue;
                 if (announcementCategory.GetByKey(globalChild.Key) != null)
                     continue;
 
@@ -227,22 +237,17 @@ public static class AnnouncementRegistry
                 $"SETTINGS.BUFFERS_ROOT/SETTINGS.BUFFERS.{bufferKey.ToUpperInvariant()}/{RootLocKey}/{announcementCategoryLocKey}");
             announcementCategory.SortPriority = i;
 
-            // Mirror every setting on the global announcement category as a
-            // per-buffer Nullable* override — same shape as the per-element
-            // overrides, just resolving through the BufferKey cascade.
+            // Mirror each setting on the global announcement category as a
+            // per-buffer Nullable* override, skipping ones not allowed in the
+            // Buffer context (e.g. include_suffix, which is Focus-only).
             var globalCategory = ModSettings.GetSetting<CategorySetting>($"announcements.{announcementKey}");
             if (globalCategory == null) continue;
 
             foreach (var globalChild in globalCategory.Children)
             {
-                if (announcementCategory.GetByKey(globalChild.Key) != null)
+                if (!globalChild.AllowedContexts.HasFlag(AnnouncementContexts.Buffer))
                     continue;
-                // include_suffix controls the punctuation the focus composer
-                // inserts between an announcement and the next. Buffers put
-                // each yielded message on its own browsable line, so suffix
-                // punctuation is meaningless here — skip the override so it
-                // doesn't clutter the per-buffer settings tree.
-                if (BufferIrrelevantSettingKeys.Contains(globalChild.Key))
+                if (announcementCategory.GetByKey(globalChild.Key) != null)
                     continue;
 
                 var overrideSetting = CreateOverride(globalChild);
@@ -251,15 +256,6 @@ public static class AnnouncementRegistry
             }
         }
     }
-
-    /// <summary>
-    /// Setting keys on the global announcement category that are
-    /// focus-context concepts and shouldn't surface as per-buffer overrides.
-    /// </summary>
-    private static readonly HashSet<string> BufferIrrelevantSettingKeys = new()
-    {
-        "include_suffix",
-    };
 
     /// <summary>Converts e.g. <c>CardBuffer</c> to <c>card</c>.</summary>
     public static string DeriveBufferKey(Type bufferType) =>

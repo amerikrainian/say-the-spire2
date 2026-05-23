@@ -26,11 +26,6 @@ public static class HotkeyAnnouncementRegistry
         string? EmptyLocKey = null,
         string Separator = ", ");
 
-    // Setting keys on the global announcement category that aren't relevant
-    // as per-hotkey overrides (a hotkey is one announcement, joined into one
-    // utterance — there's no "don't announce" or inter-announcement suffix).
-    private static readonly HashSet<string> NonOptionKeys = new() { "enabled", "include_suffix" };
-
     private static readonly Entry[] Entries =
     {
         // Labels reuse the existing keybinding loc keys (INPUT.ANNOUNCE_*),
@@ -94,10 +89,11 @@ public static class HotkeyAnnouncementRegistry
         var globalCategory = ModSettings.GetSetting<CategorySetting>($"announcements.{annKey}");
         if (globalCategory == null) return;
 
-        // Mirror only the announcement's real options; skip enabled /
-        // include_suffix. Optionless hotkeys keep an empty category — the
-        // binding-augmented label is the information.
-        foreach (var option in globalCategory.Children.Where(c => !NonOptionKeys.Contains(c.Key)))
+        // Mirror the announcement's settings allowed in the Hotkey context
+        // (enabled / include_suffix are excluded by their AllowedContexts).
+        // Optionless hotkeys keep an empty category — the binding-augmented
+        // label is the information.
+        foreach (var option in globalCategory.Children.Where(c => c.AllowedContexts.HasFlag(AnnouncementContexts.Hotkey)))
         {
             if (category.GetByKey(option.Key) != null) continue;
             var ov = AnnouncementRegistry.CreateOverride(option);

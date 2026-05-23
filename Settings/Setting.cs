@@ -56,6 +56,17 @@ public abstract class Setting
     /// </summary>
     public bool Hidden { get; set; }
 
+    /// <summary>
+    /// Which announcement contexts (focus / buffer / hotkey) this setting may
+    /// be exposed on. Defaults to all. The per-context override registration
+    /// in <see cref="UI.Announcements.AnnouncementRegistry"/> and
+    /// <see cref="UI.Announcements.HotkeyAnnouncementRegistry"/> skips a
+    /// setting whose flag for that context is absent — e.g. include_suffix is
+    /// Focus-only, enabled is Focus | Buffer. Irrelevant for non-announcement
+    /// settings, which are never mirrored.
+    /// </summary>
+    public AnnouncementContexts AllowedContexts { get; set; } = AnnouncementContexts.All;
+
     protected Setting(string key, string label, string localizationKey = "")
     {
         Key = key;
