@@ -51,10 +51,9 @@ public static class HotkeyAnnouncementRegistry
         var root = ModSettingsRegistry.EnsureCategory(
             "hotkeys", "Hotkey Announcements", RootLocKey);
 
-        int sort = 0;
         foreach (var entry in Entries)
         {
-            try { RegisterEntry(root, entry, sort++); }
+            try { RegisterEntry(root, entry); }
             catch (Exception e)
             {
                 Log.Error($"[AccessibilityMod] Hotkey announcement registration failed for {entry.HotkeyKey}: {e.Message}");
@@ -62,16 +61,16 @@ public static class HotkeyAnnouncementRegistry
         }
     }
 
-    private static void RegisterEntry(CategorySetting root, Entry entry, int sort)
+    private static void RegisterEntry(CategorySetting root, Entry entry)
     {
         // Every hotkey gets a category so the user can see it listed with its
         // binding; configurable ones (HP, Resources) also get their option
-        // overrides inside.
+        // overrides inside. SortPriority left at the default so the settings
+        // screen orders these entries alphabetically by label.
         var category = ModSettingsRegistry.EnsureCategory(
             $"hotkeys.{entry.HotkeyKey}",
             $"Hotkey Announcements/{entry.HotkeyKey}",
             $"{RootLocKey}/{entry.LabelLocKey}");
-        category.SortPriority = sort;
 
         // Live label: "<action label>: <binding>" reusing the same binding
         // display the keybindings settings rows show, computed each read so it
