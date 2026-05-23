@@ -32,7 +32,11 @@ public class ProxyCard : ProxyElement
         var view = GetView();
         if (view == null)
         {
-            if (Control != null)
+            // No card model — e.g. an empty/animating hand holder the game
+            // grabbed focus on at end of turn. Only read the node name if it's
+            // meaningful; otherwise stay silent rather than blurting a raw
+            // internal name like "@control1234@".
+            if (Control != null && IsMeaningfulNodeName(Control.Name.ToString()))
                 yield return new LabelAnnouncement(CleanNodeName(Control.Name));
             yield break;
         }
@@ -91,7 +95,9 @@ public class ProxyCard : ProxyElement
     public override Message? GetLabel()
     {
         var view = GetView();
-        if (view == null) return Control != null ? Message.Raw(CleanNodeName(Control.Name)) : null;
+        if (view == null)
+            return Control != null && IsMeaningfulNodeName(Control.Name.ToString())
+                ? Message.Raw(CleanNodeName(Control.Name)) : null;
         return Message.Raw(view.Title);
     }
 

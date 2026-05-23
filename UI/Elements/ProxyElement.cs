@@ -8,7 +8,29 @@ public abstract class ProxyElement : UIElement
 {
     private static readonly Regex CamelCasePattern = new(@"([a-z])([A-Z])", RegexOptions.Compiled);
 
+    // Internal node names that aren't worth speaking: Godot auto-generated
+    // (@control1234@) and game class-derived names (NHandCardContainer1,
+    // NClickableControl, etc. — the game's classes are all N-prefixed
+    // PascalCase, and scene nodes left unnamed inherit the class name).
+    private static readonly Regex GameClassNamePattern = new(@"^N[A-Z][A-Za-z]*\d*$", RegexOptions.Compiled);
+
     public string? OverrideLabel { get; set; }
+
+    /// <summary>
+    /// Whether a node name is meaningful enough to speak as a fallback label.
+    /// False for auto-generated names (<c>@control1234@</c>) and internal
+    /// class-derived names (<c>NHandCardContainer1</c>) that the game
+    /// transiently grabs focus on — e.g. at end of turn. Keeps fallback
+    /// proxies from reading raw internal node names aloud, without affecting
+    /// controls that have real text or a deliberately-named node.
+    /// </summary>
+    protected static bool IsMeaningfulNodeName(string? name)
+    {
+        if (string.IsNullOrEmpty(name)) return false;
+        if (name.StartsWith('@')) return false;
+        if (GameClassNamePattern.IsMatch(name)) return false;
+        return true;
+    }
 
     public override bool IsVisible =>
         Control != null && GodotObject.IsInstanceValid(Control) && Control.IsVisibleInTree();

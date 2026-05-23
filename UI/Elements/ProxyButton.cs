@@ -22,9 +22,13 @@ public class ProxyButton : ProxyElement
     public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
         var label = GetLabel();
-        if (label != null)
-            yield return new LabelAnnouncement(label);
+        // No meaningful label means this is an unrecognized / internal control
+        // (the game sometimes grabs focus on these at end of turn). Stay
+        // silent rather than announcing a bare "button" or a raw node name.
+        if (label == null)
+            yield break;
 
+        yield return new LabelAnnouncement(label);
         yield return new TypeAnnouncement("button");
 
         if (Control is MegaCrit.Sts2.Core.Nodes.GodotExtensions.NClickableControl ncc && !ncc.IsEnabled)
@@ -42,7 +46,9 @@ public class ProxyButton : ProxyElement
         var text = FindChildText(Control) ?? FindSiblingLabel(Control);
         if (text != null) return Message.Raw(text);
         var name = Control.Name.ToString();
-        if (name.StartsWith('@')) return null;
+        // Auto-generated (@...@) and class-derived (NHandCardContainer1) names
+        // aren't worth reading — fall to null so the control stays silent.
+        if (!IsMeaningfulNodeName(name)) return null;
         return Message.Raw(CleanNodeName(name));
     }
 
