@@ -2,6 +2,7 @@
 * Re-added Tolk as a selectable speech handler, alongside Prism. Some users have reported lag after upgrading to 1.0 which was when Prism was introduced and the game does feel more responsive when I use the Tolk handler. If you are experiencing lag, try switching to Tolk and let me know if it improves (the default speech method is still Prism for now.)
 * Fixed an issue preventing the bestiary screen from working in the most recent beta.
 * Buffer items are now individually configurable as Announcements, the same way focus-string pieces have been. You can choose whether or not certain buffer items are visible at all or reorder them as you can the focus string announcements on UI elements.
+* Hotkey announcements (for example announce block, announce gold, etc) now can be configured under the Hotkey Announcements settings category.
 * The Escape key (Pause / Back action) now closes the mod menu and mod settings menu, in addition to Cancel (Backspace / Controller B).
 * Removed an extraneous closed announcement after exiting the mod settings screen to the mod menu.
 * Fixed a bug where the position info on main menu buttons ("3 of 6") would be inaccurate if the menu options changed (for example if you cancelled a run from the main menu.)
