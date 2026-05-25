@@ -6,3 +6,8 @@ I would like to thank everyone who has tested the mod so far, the feedback has b
 * Amerikrainian for various code contributions, including new map features and a number of multiplayer improvements.
 * QgSama for contributing the Simplified Chinese localization.
 * Darrthscorrp for contributing the Russian localization.
+
+I would also like to thank my Patreon supporters:
+* Ahmad Abukhdair
+* Garrett Burgess
+* rashad naqeeb
