@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using Godot;
 using HarmonyLib;
@@ -103,33 +102,32 @@ public static class KeyboardNavHooks
     }
 
     /// <summary>
-    /// Poll all controller buttons and axes from hardware.
+    /// Per-frame entry point (postfix on the controller manager's _Process).
+    /// Polls our custom controller actions, then drives the mod's per-frame
+    /// work. Each section is wrapped in a <see cref="Diagnostics.Profiler"/>
+    /// scope so the profiler can attribute time and allocations to it and
+    /// surface stutter that per-call averages would hide.
     /// </summary>
-    private static readonly Stopwatch _sw = new();
-
     public static void ProcessPostfix(NControllerManager __instance)
     {
-        bool profile = Events.EventDispatcher.Profiling;
+        Diagnostics.Profiler.BeginFrame();
 
-        if (profile) _sw.Restart();
-        InputManager.PollCustomActions(__instance);
-        if (profile) { _sw.Stop(); Log.Info($"[Profile] PollCustomActions: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
+        using (Diagnostics.Profiler.Section("PollCustomActions"))
+            InputManager.PollCustomActions(__instance);
 
-        if (profile) _sw.Restart();
-        UI.Screens.ScreenManager.CheckStartupAnnouncement(__instance);
-        if (profile) { _sw.Stop(); Log.Info($"[Profile] CheckStartupAnnouncement: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
+        using (Diagnostics.Profiler.Section("CheckStartupAnnouncement"))
+            UI.Screens.ScreenManager.CheckStartupAnnouncement(__instance);
 
-        if (profile) _sw.Restart();
-        UI.Screens.ScreenManager.UpdateAll();
-        if (profile) { _sw.Stop(); Log.Info($"[Profile] ScreenManager.UpdateAll: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
+        using (Diagnostics.Profiler.Section("ScreenManager.UpdateAll"))
+            UI.Screens.ScreenManager.UpdateAll();
 
-        if (profile) _sw.Restart();
-        UI.UIManager.Update();
-        if (profile) { _sw.Stop(); Log.Info($"[Profile] UIManager.Update: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
+        using (Diagnostics.Profiler.Section("UIManager.Update"))
+            UI.UIManager.Update();
 
-        if (profile) _sw.Restart();
-        Events.EventDispatcher.Flush();
-        if (profile) { _sw.Stop(); Log.Info($"[Profile] EventDispatcher.Flush: {_sw.Elapsed.TotalMilliseconds:F3}ms"); }
+        using (Diagnostics.Profiler.Section("EventDispatcher.Flush"))
+            Events.EventDispatcher.Flush();
+
+        Diagnostics.Profiler.EndFrame();
     }
 
     /// <summary>
