@@ -1,3 +1,7 @@
+## V1.1.2
+* Fixed a bug where various mouse-only buttons were unintentionally focusable. This lead to odd behavior on various screens, such as being able to focus the ping button in singleplayer when it doesn't actually exist.
+* Added a mod workaround for the game bug where pausing and unpausing the game while confirming playing certain cards with no targets would softlock your game. Pressing pause/back now cancels card confirmation instead of opening the pause menu.
+
 ## V1.1.1
 * Reverted some behind the scenes focus management code in combat that was causing various focus issues, particularly in multiplayer.
 * Fixed a bug introduced in the previous patch where seemingly random controls would be read out periodically when navigating other screens.
