@@ -172,6 +172,15 @@ public class CombatScreen : Screen
             SubscribeToState(liveState);
         }
 
+        // Yield rewire during card-play and targeting. Cancel is handled via
+        // a Harmony prefix on NTopBarPauseButton.OnRelease (PauseButtonHooks)
+        // and confirm via TryConfirmActiveCardPlay below — both bypass the
+        // game's _Input propagation, which doesn't reliably receive our
+        // injected InputEventAction.
+        var hand = NCombatRoom.Instance?.Ui?.Hand;
+        if ((hand != null && hand.InCardPlay) || _isTargeting)
+            return;
+
         // Rewire the combat focus chain every frame. We previously gated this
         // behind a state-fold "signature" to skip unchanged frames, but the
         // combat UI mutates its controls in too many subtle ways for a hand-
@@ -250,10 +259,42 @@ public class CombatScreen : Screen
                 AnnounceSummarizedIntents();
                 return true;
             case "ui_select":
+                // Same beta bug applies to confirm: prefer playing the centered
+                // card directly when card-play is active; only fall through to
+                // the expanded-state toggle otherwise.
+                if (TryConfirmActiveCardPlay()) return true;
                 return TryOpenPlayerExpandedState();
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Direct confirm for an active card play that doesn't need a target
+    /// (Defend / self / no-target cards). Mirrors what the Confirmed-signal
+    /// handler in <c>NControllerCardPlay.MultiCreatureTargeting</c> does
+    /// (<c>EnableControllerNavigation</c> + <c>TryPlayCard(null)</c>) via the
+    /// signal so subscribers in the multi-creature targeting setup run. Single-
+    /// target cards (AnyEnemy/AnyAlly) drive their confirm through
+    /// NTargetManager and are left alone here — focus on the targeted creature
+    /// + Enter still goes through the game's own path for them.
+    /// </summary>
+    private static bool TryConfirmActiveCardPlay()
+    {
+        var hand = NCombatRoom.Instance?.Ui?.Hand;
+        if (hand == null || !hand.InCardPlay) return false;
+        if (CurrentCardPlayField?.GetValue(hand) is not NControllerCardPlay cardPlay
+            || !GodotObject.IsInstanceValid(cardPlay)) return false;
+
+        // Only intercept for no-target cards. Single-target (AnyEnemy/AnyAlly)
+        // routes confirmation through NTargetManager and the focused creature.
+        var card = CardPlayCardGetter?.Invoke(cardPlay, null) as CardModel;
+        var targetType = card?.TargetType;
+        if (targetType == TargetType.AnyEnemy || targetType == TargetType.AnyAlly)
+            return false;
+
+        cardPlay.EmitSignal(NControllerCardPlay.SignalName.Confirmed);
+        return true;
     }
 
     private void AnnounceCombatantStatus(int index)
@@ -582,6 +623,12 @@ public class CombatScreen : Screen
 
     private static readonly FieldInfo OrbManagerOrbsField =
         AccessTools.Field(typeof(NOrbManager), "_orbs");
+
+    private static readonly FieldInfo CurrentCardPlayField =
+        AccessTools.Field(typeof(NPlayerHand), "_currentCardPlay");
+
+    private static readonly MethodInfo CardPlayCardGetter =
+        AccessTools.PropertyGetter(typeof(NCardPlay), "Card");
 
     /// <summary>
     /// The local player's orb-slot controls, read from the game's logical
