@@ -9,6 +9,7 @@ using MegaCrit.Sts2.Core.Nodes.Events;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Screens.Bestiary;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
+using MegaCrit.Sts2.Core.Nodes.Screens.MainMenu;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
 using MegaCrit.Sts2.Core.Nodes.Screens.RelicCollection;
 using MegaCrit.Sts2.Core.Nodes.Screens.RunHistoryScreen;
@@ -181,7 +182,8 @@ public static class FocusHooks
             or NMapPointHistoryEntry
             or NDeckHistoryEntry
             or NEpochSlot
-            or NEventOptionButton;
+            or NEventOptionButton
+            or NSubmenuButton;
 
     public static void SetEnabledPostfix(NClickableControl __instance, bool enabled)
     {
