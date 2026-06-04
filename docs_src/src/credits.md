@@ -9,5 +9,7 @@ I would like to thank everyone who has tested the mod so far, the feedback has b
 
 I would also like to thank my Patreon supporters:
 * Ahmad Abukhdair
+* Alex19EP
+* Chris Shaw
 * Garrett Burgess
 * rashad naqeeb
