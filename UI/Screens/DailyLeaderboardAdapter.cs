@@ -95,9 +95,9 @@ internal sealed class DailyLeaderboardAdapter
         if (IsLoading)
             return Ui("DAILY_RUN_LEADERBOARD.LOADING_PAGE", new { page = CurrentPage + 1 });
         if (HasNoScores)
-            return Ui("DAILY_RUN_LEADERBOARD.PAGE_NO_SCORES", new { page = CurrentPage + 1 });
+            return Ui("DAILY_RUN_LEADERBOARD.PAGE", new { page = CurrentPage + 1 }) + NoScoreText();
         if (HasNoFriends)
-            return Ui("DAILY_RUN_LEADERBOARD.PAGE_NO_FRIENDS", new { page = CurrentPage + 1 });
+            return Ui("DAILY_RUN_LEADERBOARD.PAGE", new { page = CurrentPage + 1 }) + NoFriendsText();
 
         var entries = GetEntries();
         var parts = new List<Message> { Ui("DAILY_RUN_LEADERBOARD.PAGE", new { page = CurrentPage + 1 }) };
@@ -279,4 +279,20 @@ internal sealed class DailyLeaderboardAdapter
 
     private static Message Ui(string key, object vars) => Message.Localized("ui", key, vars);
     private static Message Ui(string key) => Message.Localized("ui", key);
+
+    // Reuse the game's own locale strings for screen text rather than
+    // shipping our own translations of the same copy. These match the text
+    // the game shows on the leaderboard ("No scores have been submitted.
+    // Get climbing!" etc.) so the spoken readout matches what's on screen.
+    public static Message NoScoreText() =>
+        Message.Raw(new MegaCrit.Sts2.Core.Localization.LocString(
+            "main_menu_ui", "DAILY_RUN_MENU.LEADERBOARDS.noScore").GetFormattedText());
+
+    public static Message NoFriendsText() =>
+        Message.Raw(new MegaCrit.Sts2.Core.Localization.LocString(
+            "main_menu_ui", "DAILY_RUN_MENU.LEADERBOARDS.noFriends").GetFormattedText());
+
+    public static Message DisclaimerText() =>
+        Message.Raw(new MegaCrit.Sts2.Core.Localization.LocString(
+            "main_menu_ui", "DAILY_RUN_MENU.disclaimer").GetFormattedText());
 }

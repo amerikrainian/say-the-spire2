@@ -201,9 +201,7 @@ public class DailyLeaderboardScreen : Screen
 
         if (_adapter.HasScoreWarning)
         {
-            var warning = new ActionElement(
-                () => Ui("DAILY_RUN_LEADERBOARD.SCORE_WARNING"),
-                tooltip: () => Ui("DAILY_RUN_LEADERBOARD.SCORE_WARNING_TOOLTIP"));
+            var warning = new ActionElement(() => DailyLeaderboardAdapter.DisclaimerText());
             _extras.Add(warning);
             _focusables.Add(warning);
         }
@@ -337,9 +335,9 @@ public class DailyLeaderboardScreen : Screen
         if (_adapter.IsLoading)
             return Ui("DAILY_RUN_LEADERBOARD.LOADING_SCORES");
         if (_adapter.HasNoScores)
-            return Ui("DAILY_RUN_LEADERBOARD.NO_SCORES");
+            return DailyLeaderboardAdapter.NoScoreText();
         if (_adapter.HasNoFriends)
-            return Ui("DAILY_RUN_LEADERBOARD.NO_FRIENDS");
+            return DailyLeaderboardAdapter.NoFriendsText();
 
         return Ui("DAILY_RUN.LEADERBOARD");
     }
