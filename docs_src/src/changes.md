@@ -1,3 +1,7 @@
+## V1.1.5
+* Fixed some incorrect text formatting for the card pile screens (hotkey markup was being included where it shouldn't be.)
+* Fixed an issue introduced in the previous version where you couldn't play potions on allies in multiplayer.
+
 ## V1.1.4
 * Fixed an issue that caused the daily run and custom run options to no longer be focusable.
 * Fixed an issue where controller inputs were being passed to the game too many times in some instances, causing certain UI elements to be selected when they shouldn't be (for example, confirming cards would start playing the next card.)
