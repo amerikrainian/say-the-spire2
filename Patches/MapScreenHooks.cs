@@ -47,8 +47,21 @@ public static class MapScreenHooks
 
     public static void MapScreenClosePostfix()
     {
-        if (MapScreen.Current != null)
-            ScreenManager.RemoveScreen(MapScreen.Current);
+        // Hard guard: this postfix runs inside the game's NMapScreen.Close(),
+        // which the travel flow (RunManager.EnterMapPointInternal -> ClearScreens)
+        // calls BEFORE it enters the next room and sets up combat. An uncaught
+        // exception here propagates into that async flow and aborts it mid-load,
+        // leaving an encounter with no combat (only a proceed/skip button). Never
+        // let a mod-side screen-teardown error escape into the game's flow.
+        try
+        {
+            if (MapScreen.Current != null)
+                ScreenManager.RemoveScreen(MapScreen.Current);
+        }
+        catch (System.Exception e)
+        {
+            Log.Error($"[AccessibilityMod] MapScreen close handling failed: {e.Message}");
+        }
     }
 
     private static int _lastAnnouncedActIndex = -1;
