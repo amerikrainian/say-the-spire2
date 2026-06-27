@@ -4,6 +4,7 @@
 * Fixed an issue where the map navigator would not always land on a choice node when the "follow map path backward until choice node" setting was enabled and you were moving to parent nodes.
 * You can now press alt and the number keys to quickly read powers on enemies and other players.
 * When playing a card and selecting a creature (monster or other player), a card buffer is enabled that allows you to read the modified card text (for example, the currently playing card's damage will be updated to match debuffs on the selected creature.) This buffer is to the left of the focused creature buffer.
+* You can now press ctrl alt e to swap the game language to English if it gets stuck in another language for some reason or you're having issues with a specific locale.
 
 ## V1.1.7
 * Fixed a bug on the stable (non-beta) branch where entering an encounter could occasionally start with no combat and only a proceed button. This was caused by a focus-handling difference between the stable and beta branches; the mod now adapts to whichever branch you are on.

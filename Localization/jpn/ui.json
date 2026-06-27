@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "問題を報告",
   "INPUT.HELP": "ヘルプ",
   "INPUT.RESET_BINDINGS": "割り当てをリセット",
+  "INPUT.FORCE_ENGLISH": "英語に強制切り替え",
   "INPUT.MOD_SETTINGS": "MOD設定",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "読み上げる",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "末尾の句読点を含める",

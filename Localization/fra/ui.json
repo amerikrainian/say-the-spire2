@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "Signaler un problème",
   "INPUT.HELP": "Aide",
   "INPUT.RESET_BINDINGS": "Réinitialiser les raccourcis",
+  "INPUT.FORCE_ENGLISH": "Forcer l'anglais",
   "INPUT.MOD_SETTINGS": "Paramètres du mod",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "Annoncer",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "Inclure la ponctuation finale",

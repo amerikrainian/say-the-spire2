@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "Сообщить о проблеме",
   "INPUT.HELP": "Помощь",
   "INPUT.RESET_BINDINGS": "Сбросить назначения",
+  "INPUT.FORCE_ENGLISH": "Принудительно английский",
   "INPUT.MOD_SETTINGS": "Настройки мода",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "Объявлять",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "Включать суффиксную пунктуацию",

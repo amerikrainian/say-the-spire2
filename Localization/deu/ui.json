@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "Problem melden",
   "INPUT.HELP": "Hilfe",
   "INPUT.RESET_BINDINGS": "Belegungen zurücksetzen",
+  "INPUT.FORCE_ENGLISH": "Englisch erzwingen",
   "INPUT.MOD_SETTINGS": "Mod-Einstellungen",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "Ansagen",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "Suffix-Satzzeichen einschließen",

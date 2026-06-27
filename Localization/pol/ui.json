@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "Zgłoś problem",
   "INPUT.HELP": "Pomoc",
   "INPUT.RESET_BINDINGS": "Resetuj skróty",
+  "INPUT.FORCE_ENGLISH": "Wymuś angielski",
   "INPUT.MOD_SETTINGS": "Ustawienia moda",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "Oznajmiaj",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "Uwzględnij interpunkcję sufiksu",

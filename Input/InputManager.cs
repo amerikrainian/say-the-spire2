@@ -220,6 +220,7 @@ public static class InputManager
         _actions.Add(new InputAction("help", "Help", localizationKey: "INPUT.HELP").AddBinding(Key.F1)
             .AddBinding(ControllerInput.Back, modifier: ControllerInput.LeftTrigger));
         _actions.Add(new InputAction("reset_bindings", "Reset Bindings", localizationKey: "INPUT.RESET_BINDINGS").AddBinding(Key.R, ctrl: true, shift: true));
+        _actions.Add(new InputAction("force_english", "Force English", localizationKey: "INPUT.FORCE_ENGLISH").AddBinding(Key.E, ctrl: true, alt: true));
         _actions.Add(new InputAction("announce_gold", "Announce Gold", localizationKey: "INPUT.ANNOUNCE_GOLD").AddBinding(Key.G, ctrl: true)
             .AddBinding(ControllerInput.A, modifier: ControllerInput.RightTrigger));
         _actions.Add(new InputAction("announce_hp", "Announce HP", localizationKey: "INPUT.ANNOUNCE_HP").AddBinding(Key.H, ctrl: true)

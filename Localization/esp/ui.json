@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "Reportar problema",
   "INPUT.HELP": "Ayuda",
   "INPUT.RESET_BINDINGS": "Restablecer asignaciones",
+  "INPUT.FORCE_ENGLISH": "Forzar inglés",
   "INPUT.MOD_SETTINGS": "Ajustes del mod",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "Anunciar",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "Incluir puntuación final",

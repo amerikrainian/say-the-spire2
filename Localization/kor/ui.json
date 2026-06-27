@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "문제 보고",
   "INPUT.HELP": "도움말",
   "INPUT.RESET_BINDINGS": "단축키 초기화",
+  "INPUT.FORCE_ENGLISH": "영어로 강제 전환",
   "INPUT.MOD_SETTINGS": "모드 설정",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "알림",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "접미사 구두점 포함",

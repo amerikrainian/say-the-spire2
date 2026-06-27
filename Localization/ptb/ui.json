@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "Relatar problema",
   "INPUT.HELP": "Ajuda",
   "INPUT.RESET_BINDINGS": "Redefinir atalhos",
+  "INPUT.FORCE_ENGLISH": "Forçar inglês",
   "INPUT.MOD_SETTINGS": "Configurações do mod",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "Anunciar",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "Incluir pontuação do sufixo",

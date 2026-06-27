@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "Sorun bildir",
   "INPUT.HELP": "Yardım",
   "INPUT.RESET_BINDINGS": "Atamaları sıfırla",
+  "INPUT.FORCE_ENGLISH": "İngilizceyi zorla",
   "INPUT.MOD_SETTINGS": "Mod ayarları",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "Duyur",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "Sonek noktalama işaretini dahil et",

@@ -672,6 +672,7 @@
   "INPUT.FEEDBACK": "รายงานปัญหา",
   "INPUT.HELP": "ช่วยเหลือ",
   "INPUT.RESET_BINDINGS": "รีเซ็ตคีย์ลัด",
+  "INPUT.FORCE_ENGLISH": "บังคับใช้ภาษาอังกฤษ",
   "INPUT.MOD_SETTINGS": "ตั้งค่าม็อด",
   "SETTINGS.ANNOUNCEMENT.ENABLED": "ประกาศ",
   "SETTINGS.ANNOUNCEMENT.INCLUDE_SUFFIX": "รวมเครื่องหมายวรรคตอนต่อท้าย",

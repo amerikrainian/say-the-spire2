@@ -18,6 +18,7 @@ public class DefaultScreen : Screen
         ClaimAction("buffer_next");
         ClaimAction("buffer_prev");
         ClaimAction("reset_bindings");
+        ClaimAction("force_english");
         ClaimAction("mod_settings");
         ClaimAction("help");
         ClaimAction("dev_console");
@@ -47,6 +48,9 @@ public class DefaultScreen : Screen
                 InputManager.ResetToDefaults();
                 Speech.SpeechManager.Output(Localization.Message.Localized("ui", "SPEECH.BINDINGS_RESET"));
                 return true;
+            case "force_english":
+                ForceEnglish();
+                return true;
             case "mod_settings":
                 OpenModMenu();
                 return true;
@@ -74,6 +78,30 @@ public class DefaultScreen : Screen
     {
         var screen = new ModMenuScreen();
         ScreenManager.PushScreen(screen);
+    }
+
+    /// <summary>
+    /// Force the game (and therefore the mod) into English, for users whose
+    /// game is stuck in a language they don't read. Mirrors what the language
+    /// dropdown does — persist the choice and switch live. Our LocManager
+    /// .SetLanguage hook propagates the change to the mod's own strings, so the
+    /// confirmation below resolves in English.
+    /// </summary>
+    private static void ForceEnglish()
+    {
+        try
+        {
+            var save = MegaCrit.Sts2.Core.Saves.SaveManager.Instance;
+            if (save?.SettingsSave != null)
+                save.SettingsSave.Language = "eng";
+            MegaCrit.Sts2.Core.Localization.LocManager.Instance?.SetLanguage("eng");
+            save?.SaveSettings();
+            Speech.SpeechManager.Output(Localization.Message.Localized("ui", "SPEECH.LANGUAGE_SET_ENGLISH"));
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Force English failed: {e.Message}");
+        }
     }
 
     private static void OpenHelpScreen()
