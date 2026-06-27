@@ -56,9 +56,15 @@ public sealed class DescriptionAnnouncement : Announcement
         {
             if (string.IsNullOrEmpty(label)) continue;
 
-            // Match 2+ occurrences of the label, allowing any whitespace
-            // (including none) between them. Capture so we can count.
-            var pattern = $"(?:{Regex.Escape(label)}\\s*){{2,}}";
+            // Match 2+ occurrences of the label with whitespace allowed ONLY
+            // between them — never trailing. The whitespace must sit inside the
+            // repeated "\s*{label}" group so the match ends on a label, not on
+            // the space that follows the run. Putting it after the group (the
+            // old "(?:{label}\s*){2,}") swallowed the space before the next
+            // word too, producing "2 Energyat the start" instead of
+            // "2 Energy at the start".
+            var escaped = Regex.Escape(label);
+            var pattern = $"{escaped}(?:\\s*{escaped})+";
             text = Regex.Replace(text, pattern, m =>
             {
                 int count = CountOccurrences(m.Value, label);
