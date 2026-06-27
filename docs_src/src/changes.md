@@ -1,3 +1,8 @@
+## V1.1.8
+* Fixed a bug introduced in the latest beta where you could not return from the top bar to the rest of the game UI. Again.
+* Fixed a bug where multiple icons (for example "2 energy") would not have a space after the icon description.
+* Fixed an issue where the map navigator would not always land on a choice node when the "follow map path backward until choice node" setting was enabled and you were moving to parent nodes.
+
 ## V1.1.7
 * Fixed a bug on the stable (non-beta) branch where entering an encounter could occasionally start with no combat and only a proceed button. This was caused by a focus-handling difference between the stable and beta branches; the mod now adapts to whichever branch you are on.
 

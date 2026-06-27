@@ -250,7 +250,17 @@ public class TreeMapViewer : MapViewer
             {
                 var edge = _pathStack.Pop();
                 var previousContext = _contextStack.Pop();
-                if (edge.From != Current!.BackwardEdges.FirstOrDefault()?.From)
+                // The stack records the edges we traversed forward, so the top
+                // edge should arrive at Current (edge.To == Current); follow it
+                // back to edge.From. The old check compared edge.From to
+                // Current.BackwardEdges.FirstOrDefault()?.From, but a node with
+                // multiple parents (converging paths — common once you've
+                // explored forward into a future branch and then reverse) makes
+                // FirstOrDefault return an arbitrary parent that need not match
+                // the edge we actually took, so auto-advance stopped mid-segment
+                // even with no choice. Validate against the edge's own endpoint
+                // instead; only bail if the stack has genuinely desynced.
+                if (edge.To != Current)
                 {
                     _pathStack.Push(edge);
                     _contextStack.Push(previousContext);
