@@ -29,8 +29,14 @@ public class ProxyBestiaryEntry : ProxyElement
 {
     private static readonly System.Reflection.FieldInfo EpithetField =
         AccessTools.Field(typeof(NBestiary), "_epithet")!;
-    private static readonly System.Reflection.FieldInfo DescriptionLabelField =
-        AccessTools.Field(typeof(NBestiary), "_descriptionLabel")!;
+    // Branch-divergent: the July beta removed the epithet/description detail
+    // panel. Its _epithet label survives but is never populated (it holds a
+    // scene-file placeholder), and the new _dialogueLabel is a character
+    // dialogue quote that is often invisible and goes stale on locked
+    // entries — neither is per-entry detail text. So the panel is only read
+    // when the stable-branch _descriptionLabel field exists.
+    private static readonly System.Reflection.FieldInfo? DescriptionLabelField =
+        AccessTools.Field(typeof(NBestiary), "_descriptionLabel");
     private static readonly System.Reflection.FieldInfo SelectedEntryField =
         AccessTools.Field(typeof(NBestiary), "_selectedEntry")!;
 
@@ -157,6 +163,7 @@ public class ProxyBestiaryEntry : ProxyElement
 
     private (string? epithet, string? description) ReadDetailLabels()
     {
+        if (DescriptionLabelField == null) return (null, null);
         var bestiary = NBestiary.Instance;
         if (bestiary == null) return (null, null);
         return (ReadLabelText(EpithetField.GetValue(bestiary)),
