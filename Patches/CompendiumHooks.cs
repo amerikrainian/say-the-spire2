@@ -3,6 +3,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens;
 using MegaCrit.Sts2.Core.Nodes.Screens.Bestiary;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardLibrary;
 using MegaCrit.Sts2.Core.Nodes.Screens.MainMenu;
+using MegaCrit.Sts2.Core.Nodes.Screens.ModdingScreen;
 using MegaCrit.Sts2.Core.Nodes.Screens.PotionLab;
 using MegaCrit.Sts2.Core.Nodes.Screens.RelicCollection;
 using MegaCrit.Sts2.Core.Nodes.Screens.RunHistoryScreen;
@@ -96,6 +97,7 @@ public static class CompendiumHooks
             NCardLibrary cardLibrary => new CardLibraryGameScreen(cardLibrary),
             NRunHistory runHistory => new RunHistoryGameScreen(runHistory),
             NBestiary bestiary => new BestiaryGameScreen(bestiary),
+            NModdingScreen modding => new ModsGameScreen(modding),
             NJoinFriendScreen joinFriend => new JoinFriendScreen(joinFriend),
             _ => null,
         };

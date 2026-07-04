@@ -224,6 +224,8 @@ These private fields/properties are accessed via reflection. A game update renam
 - `NBestiaryEntry.Entry` (property of type `BestiaryEntry`) — wraps the monster/encounter model and `roomType` qualifier (boss / elite / monster). `NBestiaryEntry.IsDiscovered` replaces the old `IsUnknown`. The old `_monsterType` field and `Monster` / `IsUnknown` / `UnderConstructionName` properties were removed in the late-May beta.
 - `NBestiary._modeButton`, `._modeLabel`, `._filterContainer`, `._isStatsMode`, `._currentFilter` — bestiary stats view (July beta only; null on stable, feature gated on `HasStatsSupport` in BestiaryGameScreen)
 - `NBestiaryCharacterFilter` (beta-only type, resolved by name) — `kills`, `deaths`, `character` fields; `IsSelected`, `IsLocked`, `WinRate`, `BestiarySeenQuote`, `BestiaryKillQuote` properties (ProxyBestiaryCharacterFilter)
+- `NModdingScreen._modRowContainer`, `._pendingChangesWarning` — settings mods menu (ModsGameScreen; types exist on both branches)
+- `NModMenuRow._tickbox`, `._isSelected` — mod row state (ProxyModMenuRow)
 
 **Daily leaderboard (DailyLeaderboardAdapter.cs):**
 - `NDailyRunLeaderboard._scoreContainer`, `._loadingIndicator`, `._noScoresIndicator`, `._noFriendsIndicator`, `._noScoreUploadIndicator` — leaderboard state indicators

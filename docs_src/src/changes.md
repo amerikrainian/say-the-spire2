@@ -1,3 +1,7 @@
+## V1.2.0
+* The bestiary works once again in the beta and the new stats are supported.
+
+
 ## V1.1.8
 * Fixed a bug introduced in the latest beta where you could not return from the top bar to the rest of the game UI. Again.
 * Fixed a bug where multiple icons (for example "2 energy") would not have a space after the icon description.

@@ -79,6 +79,7 @@ public static class ModEntry
         InputRebindHooks.Initialize(_harmony);
         KeyboardNavHooks.Initialize(_harmony);
         ModalHooks.Initialize(_harmony);
+        ModMenuRowHooks.Initialize(_harmony);
         ScreenHooks.Initialize(_harmony);
         GameOverHooks.Initialize(_harmony);
         TimelineHooks.Initialize(_harmony);
