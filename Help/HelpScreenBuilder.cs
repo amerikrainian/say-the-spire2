@@ -50,6 +50,11 @@ public class HelpScreenBuilder
         TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.PREV_BUFFER_ITEM", "Previous Buffer Item"), "buffer_prev_item"));
         TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.NEXT_BUFFER", "Next Buffer"), "buffer_next"));
         TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.PREV_BUFFER", "Previous Buffer"), "buffer_prev"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "INPUT.READ_DRAW_PILE", "Read Draw Pile"), "read_draw_pile"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "INPUT.READ_DISCARD_PILE", "Read Discard Pile"), "read_discard_pile"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "INPUT.READ_DECK", "Read Deck"), "read_deck"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "INPUT.READ_EXHAUST_PILE", "Read Exhaust Pile"), "read_exhaust_pile"));
+        TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "INPUT.READ_HAND", "Read Hand"), "read_hand"));
         TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.OPEN_MOD_MENU", "Open Mod Menu"), "mod_settings"));
         TryAddControl(new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.HELP", "Help"), "help"));
     }

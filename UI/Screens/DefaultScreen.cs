@@ -19,6 +19,11 @@ public class DefaultScreen : Screen
         ClaimAction("buffer_prev");
         ClaimAction("reset_bindings");
         ClaimAction("force_english");
+        ClaimAction("read_draw_pile");
+        ClaimAction("read_discard_pile");
+        ClaimAction("read_deck");
+        ClaimAction("read_exhaust_pile");
+        ClaimAction("read_hand");
         ClaimAction("mod_settings");
         ClaimAction("help");
         ClaimAction("dev_console");
@@ -51,6 +56,16 @@ public class DefaultScreen : Screen
             case "force_english":
                 ForceEnglish();
                 return true;
+            case "read_draw_pile":
+                return AnnouncePile(PileReadout.Draw);
+            case "read_discard_pile":
+                return AnnouncePile(PileReadout.Discard);
+            case "read_deck":
+                return AnnouncePile(PileReadout.Deck);
+            case "read_exhaust_pile":
+                return AnnouncePile(PileReadout.Exhaust);
+            case "read_hand":
+                return AnnouncePile(PileReadout.Hand);
             case "mod_settings":
                 OpenModMenu();
                 return true;
@@ -101,6 +116,64 @@ public class DefaultScreen : Screen
         catch (Exception e)
         {
             Log.Error($"[AccessibilityMod] Force English failed: {e.Message}");
+        }
+    }
+
+    private enum PileReadout { Draw, Discard, Deck, Exhaust, Hand }
+
+    /// <summary>
+    /// Speaks a pile's card count and contents ("Draw Pile: 5 cards, Strike,
+    /// Strike, Bash"). Deck works anywhere in a run; the combat piles say
+    /// "not in combat" outside one. Draw pile and deck names are sorted
+    /// alphabetically so the readout doesn't leak the hidden pile order —
+    /// the game's own pile view hides it the same way.
+    /// </summary>
+    private static bool AnnouncePile(PileReadout kind)
+    {
+        try
+        {
+            var state = MegaCrit.Sts2.Core.Runs.RunManager.Instance?.DebugOnlyGetState();
+            var me = state != null ? MegaCrit.Sts2.Core.Context.LocalContext.GetMe(state) : null;
+            if (me == null) return false;
+
+            var pcs = me.PlayerCombatState;
+            if (kind != PileReadout.Deck && pcs == null)
+            {
+                Speech.SpeechManager.Output(Localization.Message.Localized("ui", "SPEECH.NOT_IN_COMBAT"));
+                return true;
+            }
+
+            var cards = kind switch
+            {
+                PileReadout.Draw => pcs!.DrawPile.Cards,
+                PileReadout.Discard => pcs!.DiscardPile.Cards,
+                PileReadout.Deck => me.Deck?.Cards,
+                PileReadout.Exhaust => pcs!.ExhaustPile.Cards,
+                PileReadout.Hand => pcs!.Hand.Cards,
+                _ => null,
+            };
+            if (cards == null) return false;
+
+            var titles = new System.Collections.Generic.List<string>();
+            foreach (var card in cards)
+                titles.Add(Views.CardView.FromModel(card).Title);
+            if (kind is PileReadout.Draw or PileReadout.Deck)
+                titles.Sort(StringComparer.CurrentCultureIgnoreCase);
+
+            // No pile name prefix — the key pressed already says which pile
+            // it is, and the goal is the quickest possible readout.
+            var message = Localization.Message.Localized("ui", "SPEECH.PILE_COUNT",
+                new { count = titles.Count });
+            if (titles.Count > 0)
+                message = Localization.Message.Join(", ", message,
+                    Localization.Message.Raw(string.Join(", ", titles)));
+            Speech.SpeechManager.Output(message);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Log.Error($"[AccessibilityMod] Pile readout failed: {e}");
+            return false;
         }
     }
 

@@ -239,6 +239,13 @@ public static class InputManager
             .AddBinding(ControllerInput.B, modifier: ControllerInput.RightTrigger));
         _actions.Add(new InputAction("announce_relic_counters", "Announce Relic Counters", localizationKey: "INPUT.ANNOUNCE_RELIC_COUNTERS").AddBinding(Key.R, ctrl: true)
             .AddBinding(ControllerInput.Back, modifier: ControllerInput.RightTrigger));
+        // Pile readouts are keyboard-only: the controller is out of usable
+        // buttons, and pile contents are reviewable via the pile screens there.
+        _actions.Add(new InputAction("read_draw_pile", "Read Draw Pile", localizationKey: "INPUT.READ_DRAW_PILE").AddBinding(Key.A, alt: true));
+        _actions.Add(new InputAction("read_discard_pile", "Read Discard Pile", localizationKey: "INPUT.READ_DISCARD_PILE").AddBinding(Key.S, alt: true));
+        _actions.Add(new InputAction("read_deck", "Read Deck", localizationKey: "INPUT.READ_DECK").AddBinding(Key.D, alt: true));
+        _actions.Add(new InputAction("read_exhaust_pile", "Read Exhaust Pile", localizationKey: "INPUT.READ_EXHAUST_PILE").AddBinding(Key.F, alt: true));
+        _actions.Add(new InputAction("read_hand", "Read Hand", localizationKey: "INPUT.READ_HAND").AddBinding(Key.H, alt: true));
         _actions.Add(new InputAction("mod_settings", "Mod Settings", localizationKey: "INPUT.MOD_SETTINGS").AddBinding(Key.M, ctrl: true)
             .AddBinding(ControllerInput.Start, modifier: ControllerInput.LeftTrigger));
         var combatantIntent = Ui("INPUT.COMBATANT_INTENT", "Combatant Intent");
