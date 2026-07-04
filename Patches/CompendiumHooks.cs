@@ -88,6 +88,11 @@ public static class CompendiumHooks
 
     private static Screen? CreateScreen(NSubmenu? submenu)
     {
+        // BaseLib's mod config submenu lives in an optional mod assembly, so
+        // it is matched by type name rather than a compile-time reference.
+        if (submenu != null && submenu.GetType().FullName == ModConfigGameScreen.SubmenuTypeName)
+            return new ModConfigGameScreen(submenu);
+
         return submenu switch
         {
             NCompendiumSubmenu compendium => new CompendiumMenuScreen(compendium),

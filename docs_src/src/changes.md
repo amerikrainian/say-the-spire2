@@ -1,6 +1,7 @@
 ## V1.2.0
 * The bestiary works once again in the beta and the new stats are supported.
-
+* Added support for the mods menu in settings.
+* Initial support for BaseLib has been implemented. All mod config settings should now be supported, however custom control types added by mods will most likely not work.
 
 ## V1.1.8
 * Fixed a bug introduced in the latest beta where you could not return from the top bar to the rest of the game UI. Again.

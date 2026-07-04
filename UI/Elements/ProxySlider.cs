@@ -45,14 +45,13 @@ public class ProxySlider : ProxyElement
 
     public override Message? GetStatusString()
     {
-        if (Control is NSettingsSlider)
+        // Both the game's NSettingsSlider and BaseLib's NConfigSlider keep the
+        // formatted value in a "SliderValue" child label.
+        var valueLabel = Control?.GetNodeOrNull("SliderValue");
+        if (valueLabel != null)
         {
-            var valueLabel = Control.GetNodeOrNull("SliderValue");
-            if (valueLabel != null)
-            {
-                var text = FindChildText(valueLabel);
-                if (text != null) return Message.Raw(text);
-            }
+            var text = FindChildText(valueLabel);
+            if (text != null) return Message.Raw(text);
         }
         return null;
     }
@@ -82,6 +81,8 @@ public class ProxySlider : ProxyElement
     {
         if (Control is NSettingsSlider)
             return SliderField?.GetValue(Control) as Range;
-        return null;
+        // BaseLib's NConfigSlider (a plain Control) keeps its game NSlider in
+        // a "Slider" child.
+        return Control?.GetNodeOrNull("Slider") as Range;
     }
 }

@@ -227,6 +227,8 @@ These private fields/properties are accessed via reflection. A game update renam
 - `NModdingScreen._modRowContainer`, `._pendingChangesWarning` — settings mods menu (ModsGameScreen; types exist on both branches)
 - `NModMenuRow._tickbox`, `._isSelected` — mod row state (ProxyModMenuRow)
 
+**BaseLib (optional third-party mod — different rules):** ModConfigGameScreen / ProxyConfigSection support BaseLib's mod configuration submenu (`BaseLib.Config.UI.*`, resolved via `AccessTools.TypeByName`; the submenu is matched by type-name string in CompendiumHooks). Because BaseLib versions drift independently of the game and of us, these lookups deliberately degrade gracefully (`?`, feature skipped) instead of crash-on-rename. Row hover tips are injected into existing proxies via `UIElement.CollectAnnouncements`; BaseLib's `NConfigSlider` is handled by the generalized `ProxySlider` (reads `Slider`/`SliderValue` children).
+
 **Daily leaderboard (DailyLeaderboardAdapter.cs):**
 - `NDailyRunLeaderboard._scoreContainer`, `._loadingIndicator`, `._noScoresIndicator`, `._noFriendsIndicator`, `._noScoreUploadIndicator` — leaderboard state indicators
 - `NDailyRunLeaderboard._currentPage`, `._leftArrow`, `._rightArrow`, `._paginator` — pagination controls
