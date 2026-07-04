@@ -55,7 +55,19 @@ You can press F1 (or LT+Back on Xbox / L2+Create on PS5) at any time to see cont
 | View Discard Pile | S | RT+RB / R2+R1 | View discard pile |
 | Release Card | Down Arrow | — | Drop a held card |
 
-### Combatant Status (1–12)
+### Pile Readouts
+
+Quickly speak the card count and contents of a pile without opening its screen. Keyboard only — the controller is out of usable buttons; use the pile view screens there instead. Read Deck works anywhere in a run (shops, the map, rest sites); the other four answer "not in combat" outside a fight. Draw pile and deck contents are read alphabetically so the readout doesn't reveal the hidden draw order.
+
+| Action | Keyboard | Function |
+|--------|----------|----------|
+| Read Draw Pile | Alt+A | Speak the number of cards in your draw pile and their names |
+| Read Discard Pile | Alt+S | Speak the number of cards in your discard pile and their names |
+| Read Deck | Alt+D | Speak the number of cards in your deck and their names |
+| Read Exhaust Pile | Alt+F | Speak the number of exhausted cards and their names |
+| Read Hand | Alt+H | Speak the number of cards in your hand and their names |
+
+### Creature Status (1–12)
 
 Announce the status of a combatant by position. Each slot has its own binding so you can rebind individually.
 
@@ -76,6 +88,17 @@ Announce the intent of a combatant by position. Each slot has its own binding.
 | 10 | Shift+0 |
 | 11 | Shift+- |
 | 12 | Shift+= |
+
+### Combatant Powers (1–12)
+
+Announce the powers of a combatant by position, in the same format Announce Powers (Ctrl+P) uses for your own character. Slot numbers match Creature Status and Combatant Intent, so index N is the same combatant across all three.
+
+| Slot | Keyboard |
+|------|----------|
+| 1–9 | Alt+1 … Alt+9 |
+| 10 | Alt+0 |
+| 11 | Alt+- |
+| 12 | Alt+= |
 
 ## Map
 
@@ -101,6 +124,7 @@ Announce the intent of a combatant by position. Each slot has its own binding.
 | Help | F1 | LT+Back / L2+Create | Show context-sensitive help for the current screen |
 | Mod Settings | Ctrl+M | LT+Start / L2+Options | Open mod settings menu |
 | Reset Bindings | Ctrl+Shift+R | — | Reset all mod keybindings to defaults |
+| Force English | Ctrl+Alt+E | — | Switch the game (and mod) language to English — a rescue hotkey for when the game is stuck in a language you don't read |
 | Jump to First Element | Home | — | Jump to the first focusable element on the current screen |
 | Jump to Last Element | End | — | Jump to the last focusable element on the current screen |
 | Dev Console | ` (backtick) | — | Open the developer console |

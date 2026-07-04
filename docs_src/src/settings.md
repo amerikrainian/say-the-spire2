@@ -1,6 +1,6 @@
 # Settings
 
-Press **Ctrl+M** (keyboard), **R2+Start** (Xbox), or **RT+Start** (PS5) to open the mod settings screen from anywhere in the game.
+Press **Ctrl+M** (keyboard), **LT+Start** (Xbox), or **L2+Options** (PS5) to open the mod settings screen from anywhere in the game.
 
 ## Top-Level Categories
 
