@@ -20,9 +20,41 @@ namespace SayTheSpire2.UI.Elements;
 )]
 public class ProxyCharacterButton : ProxyElement
 {
+    // BaseLib custom character entries reuse the game's NCharacterSelectButton
+    // scene but stuff its _character field with a placeholder (the unlock
+    // source, or Ironclad), so reading Character would announce the wrong
+    // character entirely. BaseLib tags such buttons with metadata and hangs
+    // its entry off the game's _delegate field; read the entry's own
+    // title/description instead. BaseLib is an optional third-party mod, so
+    // all lookups degrade gracefully (back to placeholder behavior).
+    private const string BaseLibEntryMeta = "BaseLibCustomCharacterSelectEntry";
+
+    private static readonly System.Reflection.FieldInfo? DelegateField =
+        HarmonyLib.AccessTools.Field(typeof(NCharacterSelectButton), "_delegate");
+
     public ProxyCharacterButton(Control control) : base(control) { }
 
     private NCharacterSelectButton? Button => Control as NCharacterSelectButton;
+
+    private object? BaseLibEntry
+    {
+        get
+        {
+            var button = Button;
+            if (button == null || !button.HasMeta(BaseLibEntryMeta)) return null;
+            var buttonDelegate = DelegateField?.GetValue(button);
+            if (buttonDelegate == null) return null;
+            return HarmonyLib.AccessTools.Property(buttonDelegate.GetType(), "Entry")
+                ?.GetValue(buttonDelegate);
+        }
+    }
+
+    private static string? GetEntryText(object entry, string propertyName)
+    {
+        var text = HarmonyLib.AccessTools.Property(entry.GetType(), propertyName)
+            ?.GetValue(entry) as string;
+        return string.IsNullOrWhiteSpace(text) ? null : StripBbcode(text);
+    }
 
     public override IEnumerable<Announcement> GetFocusAnnouncements()
     {
@@ -31,14 +63,16 @@ public class ProxyCharacterButton : ProxyElement
             yield return new LabelAnnouncement(label);
 
         var button = Button;
-        var character = button?.Character;
 
         if (button != null && button.IsLocked)
         {
             yield return new LockedAnnouncement();
         }
-        else if (button != null && character != null && !button.IsRandom)
+        else if (button != null && BaseLibEntry == null
+            && button.Character is { } character && !button.IsRandom)
         {
+            // Real stats are unknown for BaseLib entries until the entry
+            // resolves to a character, so only vanilla buttons announce them.
             yield return new StartingHpAnnouncement(character.StartingHp);
             yield return new StartingGoldAnnouncement(character.StartingGold);
             var remoteCount = button.RemoteSelectedPlayers.Count;
@@ -58,6 +92,12 @@ public class ProxyCharacterButton : ProxyElement
 
         if (button.IsRandom) return Message.Localized("ui", "LABELS.RANDOM");
 
+        if (BaseLibEntry is { } entry)
+        {
+            var title = GetEntryText(entry, button.IsLocked ? "LockedTitle" : "EntryTitle");
+            if (title != null) return Message.Raw(title);
+        }
+
         var character = button.Character;
         if (character == null) return Message.Raw(CleanNodeName(button.Name));
 
@@ -73,6 +113,9 @@ public class ProxyCharacterButton : ProxyElement
     {
         var button = Button;
         if (button == null) return null;
+
+        if (BaseLibEntry != null)
+            return button.IsLocked ? Message.Localized("ui", "LABELS.LOCKED") : null;
 
         var character = button.Character;
         if (character == null) return null;
@@ -102,6 +145,13 @@ public class ProxyCharacterButton : ProxyElement
     {
         var button = Button;
         if (button == null) return null;
+
+        if (BaseLibEntry is { } entry)
+        {
+            var description = GetEntryText(entry,
+                button.IsLocked ? "LockedDescription" : "EntryDescription");
+            return description != null ? Message.Raw(description) : null;
+        }
 
         var character = button.Character;
         if (character == null) return null;
@@ -158,6 +208,12 @@ public class ProxyCharacterButton : ProxyElement
     {
         var button = Button;
         if (button == null || button.IsRandom)
+            return base.HandleBuffers(buffers);
+
+        // BaseLib entries: the placeholder character's stats and relic would
+        // be wrong. The base handler fills the ui buffer from
+        // GetLabel/GetStatusString/GetTooltip, which are entry-aware.
+        if (BaseLibEntry != null)
             return base.HandleBuffers(buffers);
 
         var character = button.Character;

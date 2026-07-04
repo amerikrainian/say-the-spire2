@@ -72,6 +72,17 @@ public static class UIManager
 
         if (_currentElement == null) return;
 
+        // A pre-resolved element whose control was freed since the focus
+        // event (e.g. a hand card holder discarded at end of turn) must not
+        // be announced — native reads like Control.Name would throw
+        // ObjectDisposedException mid-frame.
+        if (_currentElement.Control != null && !GodotObject.IsInstanceValid(_currentElement.Control))
+        {
+            _currentControl = null;
+            _currentElement = null;
+            return;
+        }
+
         // Try to upgrade via screen registry (gives container context for path diffing).
         // Only replace the current element if the screen actually has it registered —
         // don't fall back to ProxyFactory which would produce a generic downgrade.
