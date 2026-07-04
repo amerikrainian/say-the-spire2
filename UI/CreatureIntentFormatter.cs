@@ -113,8 +113,14 @@ public static class CreatureIntentFormatter
     private static Message PowerSummary(PowerModel power)
     {
         var title = power.Title.GetFormattedText();
-        if (power.StackType == PowerStackType.Counter && power.DisplayAmount != 0)
-            return Message.Raw($"{title} {power.DisplayAmount}");
-        return Message.Raw(title);
+        var line = power.StackType == PowerStackType.Counter && power.DisplayAmount != 0
+            ? $"{title} {power.DisplayAmount}"
+            : title;
+
+        // Modded powers can show a second value (BaseLib IHasSecondAmount).
+        var second = PowerSecondAmount.Get(power);
+        if (second != null)
+            line += $" ({second})";
+        return Message.Raw(line);
     }
 }

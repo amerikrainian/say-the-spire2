@@ -69,6 +69,11 @@ public sealed class PowersAnnouncement : Announcement
         var hasStacks = power.StackType == PowerStackType.Counter;
         var line = hasStacks && amount > 0 ? $"{title} {amount}" : title;
 
+        // Modded powers can show a second value (BaseLib IHasSecondAmount).
+        var second = UI.PowerSecondAmount.Get(power);
+        if (second != null)
+            line += $" ({second})";
+
         if (!includeDescriptions)
         {
             yield return Message.Raw(line);
