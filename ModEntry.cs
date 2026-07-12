@@ -78,6 +78,7 @@ public static class ModEntry
         FocusHooks.Initialize(_harmony);
         InputRebindHooks.Initialize(_harmony);
         KeyboardNavHooks.Initialize(_harmony);
+        HoverTipHooks.Initialize(_harmony);
         ModalHooks.Initialize(_harmony);
         ModMenuRowHooks.Initialize(_harmony);
         ScreenHooks.Initialize(_harmony);

@@ -104,6 +104,9 @@ public static class CompendiumHooks
             NBestiary bestiary => new BestiaryGameScreen(bestiary),
             NModdingScreen modding => new ModsGameScreen(modding),
             NJoinFriendScreen joinFriend => new JoinFriendScreen(joinFriend),
+            NSingleplayerSubmenu singleplayer => new SubmenuListGameScreen(singleplayer, "main_menu_ui", "SINGLE_PLAYER"),
+            NMultiplayerSubmenu multiplayer => new SubmenuListGameScreen(multiplayer, "main_menu_ui", "MULTIPLAYER"),
+            NMultiplayerHostSubmenu multiplayerHost => new SubmenuListGameScreen(multiplayerHost, "main_menu_ui", "HOST.title"),
             _ => null,
         };
     }
