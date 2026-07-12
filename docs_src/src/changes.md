@@ -1,3 +1,8 @@
+## V1.2.1
+* Fixed a bug where certain relics (primarily relics that displayed other cards such as Tanxs' Whistle) would not read at all when cursoring over them. This was actually caused by a game bug; there is an accompanying visual glitch where the card will not be rendered.
+* Fixed some screens missing title readouts and position information (the mode select and multiplayer screens.)
+* Added a menu wrap sound that plays when you wrap from the last item in a container to the first or vice versa. This can be disabled in the mod settings.
+
 ## V1.2.0
 * The bestiary works once again in the beta and the new stats are supported.
 * Added support for the mods menu in settings.

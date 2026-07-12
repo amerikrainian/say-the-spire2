@@ -103,6 +103,10 @@ public static class UIManager
         if (string.IsNullOrEmpty(text) || (text == _lastAnnouncedText && !controlChanged))
             return;
 
+        // Focus moved against the pressed nav direction → it wrapped around.
+        if (controlChanged)
+            Audio.SoundEffects.CheckWrap(_lastAnnouncedControl, _currentControl);
+
         _lastAnnouncedText = text;
         _lastAnnouncedControl = _currentControl;
 

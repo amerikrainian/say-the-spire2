@@ -19,7 +19,7 @@ namespace SayTheSpire2;
 [ModInitializer(nameof(Initialize))]
 public static class ModEntry
 {
-    public const string Version = "1.2.0";
+    public const string Version = "1.2.1";
     public static bool AccessibilityEnabled => Settings.InstallationConfig.ScreenReader;
     private static Harmony? _harmony;
     private static Settings.BoolSetting? _checkUpdatesSetting;
@@ -203,8 +203,29 @@ public static class ModEntry
         Settings.ModSettings.Root.Add(speechCategory);
         Speech.SpeechManager.RegisterSettings(speechCategory);
 
+        // Sound effect settings: one master volume for all mod sounds, then
+        // a toggle per sound.
+        var soundsCategory = new Settings.CategorySetting(
+            "sounds", Ui("SETTINGS.SOUNDS", "Sounds"),
+            localizationKey: "SETTINGS.SOUNDS");
+        Settings.ModSettings.Root.Add(soundsCategory);
+        var soundVolume = new Settings.IntSetting(
+            "volume", Ui("SETTINGS.SOUND_VOLUME", "Volume"),
+            100, min: 0, max: 100, step: 5, localizationKey: "SETTINGS.SOUND_VOLUME");
+        soundsCategory.Add(soundVolume);
+        Audio.SoundEffects.VolumeSetting = soundVolume;
+        var wrapSound = new Settings.BoolSetting(
+            "menu_wrap", Ui("SETTINGS.SOUND_WRAP", "Menu Wrap Sound"),
+            true, localizationKey: "SETTINGS.SOUND_WRAP");
+        soundsCategory.Add(wrapSound);
+        Audio.SoundEffects.WrapSoundSetting = wrapSound;
+
         // Load saved values (overrides defaults) and write file if first run
         Settings.ModSettings.Initialize(settingsDir);
+
+        // Preview the new volume as the slider moves. Subscribed after
+        // Initialize so the saved value loading doesn't chirp at startup.
+        soundVolume.Changed += _ => Audio.SoundEffects.PlayWrap();
     }
 
     private static void InitializeKeybindingSettings()

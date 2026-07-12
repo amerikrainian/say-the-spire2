@@ -59,6 +59,7 @@
   <!-- Collect files for the PCK -->
   <ItemGroup>
     <PckFile Include="localization\**\*.json" ResPath="res://SayTheSpire2/localization/%(RecursiveDir)%(Filename)%(Extension)" />
+    <PckFile Include="assets\audio\*.wav" ResPath="res://SayTheSpire2/audio/%(Filename)%(Extension)" />
   </ItemGroup>
 
   <!-- Create PCK file after build -->
