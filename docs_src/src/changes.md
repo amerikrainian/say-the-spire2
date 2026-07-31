@@ -1,3 +1,6 @@
+## V1.3.1
+This is a quick patch to fix a Jaws issue introduced in the latest beta update. Slay the Spire 2's implementation of Sentry (error reporting and performance monitoring tool) creates several UI elements repeatedly, which Jaws reads aloud (even when the installer disables Godot's UIA.) This update renames some of them in the game such that they don't read and updates the jaws config files to prevent the rest from being read out constantly. If you are a jaws user you will need to run update from the installer and then click on 'Install Jaws Config' from the installer (as you did when setting up the mod initially.)
+
 ## V1.3.0
 * The mod now works with the latest beta of the game.
 * Fixed a bug where the menu wrap sound would play at the wrong time (such as when switching between panels on the bestiary screen.)

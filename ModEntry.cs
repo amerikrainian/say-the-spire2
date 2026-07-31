@@ -19,7 +19,7 @@ namespace SayTheSpire2;
 [ModInitializer(nameof(Initialize))]
 public static class ModEntry
 {
-    public const string Version = "1.3.0";
+    public const string Version = "1.3.1";
     public static bool AccessibilityEnabled => Settings.InstallationConfig.ScreenReader;
     private static Harmony? _harmony;
     private static Settings.BoolSetting? _checkUpdatesSetting;
@@ -79,6 +79,7 @@ public static class ModEntry
         InputRebindHooks.Initialize(_harmony);
         KeyboardNavHooks.Initialize(_harmony);
         HoverTipHooks.Initialize(_harmony);
+        SentryNodeSilencer.Initialize();
         ModalHooks.Initialize(_harmony);
         ModMenuRowHooks.Initialize(_harmony);
         ScreenHooks.Initialize(_harmony);
