@@ -53,7 +53,7 @@ public class CharacterSelectGameScreen : GameScreen
 
             if (_isMultiplayer)
             {
-                _lastLocalReady = lobby!.LocalPlayer.isReady;
+                _lastLocalReady = Views.LobbyPlayerView.LocalPlayerOf(lobby)?.IsReady == true;
                 var lobbyBuffer = BufferManager.Instance.GetBuffer("lobby") as LobbyBuffer;
                 if (lobbyBuffer != null)
                 {
@@ -116,7 +116,7 @@ public class CharacterSelectGameScreen : GameScreen
                 var lobby = _screen.Lobby;
                 if (lobby == null) return;
 
-                var localReady = lobby.LocalPlayer.isReady;
+                var localReady = Views.LobbyPlayerView.LocalPlayerOf(lobby)?.IsReady == true;
                 if (localReady != _lastLocalReady)
                 {
                     _lastLocalReady = localReady;
@@ -132,37 +132,37 @@ public class CharacterSelectGameScreen : GameScreen
 
     // Multiplayer lobby callbacks (called from ScreenHooks postfixes)
 
-    public void OnLobbyPlayerConnected(NCharacterSelectScreen screen, LobbyPlayer player)
+    public void OnLobbyPlayerConnected(NCharacterSelectScreen screen, Views.LobbyPlayerView player)
     {
         if (!_isMultiplayer) return;
-        var name = GetPlayerName(player.id);
+        var name = GetPlayerName(player.Id);
         SpeechManager.Output(Message.Localized("ui", "SPEECH.PLAYER_JOINED", new { name }));
         UpdateLobbyBuffer();
     }
 
-    public void OnLobbyPlayerChanged(NCharacterSelectScreen screen, LobbyPlayer player)
+    public void OnLobbyPlayerChanged(NCharacterSelectScreen screen, Views.LobbyPlayerView player)
     {
         if (!_isMultiplayer) return;
         try
         {
             // Skip local player changes — handled by polling
-            if (player.id == screen.Lobby.LocalPlayer.id) return;
+            if (player.Id == Views.LobbyPlayerView.LocalPlayerOf(screen.Lobby)?.Id) return;
         }
         catch (Exception e) { MegaCrit.Sts2.Core.Logging.Log.Error($"[AccessibilityMod] Lobby local player check failed: {e.Message}"); }
 
-        var name = GetPlayerName(player.id);
-        var charName = player.character?.Title?.GetFormattedText() ?? LocalizationManager.GetOrDefault("ui", "DAILY_RUN.NO_CHARACTER", "No character");
-        var readyStr = player.isReady
+        var name = GetPlayerName(player.Id);
+        var charName = player.Character?.Title?.GetFormattedText() ?? LocalizationManager.GetOrDefault("ui", "DAILY_RUN.NO_CHARACTER", "No character");
+        var readyStr = player.IsReady
             ? LocalizationManager.GetOrDefault("ui", "DAILY_RUN.READY", "Ready")
             : LocalizationManager.GetOrDefault("ui", "DAILY_RUN.NOT_READY", "Not ready");
         SpeechManager.Output(Message.Localized("ui", "SPEECH.PLAYER_CHANGED", new { name, character = charName, status = readyStr }));
         UpdateLobbyBuffer();
     }
 
-    public void OnLobbyPlayerDisconnected(NCharacterSelectScreen screen, LobbyPlayer player)
+    public void OnLobbyPlayerDisconnected(NCharacterSelectScreen screen, Views.LobbyPlayerView player)
     {
         if (!_isMultiplayer) return;
-        var name = GetPlayerName(player.id);
+        var name = GetPlayerName(player.Id);
         SpeechManager.Output(Message.Localized("ui", "SPEECH.PLAYER_LEFT", new { name }));
         UpdateLobbyBuffer();
     }

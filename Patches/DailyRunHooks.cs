@@ -61,19 +61,25 @@ public static class DailyRunHooks
             ScreenManager.RemoveScreen(DailyRunGameScreen.Current);
     }
 
-    public static void DailyRunPlayerConnectedPostfix(LobbyPlayer player)
+    // Player params are object: the struct type is branch-divergent
+    // (LobbyPlayer on stable, StartRunLobbyPlayer on beta), so Harmony boxes
+    // it for us and LobbyPlayerView reads the shared field names.
+    public static void DailyRunPlayerConnectedPostfix(object player)
     {
-        DailyRunGameScreen.Current?.OnPlayerConnected(player);
+        if (Views.LobbyPlayerView.FromBoxed(player) is { } view)
+            DailyRunGameScreen.Current?.OnPlayerConnected(view);
     }
 
-    public static void DailyRunPlayerChangedPostfix(LobbyPlayer player)
+    public static void DailyRunPlayerChangedPostfix(object player)
     {
-        DailyRunGameScreen.Current?.OnPlayerChanged(player);
+        if (Views.LobbyPlayerView.FromBoxed(player) is { } view)
+            DailyRunGameScreen.Current?.OnPlayerChanged(view);
     }
 
-    public static void DailyRunPlayerDisconnectedPostfix(LobbyPlayer player)
+    public static void DailyRunPlayerDisconnectedPostfix(object player)
     {
-        DailyRunGameScreen.Current?.OnPlayerDisconnected(player);
+        if (Views.LobbyPlayerView.FromBoxed(player) is { } view)
+            DailyRunGameScreen.Current?.OnPlayerDisconnected(view);
     }
 
     public static void DailyRunLocalDisconnectedPostfix(NetErrorInfo info)

@@ -1,5 +1,8 @@
 {
   "NODE_TYPES.UNKNOWN": "Nieznane",
+  "ROUTES.TYPE_RANGE": "{type} od {min} do {max}",
+  "ROUTES.TYPE_EXACT": "{type} {count}",
+  "ROUTES.NONE": "Brak pokoi przed tobą",
   "NODE_TYPES.SHOP": "Sklep",
   "NODE_TYPES.TREASURE": "Skarb",
   "NODE_TYPES.REST_SITE": "Miejsce odpoczynku",

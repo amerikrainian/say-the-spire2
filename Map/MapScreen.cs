@@ -53,6 +53,7 @@ public class MapScreen : Screen
         ClaimAction("map_poi_toggle_mode");
         ClaimAction("map_toggle_current_marker");
         ClaimAction("map_clear_all_markers");
+        ClaimAction("map_route_summary");
     }
 
     public override void OnPush()
@@ -127,6 +128,7 @@ public class MapScreen : Screen
         new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_TOGGLE_POI_MODE", "Toggle POI Mode (Reachable / All)"), "map_poi_toggle_mode"),
         new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_TOGGLE_MARKER", "Toggle Marker on Current Node"), "map_toggle_current_marker"),
         new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "HELP.MAP_CLEAR_MARKERS", "Clear All Markers"), "map_clear_all_markers"),
+        new ControlHelpMessage(LocalizationManager.GetOrDefault("ui", "INPUT.MAP_ROUTE_SUMMARY", "Route Summary"), "map_route_summary"),
     };
 
     public Message? DescribePoint(MapPoint point, bool includeChoicePrefix = true)
@@ -168,11 +170,12 @@ public class MapScreen : Screen
             "map_poi_toggle_mode" => TryTogglePoiMode(_viewer),
             "map_toggle_current_marker" => TryToggleCurrentMarker(_viewer),
             "map_clear_all_markers" => TryClearAllMarkers(),
+            "map_route_summary" => RouteSummary(_viewer),
             _ => null,
         };
 
         if (action.Key is "map_poi_prev" or "map_poi_next" or "map_poi_toggle_mode"
-            or "map_toggle_current_marker" or "map_clear_all_markers")
+            or "map_toggle_current_marker" or "map_clear_all_markers" or "map_route_summary")
             handled = true;
 
         if (result != null)
@@ -268,5 +271,104 @@ public class MapScreen : Screen
     {
         MapMarkerState.ClearAll();
         return Message.Localized("ui", "MAP_MARKERS.CLEARED_ALL");
+    }
+
+    /// <summary>
+    /// Announce order for the route summary; Boss is omitted because every
+    /// route ends there. Any MapPointType the game adds later is appended
+    /// after these in enum order by <see cref="SummaryTypes"/>.
+    /// </summary>
+    private static readonly MapPointType[] SummaryTypeOrder =
+    {
+        MapPointType.Elite, MapPointType.Shop, MapPointType.RestSite,
+        MapPointType.Unknown, MapPointType.Monster, MapPointType.Treasure,
+        MapPointType.Ancient,
+    };
+
+    private static MapPointType[]? _summaryTypes;
+    private static MapPointType[] SummaryTypes
+    {
+        get
+        {
+            if (_summaryTypes != null) return _summaryTypes;
+            var order = new List<MapPointType>(SummaryTypeOrder);
+            foreach (MapPointType type in System.Enum.GetValues(typeof(MapPointType)))
+            {
+                if (type != MapPointType.Boss && !order.Contains(type))
+                    order.Add(type);
+            }
+            _summaryTypes = order.ToArray();
+            return _summaryTypes;
+        }
+    }
+
+    /// <summary>
+    /// Speaks the per-room-type range across all routes from the review
+    /// cursor onward: for each type, the fewest and the most rooms of that
+    /// type any single path from here to the end of the act can contain,
+    /// counting the focused node itself. Reads like "Monster 5 to 8, Elite 1
+    /// to 3"; exact counts collapse to "Monster 6".
+    /// </summary>
+    private static Message? RouteSummary(TreeMapViewer viewer)
+    {
+        var current = viewer.CurrentNode;
+        if (current == null)
+            return null;
+
+        var memo = new Dictionary<MapNode, Dictionary<MapPointType, (int Min, int Max)>>();
+        var counts = new Dictionary<MapPointType, (int Min, int Max)>(ForwardRouteCounts(current, memo));
+
+        // Count the focused node itself — every route from here includes it.
+        counts.TryGetValue(current.PointType, out var currentRange);
+        counts[current.PointType] = (currentRange.Min + 1, currentRange.Max + 1);
+
+        var parts = new List<Message>();
+        foreach (var type in SummaryTypes)
+        {
+            if (!counts.TryGetValue(type, out var range) || range.Max == 0)
+                continue;
+            var name = MapNode.GetPointTypeName(type);
+            parts.Add(range.Min == range.Max
+                ? Message.Localized("map_nav", "ROUTES.TYPE_EXACT", new { type = name, count = range.Min })
+                : Message.Localized("map_nav", "ROUTES.TYPE_RANGE", new { type = name, min = range.Min, max = range.Max }));
+        }
+
+        if (parts.Count == 0)
+            return Message.Localized("map_nav", "ROUTES.NONE");
+        return Message.Join(", ", parts.ToArray());
+    }
+
+    /// <summary>
+    /// Dynamic programming over the map DAG: min/max count of each room type
+    /// on any path from <paramref name="node"/> (exclusive) to a terminal
+    /// node. Types absent from the result have (0, 0).
+    /// </summary>
+    private static Dictionary<MapPointType, (int Min, int Max)> ForwardRouteCounts(
+        MapNode node,
+        Dictionary<MapNode, Dictionary<MapPointType, (int Min, int Max)>> memo)
+    {
+        if (memo.TryGetValue(node, out var cached))
+            return cached;
+
+        var result = new Dictionary<MapPointType, (int Min, int Max)>();
+        if (node.ForwardEdges.Count > 0)
+        {
+            foreach (var type in SummaryTypes)
+            {
+                int min = int.MaxValue, max = int.MinValue;
+                foreach (var edge in node.ForwardEdges)
+                {
+                    var child = ForwardRouteCounts(edge.To, memo);
+                    child.TryGetValue(type, out var childRange);
+                    int own = edge.To.PointType == type ? 1 : 0;
+                    min = System.Math.Min(min, childRange.Min + own);
+                    max = System.Math.Max(max, childRange.Max + own);
+                }
+                if (max > 0)
+                    result[type] = (min, max);
+            }
+        }
+        memo[node] = result;
+        return result;
     }
 }

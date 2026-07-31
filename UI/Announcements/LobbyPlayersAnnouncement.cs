@@ -25,12 +25,13 @@ public sealed class LobbyPlayersAnnouncement : Announcement
     {
         if (_lobby == null) yield break;
 
-        foreach (var player in _lobby.Players)
+        // Players list element type is branch-divergent; read through the view.
+        foreach (var player in Views.LobbyPlayerView.PlayersOf(_lobby))
         {
-            var name = MultiplayerHelper.GetPlayerName(player.id, _lobby.NetService.Platform);
-            var character = player.character?.Title?.GetFormattedText()
+            var name = MultiplayerHelper.GetPlayerName(player.Id, _lobby.NetService.Platform);
+            var character = player.Character?.Title?.GetFormattedText()
                 ?? LocalizationManager.GetOrDefault("ui", "DAILY_RUN.NO_CHARACTER", "No character");
-            var ready = player.isReady
+            var ready = player.IsReady
                 ? LocalizationManager.GetOrDefault("ui", "DAILY_RUN.READY", "Ready")
                 : LocalizationManager.GetOrDefault("ui", "DAILY_RUN.NOT_READY", "Not ready");
             yield return Message.Raw($"{name}, {character}, {ready}");

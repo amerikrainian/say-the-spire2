@@ -65,8 +65,13 @@ public static class InputManager
     private static readonly FieldInfo? ListeningEntryField =
         AccessTools.Field(typeof(NInputSettingsPanel), "_listeningEntry");
 
-    private static readonly PropertyInfo IsUsingControllerProp =
-        AccessTools.Property(typeof(NControllerManager), "IsUsingController")!;
+    // Branch-divergent: the July-31 beta replaced the IsUsingController bool
+    // with an InputType enum (MouseAndKeyboard / KeyboardOnlyMode /
+    // Controller). One of the two must exist; crash if both are gone.
+    private static readonly PropertyInfo? InputTypeProp =
+        AccessTools.Property(typeof(NControllerManager), "InputType");
+    private static readonly PropertyInfo? IsUsingControllerProp =
+        AccessTools.Property(typeof(NControllerManager), "IsUsingController");
 
     private static readonly FieldInfo? LastMouseField =
         AccessTools.Field(typeof(NControllerManager), "_lastMousePosition");
@@ -213,6 +218,9 @@ public static class InputManager
             .AddBinding(ControllerInput.RightStickUp, modifier: ControllerInput.LeftTrigger));
         _actions.Add(new InputAction("map_toggle_current_marker", "Toggle Current Marker", localizationKey: "MAP_MARKERS.ACTION_TOGGLE_CURRENT")
             .AddBinding(Key.Slash));
+        _actions.Add(new InputAction("map_route_summary", "Route Summary", localizationKey: "INPUT.MAP_ROUTE_SUMMARY")
+            .AddBinding(Key.Space, ctrl: true)
+            .AddBinding(ControllerInput.RightStickDown, modifier: ControllerInput.LeftTrigger));
         _actions.Add(new InputAction("map_clear_all_markers", "Clear All Markers", localizationKey: "MAP_MARKERS.ACTION_CLEAR_ALL")
             .AddBinding(Key.Slash, ctrl: true, shift: true));
         _actions.Add(new InputAction("dev_console", "Dev Console", localizationKey: "INPUT.DEV_CONSOLE").AddBinding(Key.Quoteleft));
@@ -627,6 +635,31 @@ public static class InputManager
         return keyEvent.Unicode >= 32;
     }
 
+    /// <summary>
+    /// Whether the game is in a focus-navigation input mode: Controller or
+    /// KeyboardOnlyMode on the beta's InputType enum, IsUsingController on
+    /// stable. False in mouse mode.
+    /// </summary>
+    public static bool IsFocusNavActive
+    {
+        get
+        {
+            if (_controllerManager == null) return false;
+            if (InputTypeProp != null)
+                return (int)InputTypeProp.GetValue(_controllerManager)! != 0; // 0 = MouseAndKeyboard
+            return IsUsingControllerProp!.GetValue(_controllerManager) is true;
+        }
+    }
+
+    private static void SetControllerMode()
+    {
+        if (_controllerManager == null) return;
+        if (InputTypeProp != null)
+            InputTypeProp.SetValue(_controllerManager, System.Enum.ToObject(InputTypeProp.PropertyType, 2)); // 2 = Controller
+        else
+            IsUsingControllerProp!.SetValue(_controllerManager, true);
+    }
+
     private static void EnsureFocusMode(InputAction action)
     {
         if (_controllerManager == null)
@@ -635,11 +668,10 @@ public static class InputManager
         if (!_navActions.Contains(action.Key))
             return;
 
-        bool isUsingController = (bool)IsUsingControllerProp.GetValue(_controllerManager)!;
-        if (isUsingController)
+        if (IsFocusNavActive)
             return;
 
-        IsUsingControllerProp.SetValue(_controllerManager, true);
+        SetControllerMode();
 
         var viewport = _controllerManager.GetViewport();
         if (viewport != null)
@@ -659,7 +691,35 @@ public static class InputManager
         Log.Info("[AccessibilityMod] Keyboard nav: switched to focus mode");
     }
 
+    // Branch detection for renamed game actions, via the MegaInput constant
+    // fields (the actions themselves aren't all registered in Godot's
+    // InputMap — ui_end_turn is matched by name in event handlers — so
+    // InputMap.HasAction can't be used to probe for them). The July-31 beta
+    // split accept into endTurn + confirm and removed releaseCard.
+    private static readonly bool HasSplitAccept =
+        AccessTools.Field(typeof(MegaCrit.Sts2.Core.ControllerInput.MegaInput), "endTurn") != null;
+    private static readonly bool HasReleaseCard =
+        AccessTools.Field(typeof(MegaCrit.Sts2.Core.ControllerInput.MegaInput), "releaseCard") != null;
+
     private static void InjectGameAction(string actionName, bool pressed)
+    {
+        // Our Accept keeps the old combined role: end turn in combat,
+        // confirm buttons/popups elsewhere.
+        if (actionName == "ui_accept" && HasSplitAccept)
+        {
+            InjectRawGameAction("ui_end_turn", pressed);
+            InjectRawGameAction("ui_confirm", pressed);
+            return;
+        }
+
+        // Removed by the July-31 beta; nothing listens for it there.
+        if (actionName == "mega_release_card" && !HasReleaseCard)
+            return;
+
+        InjectRawGameAction(actionName, pressed);
+    }
+
+    private static void InjectRawGameAction(string actionName, bool pressed)
     {
         var inputEventAction = new InputEventAction
         {

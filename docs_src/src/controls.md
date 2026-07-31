@@ -53,7 +53,7 @@ You can press F1 (or LT+Back on Xbox / L2+Create on PS5) at any time to see cont
 | Announce Summarized Intents | Alt+I | RT+X / R2+Square | Announce summarized enemy intents |
 | View Draw Pile | A | LT+LB / L2+L1 | View draw pile |
 | View Discard Pile | S | RT+RB / R2+R1 | View discard pile |
-| Release Card | Down Arrow | — | Drop a held card |
+| Release Card | Down Arrow | — | Drop a held card (the current beta removed this action from the game; use Cancel to put a card back there) |
 
 ### Pile Readouts
 
@@ -101,6 +101,14 @@ Announce the powers of a combatant by position, in the same format Announce Powe
 | 12 | Alt+= |
 
 ## Map
+
+### Route Summary
+
+| Action | Keyboard | Controller | Function |
+|--------|----------|------------|----------|
+| Route Summary | Ctrl+Space | LT+Right Stick Down / L2+Right Stick Down | Summarize all routes from the focused map node onward |
+
+Starting from the node the map reviewer is focused on (and counting that node itself), this checks every possible route to the end of the act and announces, for each room type, the fewest and the most rooms of that type any single route can contain — for example "Elite 1 to 3, Shop 0 to 2, Rest Site 2, Monster 5 to 8". Types are announced in this order: Elite, Shop, Rest Site, Unknown, Monster, Treasure, Ancient. The boss is not announced since every route ends there, and a range like "Shop 0 to 2" means some routes skip shops entirely while others pass up to two.
 
 ### Points of Interest
 

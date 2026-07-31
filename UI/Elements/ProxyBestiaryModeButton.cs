@@ -21,8 +21,11 @@ namespace SayTheSpire2.UI.Elements;
 [AnnouncementOrder(typeof(LabelAnnouncement), typeof(TypeAnnouncement))]
 public class ProxyBestiaryModeButton : ProxyElement
 {
-    private static readonly System.Reflection.FieldInfo ModeLabelField =
-        AccessTools.Field(typeof(NBestiary), "_modeLabel")!;
+    // The July-31 beta moved the caption label off NBestiary onto the button
+    // itself (NBestiaryModeButton._modeLabel, a child node), so the field is
+    // nullable and the primary read is the button's own child text.
+    private static readonly System.Reflection.FieldInfo? ModeLabelField =
+        AccessTools.Field(typeof(NBestiary), "_modeLabel");
 
     public ProxyBestiaryModeButton(Control control) : base(control) { }
 
@@ -36,9 +39,12 @@ public class ProxyBestiaryModeButton : ProxyElement
 
     public override Message? GetLabel()
     {
+        if (Control != null && FindChildText(Control) is { Length: > 0 } childText)
+            return Message.Raw(StripBbcode(childText));
+
         var bestiary = NBestiary.Instance;
         if (bestiary != null
-            && ModeLabelField.GetValue(bestiary) is MegaTextLabel label
+            && ModeLabelField?.GetValue(bestiary) is MegaTextLabel label
             && !string.IsNullOrWhiteSpace(label.Text))
         {
             return Message.Raw(StripBbcode(label.Text));

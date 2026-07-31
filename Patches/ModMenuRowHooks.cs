@@ -55,7 +55,7 @@ public static class ModMenuRowHooks
         {
             if (!__state)
                 return;
-            if (!(NControllerManager.Instance?.IsUsingController ?? false))
+            if (!SayTheSpire2.Input.InputManager.IsFocusNavActive)
                 return;
 
             if (TickboxField.GetValue(__instance) is NTickbox tickbox)

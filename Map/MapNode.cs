@@ -55,8 +55,12 @@ public class MapNode
             MapPointType.Elite => "NODE_TYPES.ELITE",
             MapPointType.Boss => "NODE_TYPES.BOSS",
             MapPointType.Ancient => "NODE_TYPES.ANCIENT",
-            _ => "NODE_TYPES.UNKNOWN",
+            // A type the game added after this list was written: speak its
+            // enum name rather than masquerading as "Unknown".
+            _ => null,
         };
+        if (typeKey == null)
+            return pointType.ToString();
         return LocalizationManager.GetOrDefault("map_nav", typeKey, pointType.ToString());
     }
 

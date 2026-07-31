@@ -30,7 +30,7 @@ public class ProxyInputBinding : ProxyElement
 
         var entry = Control as NInputSettingsEntry;
         var inputName = entry?.InputName;
-        bool isKeyboardRemappable = inputName != null && NInputManager.remappableKeyboardInputs.Contains(inputName);
+        bool isKeyboardRemappable = IsKeyboardRemappable(inputName);
         bool isControllerRemappable = inputName != null && NInputManager.remappableControllerInputs.Contains(inputName);
 
         if (isKeyboardRemappable)
@@ -51,6 +51,21 @@ public class ProxyInputBinding : ProxyElement
 
     private static readonly FieldInfo ControllerInputMapField =
         AccessTools.Field(typeof(NInputManager), "_controllerInputMap")!;
+
+    // Branch-divergent: the July-31 beta renamed remappableKeyboardInputs to
+    // remappableMKbInputs (and added a separate keyboard-only list). Resolved
+    // by name so the same build runs on both branches; crash if both names
+    // are gone.
+    private static readonly FieldInfo RemappableKeyboardField =
+        (AccessTools.Field(typeof(NInputManager), "remappableMKbInputs")
+         ?? AccessTools.Field(typeof(NInputManager), "remappableKeyboardInputs"))!;
+
+    internal static bool IsKeyboardRemappable(StringName? inputName)
+    {
+        return inputName != null
+            && RemappableKeyboardField.GetValue(null) is IEnumerable<StringName> list
+            && list.Contains(inputName);
+    }
 
     private static readonly Dictionary<string, string> ControllerButtonNames = new()
     {
@@ -96,7 +111,7 @@ public class ProxyInputBinding : ProxyElement
     {
         var entry = Control as NInputSettingsEntry;
         var inputName = entry?.InputName;
-        bool isKeyboardRemappable = inputName != null && NInputManager.remappableKeyboardInputs.Contains(inputName);
+        bool isKeyboardRemappable = IsKeyboardRemappable(inputName);
         bool isControllerRemappable = inputName != null && NInputManager.remappableControllerInputs.Contains(inputName);
 
         var parts = new List<Message>();

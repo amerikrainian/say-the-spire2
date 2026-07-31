@@ -1,5 +1,8 @@
 {
   "NODE_TYPES.UNKNOWN": "不明",
+  "ROUTES.TYPE_RANGE": "{type} {min}～{max}",
+  "ROUTES.TYPE_EXACT": "{type} {count}",
+  "ROUTES.NONE": "この先に部屋はありません",
   "NODE_TYPES.SHOP": "ショップ",
   "NODE_TYPES.TREASURE": "宝箱",
   "NODE_TYPES.REST_SITE": "休憩所",

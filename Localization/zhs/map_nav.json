@@ -1,5 +1,8 @@
 {
   "NODE_TYPES.UNKNOWN": "未知",
+  "ROUTES.TYPE_RANGE": "{type} {min}到{max}",
+  "ROUTES.TYPE_EXACT": "{type} {count}",
+  "ROUTES.NONE": "前方没有房间",
   "NODE_TYPES.SHOP": "商店",
   "NODE_TYPES.TREASURE": "宝箱",
   "NODE_TYPES.REST_SITE": "休息处",

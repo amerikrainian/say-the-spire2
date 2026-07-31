@@ -65,19 +65,25 @@ public static class LobbyHooks
             ScreenManager.RemoveScreen(CharacterSelectGameScreen.Current);
     }
 
-    public static void LobbyPlayerConnectedPostfix(NCharacterSelectScreen __instance, LobbyPlayer player)
+    // Player params are object: the struct type is branch-divergent
+    // (LobbyPlayer on stable, StartRunLobbyPlayer on beta), so Harmony boxes
+    // it for us and LobbyPlayerView reads the shared field names.
+    public static void LobbyPlayerConnectedPostfix(NCharacterSelectScreen __instance, object player)
     {
-        CharacterSelectGameScreen.Current?.OnLobbyPlayerConnected(__instance, player);
+        if (Views.LobbyPlayerView.FromBoxed(player) is { } view)
+            CharacterSelectGameScreen.Current?.OnLobbyPlayerConnected(__instance, view);
     }
 
-    public static void LobbyPlayerChangedPostfix(NCharacterSelectScreen __instance, LobbyPlayer player)
+    public static void LobbyPlayerChangedPostfix(NCharacterSelectScreen __instance, object player)
     {
-        CharacterSelectGameScreen.Current?.OnLobbyPlayerChanged(__instance, player);
+        if (Views.LobbyPlayerView.FromBoxed(player) is { } view)
+            CharacterSelectGameScreen.Current?.OnLobbyPlayerChanged(__instance, view);
     }
 
-    public static void LobbyPlayerDisconnectedPostfix(NCharacterSelectScreen __instance, LobbyPlayer player)
+    public static void LobbyPlayerDisconnectedPostfix(NCharacterSelectScreen __instance, object player)
     {
-        CharacterSelectGameScreen.Current?.OnLobbyPlayerDisconnected(__instance, player);
+        if (Views.LobbyPlayerView.FromBoxed(player) is { } view)
+            CharacterSelectGameScreen.Current?.OnLobbyPlayerDisconnected(__instance, view);
     }
 
     public static void LobbyLocalDisconnectedPostfix(NCharacterSelectScreen __instance, NetErrorInfo info)

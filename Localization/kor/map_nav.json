@@ -1,5 +1,8 @@
 {
   "NODE_TYPES.UNKNOWN": "알 수 없음",
+  "ROUTES.TYPE_RANGE": "{type} {min}~{max}",
+  "ROUTES.TYPE_EXACT": "{type} {count}",
+  "ROUTES.NONE": "앞에 방이 없습니다",
   "NODE_TYPES.SHOP": "상점",
   "NODE_TYPES.TREASURE": "보물",
   "NODE_TYPES.REST_SITE": "휴식처",

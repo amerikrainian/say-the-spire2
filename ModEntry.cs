@@ -362,6 +362,11 @@ public static class ModEntry
                 ("markers", Ui("KEYBINDINGS.CATEGORIES.MARKERS", "Markers")),
             },
 
+            "map_route_summary" => new[]
+            {
+                ("map", Ui("KEYBINDINGS.CATEGORIES.MAP", "Map")),
+            },
+
             "help" or
             "mod_settings" or
             "reset_bindings" => new[]

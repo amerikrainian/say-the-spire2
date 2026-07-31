@@ -69,17 +69,17 @@ public static class CustomRunHooks
             ScreenManager.RemoveScreen(CustomRunGameScreen.Current);
     }
 
-    public static void CustomRunPlayerConnectedPostfix(LobbyPlayer player)
+    public static void CustomRunPlayerConnectedPostfix(object player)
     {
         CustomRunGameScreen.Current?.OnLobbyUpdated();
     }
 
-    public static void CustomRunPlayerChangedPostfix(LobbyPlayer player)
+    public static void CustomRunPlayerChangedPostfix(object player)
     {
         CustomRunGameScreen.Current?.OnLobbyUpdated();
     }
 
-    public static void CustomRunPlayerDisconnectedPostfix(LobbyPlayer player)
+    public static void CustomRunPlayerDisconnectedPostfix(object player)
     {
         CustomRunGameScreen.Current?.OnLobbyUpdated();
     }

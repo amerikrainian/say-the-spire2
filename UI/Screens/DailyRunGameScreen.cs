@@ -105,40 +105,40 @@ public class DailyRunGameScreen : GameScreen
         }
     }
 
-    public void OnPlayerConnected(LobbyPlayer player)
+    public void OnPlayerConnected(Views.LobbyPlayerView player)
     {
         if (!IsMultiplayer())
             return;
 
-        SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOBBY_JOINED", new { player = GetPlayerName(player.id) }));
+        SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOBBY_JOINED", new { player = GetPlayerName(player.Id) }));
     }
 
-    public void OnPlayerChanged(LobbyPlayer player)
+    public void OnPlayerChanged(Views.LobbyPlayerView player)
     {
         if (!IsMultiplayer())
             return;
 
         var lobby = Lobby;
-        if (lobby != null && player.id == lobby.NetService.NetId)
+        if (lobby != null && player.Id == lobby.NetService.NetId)
             return;
 
-        var titleText = player.character?.Title?.GetFormattedText();
+        var titleText = player.Character?.Title?.GetFormattedText();
         Message character = string.IsNullOrEmpty(titleText) ? Ui("DAILY_RUN.NO_CHARACTER") : Message.Raw(titleText);
-        Message ready = player.isReady ? Ui("DAILY_RUN.READY") : Ui("DAILY_RUN.NOT_READY");
+        Message ready = player.IsReady ? Ui("DAILY_RUN.READY") : Ui("DAILY_RUN.NOT_READY");
         SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOBBY_CHANGED", new
         {
-            player = GetPlayerName(player.id),
+            player = GetPlayerName(player.Id),
             character,
             status = ready,
         }));
     }
 
-    public void OnPlayerDisconnected(LobbyPlayer player)
+    public void OnPlayerDisconnected(Views.LobbyPlayerView player)
     {
         if (!IsMultiplayer())
             return;
 
-        SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOBBY_LEFT", new { player = GetPlayerName(player.id) }));
+        SpeechManager.Output(Message.Localized("ui", "DAILY_RUN.LOBBY_LEFT", new { player = GetPlayerName(player.Id) }));
     }
 
     public void OnLocalDisconnected()
@@ -340,7 +340,7 @@ public class DailyRunGameScreen : GameScreen
 
     private Message GetCharacterLabel()
     {
-        var character = Lobby?.LocalPlayer.character;
+        var character = Views.LobbyPlayerView.LocalPlayerOf(Lobby)?.Character;
         var title = character?.Title?.GetFormattedText();
         return string.IsNullOrEmpty(title) ? Ui("DAILY_RUN.CHARACTER") : Message.Raw(title);
     }
@@ -351,11 +351,12 @@ public class DailyRunGameScreen : GameScreen
         if (lobby == null)
             return null;
 
+        var localPlayer = Views.LobbyPlayerView.LocalPlayerOf(lobby);
         var parts = new List<Message>();
-        if (IsMultiplayer())
-            parts.Add(Message.Raw(GetPlayerName(lobby.LocalPlayer.id)));
+        if (IsMultiplayer() && localPlayer != null)
+            parts.Add(Message.Raw(GetPlayerName(localPlayer.Id)));
         parts.Add(Ui("DAILY_RUN.ASCENSION", new { value = lobby.Ascension }));
-        if (lobby.LocalPlayer.isReady)
+        if (localPlayer?.IsReady == true)
             parts.Add(Ui("DAILY_RUN.READY"));
         return Message.Join(", ", parts.ToArray());
     }

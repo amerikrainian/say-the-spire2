@@ -1,5 +1,8 @@
 {
   "NODE_TYPES.UNKNOWN": "Вопрос",
+  "ROUTES.TYPE_RANGE": "{type} от {min} до {max}",
+  "ROUTES.TYPE_EXACT": "{type} {count}",
+  "ROUTES.NONE": "Впереди нет комнат",
   "NODE_TYPES.SHOP": "Магазин",
   "NODE_TYPES.TREASURE": "Сундук",
   "NODE_TYPES.REST_SITE": "Лагерь",

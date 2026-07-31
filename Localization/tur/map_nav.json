@@ -1,5 +1,8 @@
 {
   "NODE_TYPES.UNKNOWN": "Bilinmeyen",
+  "ROUTES.TYPE_RANGE": "{type} {min} ila {max}",
+  "ROUTES.TYPE_EXACT": "{type} {count}",
+  "ROUTES.NONE": "İleride oda yok",
   "NODE_TYPES.SHOP": "Dükkan",
   "NODE_TYPES.TREASURE": "Hazine",
   "NODE_TYPES.REST_SITE": "Dinlenme Yeri",

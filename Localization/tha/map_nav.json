@@ -1,5 +1,8 @@
 {
   "NODE_TYPES.UNKNOWN": "ไม่ทราบ",
+  "ROUTES.TYPE_RANGE": "{type} {min} ถึง {max}",
+  "ROUTES.TYPE_EXACT": "{type} {count}",
+  "ROUTES.NONE": "ไม่มีห้องข้างหน้า",
   "NODE_TYPES.SHOP": "ร้านค้า",
   "NODE_TYPES.TREASURE": "สมบัติ",
   "NODE_TYPES.REST_SITE": "จุดพักผ่อน",

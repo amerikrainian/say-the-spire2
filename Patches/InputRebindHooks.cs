@@ -17,8 +17,17 @@ public static class InputRebindHooks
     private static readonly FieldInfo ListeningEntryField =
         AccessTools.Field(typeof(NInputSettingsPanel), "_listeningEntry")!;
 
+    // Branch-divergent: the July-31 beta renamed _keyboardInputMap to
+    // _mKbInputMap and remappableKeyboardInputs to remappableMKbInputs (it
+    // also added separate keyboard-only variants we don't touch). Resolved by
+    // name so the same build runs on both branches; crash if both names die.
     private static readonly FieldInfo KeyboardInputMapField =
-        AccessTools.Field(typeof(NInputManager), "_keyboardInputMap")!;
+        (AccessTools.Field(typeof(NInputManager), "_mKbInputMap")
+         ?? AccessTools.Field(typeof(NInputManager), "_keyboardInputMap"))!;
+
+    private static readonly FieldInfo RemappableKeyboardField =
+        (AccessTools.Field(typeof(NInputManager), "remappableMKbInputs")
+         ?? AccessTools.Field(typeof(NInputManager), "remappableKeyboardInputs"))!;
 
     private static readonly FieldInfo ControllerInputMapField =
         AccessTools.Field(typeof(NInputManager), "_controllerInputMap")!;
@@ -101,7 +110,13 @@ public static class InputRebindHooks
         {
             var inputName = _previousListeningEntry.InputName;
             var label = GetEntryLabel(_previousListeningEntry);
-            var newKey = NInputManager.Instance.GetShortcutKey(inputName).ToString();
+            // GetShortcutKey was removed in the July-31 beta (split into
+            // GetMKbHotkey/GetKbOnlyHotkey); read the map directly instead,
+            // which works on both branches.
+            var newKeyMap = KeyboardInputMapField.GetValue(NInputManager.Instance) as Dictionary<StringName, Key>;
+            var newKey = newKeyMap != null && newKeyMap.TryGetValue(inputName, out var boundKey)
+                ? boundKey.ToString()
+                : "";
 
             // Check if a swap occurred
             Message? swapMessage = null;
@@ -210,8 +225,8 @@ public static class InputRebindHooks
     {
         try
         {
-            // remappableKeyboardInputs is IReadOnlyList backed by List<StringName>
-            if (NInputManager.remappableKeyboardInputs is List<StringName> list)
+            // The remappable list is IReadOnlyList backed by List<StringName>
+            if (RemappableKeyboardField.GetValue(null) is List<StringName> list)
             {
                 var topPanel = MegaCrit.Sts2.Core.ControllerInput.MegaInput.topPanel;
                 if (!list.Contains(topPanel))

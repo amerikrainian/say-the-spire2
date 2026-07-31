@@ -27,12 +27,19 @@ public static class SoundEffects
     private static bool _loadFailed;
 
     /// <summary>
-    /// Plays the wrap sound when a focus move went against the pressed nav
-    /// direction — e.g. right from the rightmost hand card landing on the
-    /// leftmost. Direction comes from the engine's ui_* actions, which both
-    /// remapped keyboard input and controller d-pad/stick produce.
+    /// Plays the wrap sound when a focus move wrapped around — e.g. right
+    /// from the rightmost hand card landing on the leftmost.
+    ///
+    /// Elements registered in the mod's container model are checked
+    /// structurally: a wrap is last→first or first→last within the SAME
+    /// container, and any move involving a different container (group swaps
+    /// like bestiary sidebar → detail panel) is silent — screen positions in
+    /// mod-wired screens are logical, not spatial, so geometry lies there.
+    /// Containerless elements (fallback proxies like hand cards) keep the
+    /// geometric heuristic: focus moved against the pressed nav direction.
     /// </summary>
-    public static void CheckWrap(Control? from, Control? to)
+    public static void CheckWrap(UI.Elements.UIElement? fromElement, UI.Elements.UIElement? toElement,
+        Control? from, Control? to)
     {
         try
         {
@@ -43,8 +50,44 @@ public static class SoundEffects
             if (!GodotObject.IsInstanceValid(from) || !GodotObject.IsInstanceValid(to))
                 return;
 
-            var oldCenter = from.GetGlobalRect().GetCenter();
-            var newCenter = to.GetGlobalRect().GetCenter();
+            var fromParent = fromElement?.Parent;
+            var toParent = toElement?.Parent;
+            if (fromParent != null || toParent != null)
+            {
+                if (fromParent == null || !ReferenceEquals(fromParent, toParent))
+                    return;
+
+                // Direction matters: in a two-item list every move is also a
+                // first↔last move, and Home/End jumps land on the ends
+                // without wrapping. Only a forward move (down/right) off the
+                // last item or a backward move (up/left) off the first is a
+                // real wrap.
+                bool forward = Godot.Input.IsActionPressed("ui_down") || Godot.Input.IsActionPressed("ui_right");
+                bool backward = Godot.Input.IsActionPressed("ui_up") || Godot.Input.IsActionPressed("ui_left");
+
+                var count = fromParent.Children.Count;
+                var fromIndex = fromParent.IndexOf(fromElement!);
+                var toIndex = fromParent.IndexOf(toElement!);
+                if (count >= 2 && fromIndex >= 0 && toIndex >= 0
+                    && ((forward && fromIndex == count - 1 && toIndex == 0)
+                        || (backward && fromIndex == 0 && toIndex == count - 1)))
+                {
+                    PlayWrap();
+                }
+                return;
+            }
+
+            var oldRect = from.GetGlobalRect();
+            var newRect = to.GetGlobalRect();
+
+            // Mod-created focus anchors are zero-size nodes at the scene
+            // origin — their positions say nothing about travel direction.
+            if (oldRect.Size.X < 2f || oldRect.Size.Y < 2f
+                || newRect.Size.X < 2f || newRect.Size.Y < 2f)
+                return;
+
+            var oldCenter = oldRect.GetCenter();
+            var newCenter = newRect.GetCenter();
 
             bool wrapped =
                 (Godot.Input.IsActionPressed("ui_right") && newCenter.X < oldCenter.X - WrapEpsilon)

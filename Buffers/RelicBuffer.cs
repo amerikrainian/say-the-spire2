@@ -15,6 +15,7 @@ namespace SayTheSpire2.Buffers;
     typeof(DescriptionAnnouncement),
     typeof(RelicCounterAnnouncement),
     typeof(RelicDisabledAnnouncement),
+    typeof(FlavorAnnouncement),
     typeof(HoverTipsAnnouncement),
     typeof(ExtrasAnnouncement)
 )]
@@ -82,6 +83,10 @@ public class RelicBuffer : Buffer
         if (model.Status == RelicStatus.Disabled)
             yield return new RelicDisabledAnnouncement();
 
+        var flavor = BuildFlavor(model);
+        if (!string.IsNullOrEmpty(flavor))
+            yield return new FlavorAnnouncement(flavor);
+
         IEnumerable<IHoverTip> tips = Array.Empty<IHoverTip>();
         try { tips = model.HoverTips.OfType<IHoverTip>().ToList(); }
         catch (Exception e) { Log.Error($"[AccessibilityMod] Relic hover tips access failed: {e.Message}"); }
@@ -99,6 +104,21 @@ public class RelicBuffer : Buffer
         return model.Rarity != RelicRarity.None
             ? $"{title}, {model.Rarity}"
             : title;
+    }
+
+    private static string? BuildFlavor(RelicModel model)
+    {
+        try
+        {
+            // Flavor constructs its LocString unconditionally; guard on the
+            // key existing so relics without flavor stay silent instead of
+            // reading a missing-key placeholder.
+            if (!MegaCrit.Sts2.Core.Localization.LocString.Exists("relics", model.Id.Entry + ".flavor"))
+                return null;
+            var flavor = model.Flavor.GetFormattedText();
+            return string.IsNullOrEmpty(flavor) ? null : ProxyElement.StripBbcode(flavor);
+        }
+        catch (Exception e) { Log.Info($"[AccessibilityMod] Relic flavor access failed: {e.Message}"); return null; }
     }
 
     private static string? BuildDescription(RelicModel model)

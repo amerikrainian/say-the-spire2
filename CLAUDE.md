@@ -162,6 +162,7 @@ These rules were discovered through bugs. Check against them before making chang
 - Prefer `if (x is Type t)` pattern matching over `(Type)x` casts for safer type narrowing.
 
 **Multiplayer:**
+- The July-31 beta renamed the `LobbyPlayer` struct to `StartRunLobbyPlayer` (and added `LoadRunLobbyPlayer`); stable keeps the old name, with identical field names (`id`, `character`, `isReady`). All reads go through `Views/LobbyPlayerView` (boxed-struct reflection), Harmony lobby handlers type the player param as `object`, and `StartRunLobby.LocalPlayer`/`.Players` are reached via `LobbyPlayerView.LocalPlayerOf/PlayersOf` because their signatures contain the divergent type.
 - All multiplayer event hooks must gate on `IsMultiplayer()` to avoid firing in singleplayer. This includes voting hooks (`TravelToMapCoord`, `MapPointSelectedLocally`, etc.).
 - Local player checks: use `LocalContext.IsMe(creature)` or `player.NetId == LocalContext.NetId`.
 - Player names: use `MultiplayerHelper.GetPlayerDisplayName(player)` for the creature-first-then-netid pattern. Use `GetPlayerName`/`GetCreatureName` for specific needs.
@@ -178,9 +179,10 @@ These private fields/properties are accessed via reflection. A game update renam
 
 **Input system:**
 - `NInputSettingsPanel._listeningEntry` — detects when game is rebinding keys
-- `NControllerManager.IsUsingController` (property) — tracks input mode
+- `NControllerManager.InputType` (property; enum MouseAndKeyboard/KeyboardOnlyMode/Controller) — tracks input mode on the July-31 beta. Stable still has the old `IsUsingController` bool; `Input/InputManager.cs` resolves both and exposes `IsFocusNavActive`/`SetControllerMode`. The beta has a native keyboard-only mode with its own rebindable map (`_fKbInputMap` / `remappableKbOnlyInputs`) that the mod does not use yet.
 - `NControllerManager._lastMousePosition` — saved mouse pos for mode switching
-- `NInputManager._keyboardInputMap`, `._controllerInputMap` — input rebinding
+- `NInputManager._mKbInputMap` (beta; stable: `_keyboardInputMap`), `._controllerInputMap` — input rebinding. `remappableMKbInputs` (beta; stable: `remappableKeyboardInputs`) gates which inputs the settings panel offers keyboard rebinds for. `GetShortcutKey` was removed on the beta (split into `GetMKbHotkey`/`GetKbOnlyHotkey`); InputRebindHooks reads the map directly instead.
+- The July-31 beta also renamed game actions: `ui_accept` split into `ui_end_turn` (E) + `ui_confirm` (Enter), and `mega_release_card` was removed. `InputManager.InjectGameAction` translates at injection time (our Accept injects both split actions on the beta; release-card is skipped there). Branch detection uses the `MegaInput` constant *fields* — NOT `InputMap.HasAction`, because several game actions (`ui_end_turn`, `mega_select_card_*`) are matched by name in event handlers without ever being registered in Godot's InputMap.
 
 **Focus system:**
 - `NClickableControl.IsFocused` (property) — focus state for RefreshFocus hook
@@ -222,7 +224,7 @@ These private fields/properties are accessed via reflection. A game update renam
 - `NRunHistory.SelectPlayer` (method) — run history player selection
 - `NBestiary._bestiaryList`, `._moveList`, `._selectedEntry`, `._epithet`, `._descriptionLabel` — bestiary screen state. The July beta removed the epithet/description detail panel: `_descriptionLabel` is gone (ProxyBestiaryEntry treats its absence as "no detail panel" and reads nothing), `_epithet` survives but is never populated (scene placeholder text), and the new `_dialogueLabel` is a character dialogue quote, not a description. The beta also renamed `NBestiaryActDivider` to `NBestiaryLabelDivider` (stable has no divider type at all); BestiaryGameScreen matches the divider by type name, not compile-time reference.
 - `NBestiaryEntry.Entry` (property of type `BestiaryEntry`) — wraps the monster/encounter model and `roomType` qualifier (boss / elite / monster). `NBestiaryEntry.IsDiscovered` replaces the old `IsUnknown`. The old `_monsterType` field and `Monster` / `IsUnknown` / `UnderConstructionName` properties were removed in the late-May beta.
-- `NBestiary._modeButton`, `._modeLabel`, `._filterContainer`, `._isStatsMode`, `._currentFilter` — bestiary stats view (July beta only; null on stable, feature gated on `HasStatsSupport` in BestiaryGameScreen)
+- `NBestiary._modeButton`, `._filterContainer`, `._isStatsMode`, `._currentFilter` — bestiary stats view (beta only; null on stable, feature gated on `HasStatsSupport` in BestiaryGameScreen). The July-31 beta moved the caption label off `NBestiary._modeLabel` onto the button itself (`NBestiaryModeButton._modeLabel` child node); ProxyBestiaryModeButton reads the button's child text first and falls back to the old field.
 - `NBestiaryCharacterFilter` (beta-only type, resolved by name) — `kills`, `deaths`, `character` fields; `IsSelected`, `IsLocked`, `WinRate`, `BestiarySeenQuote`, `BestiaryKillQuote` properties (ProxyBestiaryCharacterFilter)
 - `NModdingScreen._modRowContainer`, `._pendingChangesWarning` — settings mods menu (ModsGameScreen; types exist on both branches)
 - `NModMenuRow._tickbox`, `._isSelected` — mod row state (ProxyModMenuRow)
