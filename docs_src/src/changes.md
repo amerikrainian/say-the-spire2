@@ -2,7 +2,7 @@
 * The mod now works with the latest beta of the game.
 * Fixed a bug where the menu wrap sound would play at the wrong time (such as when switching between panels on the bestiary screen.)
 * Added relic hover text to the relic buffer. Note that this is placeholder text for a majority of relics, though I think a few do have hover text now.
-* Added a hotkey to summarize routes. This will start at the map node the map cursor is focused on, iterate all routes to the boss, and output the summary of the minimum and maximum of each room type found. For example, it might read something like "Elite 0 to 4, shop 2 to 3, ..." etc. This should make it easier to quickly identify paths with things you're looking for.
+* Added a hotkey to summarize routes (ctrl space on keyboard, lt + right stick down on controller.) This will start at the map node the map cursor is focused on, iterate all routes to the boss, and output the summary of the minimum and maximum of each room type found. For example, it might read something like "Elite 0 to 4, shop 2 to 3, ..." etc. This should make it easier to quickly identify paths with things you're looking for.
 
 ## V1.2.1
 * Fixed a bug where certain relics (primarily relics that displayed other cards such as Tanxs' Whistle) would not read at all when cursoring over them. This was actually caused by a game bug; there is an accompanying visual glitch where the card will not be rendered.
